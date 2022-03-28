@@ -1,0 +1,29 @@
+{
+  generate = [java="8"]
+  parserClass="org.ax1.lisp.parsing.LispParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Lisp"
+  psiImplClassSuffix="Impl"
+  psiPackage="org.ax1.lisp.psi"
+  psiImplPackage="org.ax1.lisp.psi.impl"
+
+  elementTypeHolderClass="org.ax1.lisp.psi.LispTypes"
+  elementTypeClass="org.ax1.lisp.psi.LispElementType"
+  tokenTypeClass="org.ax1.lisp.psi.LispTokenType"
+
+  implements("list")="org.ax1.lisp.psi.impl.LispListMixin"
+  implements("symbol")="org.ax1.lisp.psi.impl.LispSymbolMixin"
+  mixin("list")="org.ax1.lisp.psi.impl.LispListMixinImpl"
+  mixin("symbol")="org.ax1.lisp.psi.impl.LispSymbolMixinImpl"
+
+}
+
+lispFile ::= topLevelUnit_*
+private topLevelUnit_ ::= syntaxUnit_ | invalidClose
+private syntaxUnit_ ::= COMMENT | sexp
+sexp ::= STRING | NUMBER | symbol | list
+list ::= (LPAREN syntaxUnit_* RPAREN?)
+symbol ::= SYMBOL_TOKEN
+invalidClose ::= RPAREN

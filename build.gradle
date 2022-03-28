@@ -1,0 +1,35 @@
+plugins {
+    id 'org.jetbrains.intellij' version '1.3.0'
+    id 'java'
+}
+
+group 'org.ax1'
+version '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'com.google.truth:truth:1.1.3'
+    testImplementation "com.google.truth.extensions:truth-java8-extension:1.1.3"
+}
+
+sourceSets.main.java.srcDirs 'src/main/gen'
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    version = '2021.3'
+}
+
+patchPluginXml {
+    changeNotes = """
+      Initial release.<br>
+      <em>It's not doing much yet.</em>"""
+}
+
+test {
+    useJUnitPlatform()
+}

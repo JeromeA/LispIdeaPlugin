@@ -1,0 +1,63 @@
+<idea-plugin>
+  <id>org.ax1.LispIdeaPlugin</id>
+  <name>AX1 Lisp Support</name>
+  <vendor email="support@ax1.org" url="http://www.ax1.org">AX1</vendor>
+
+  <description><![CDATA[
+    Add support for Lisp language, or at least a subset of it.<br>
+    ]]></description>
+
+  <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
+       on how to target different products -->
+  <depends>com.intellij.modules.platform</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <fileType
+        name="Lisp"
+        implementationClass="org.ax1.lisp.LispFileType"
+        fieldName="INSTANCE"
+        language="Lisp"
+        extensions="lisp"/>
+    <lang.parserDefinition
+        language="Lisp"
+        implementationClass="org.ax1.lisp.parsing.LispParserDefinition"/>
+    <lang.syntaxHighlighterFactory
+        language="Lisp"
+        implementationClass="org.ax1.lisp.parsing.LispSyntaxHighlighterFactory"/>
+    <annotator
+        language="Lisp"
+        implementationClass="org.ax1.lisp.LispAnnotator"/>
+    <braceMatcher filetype="Lisp" implementationClass="org.ax1.lisp.LispBraceMatcher"/>
+    <findUsagesHandlerFactory
+        implementation="org.ax1.lisp.usages.LispFindUsagesHandlerFactory"
+        id="lisp"/>
+    <renameInputValidator implementation="org.ax1.lisp.refactoring.LispRenameInputValidator"/>
+    <lang.refactoringSupport
+        language="Lisp"
+        implementationClass="org.ax1.lisp.refactoring.LispRefactoringSupportProvider"/>
+    <lang.namesValidator
+        language="Lisp"
+        implementationClass="org.ax1.lisp.refactoring.LispNamesValidator"/>
+    <lang.formatter
+        language="Lisp"
+        implementationClass="org.ax1.lisp.formatting.LispFormattingModelBuilder"/>
+    <lang.commenter
+        language="Lisp"
+        implementationClass="org.ax1.lisp.LispCommenter"/>
+    <lang.documentationProvider
+        language="Lisp"
+        implementationClass="org.ax1.lisp.LispDocumentationProvider"/>
+    <applicationService serviceImplementation="org.ax1.lisp.settings.LispSettingsState"/>
+    <applicationConfigurable parentId="language" instance="org.ax1.lisp.settings.LispSettingsConfigurable"
+                             id="org.intellij.sdk.settings.AppSettingsConfigurable" displayName="Lisp"/>
+    <runLineMarkerContributor
+        language="Lisp"
+        implementationClass="org.ax1.lisp.LispRunLineMarkerContributor"/>
+  </extensions>
+  <actions>
+    <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction" use-shortcut-of="RunClass"/>
+    <action id="StartLispConsole" class="org.ax1.lisp.subprocess.action.StartLispConsole">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+    </action>
+  </actions>
+</idea-plugin>
