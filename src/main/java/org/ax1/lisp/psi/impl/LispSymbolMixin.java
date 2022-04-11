@@ -22,14 +22,7 @@ public interface LispSymbolMixin extends PsiNameIdentifierOwner {
 
   LispList getDefunFromParameter();
 
-  void setSymbol(SymbolType symbolType, SymbolCache symbolCache);
+  void setSymbolCache(SymbolCache symbolCache);
 
   SymbolCache getSymbolCache();
-
-  enum SymbolType{
-    FUNCTION_DEFINITION,
-    FUNCTION_USAGE,
-    VARIABLE_DEFINITION,
-    VARIABLE_USAGE
-  }
 }

@@ -15,11 +15,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static org.ax1.lisp.psi.impl.LispSymbolMixin.SymbolType.*;
+import static org.ax1.lisp.SymbolCache.BindingType.LEXICAL;
+import static org.ax1.lisp.SymbolCache.SymbolType.FUNCTION;
+import static org.ax1.lisp.SymbolCache.SymbolType.VARIABLE;
 
 public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implements PsiNameIdentifierOwner, LispSymbol {
 
-  private SymbolType symbolType;
   private SymbolCache symbolCache;
 
   public LispSymbolMixinImpl(@NotNull ASTNode node) {
@@ -47,22 +48,22 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
 
   @Override
   public boolean isFunctionCall() {
-    return symbolType == FUNCTION_USAGE;
-  }
-
-  @Override
-  public boolean isVariableReference() {
-    return symbolType == VARIABLE_USAGE;
+    return symbolCache != null && symbolCache.getSymbolType() == FUNCTION && symbolCache.getDefinition() != this;
   }
 
   @Override
   public boolean isFunctionDefinition() {
-    return symbolType == FUNCTION_DEFINITION;
+    return symbolCache != null && symbolCache.getSymbolType() == FUNCTION && symbolCache.getDefinition() == this;
+  }
+
+  @Override
+  public boolean isVariableReference() {
+    return symbolCache != null && symbolCache.getSymbolType() == VARIABLE && symbolCache.getDefinition() != this;
   }
 
   @Override
   public boolean isVariableDefinition() {
-    return symbolType == VARIABLE_DEFINITION;
+    return symbolCache != null && symbolCache.getSymbolType() == VARIABLE && symbolCache.getDefinition() == this;
   }
 
   @Override
@@ -125,8 +126,7 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
-  public void setSymbol(SymbolType symbolType, SymbolCache symbolCache) {
-    this.symbolType = symbolType;
+  public void setSymbolCache(SymbolCache symbolCache) {
     this.symbolCache = symbolCache;
   }
 
@@ -137,7 +137,7 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
 
   @Override
   public @NotNull SearchScope getUseScope() {
-    if (symbolCache != null && symbolCache.getContainer() != null) {
+    if (symbolCache != null && symbolCache.getBindingType() == LEXICAL && symbolCache.getContainer() != null) {
       return new LocalSearchScope(symbolCache.getContainer());
     }
     return super.getUseScope();

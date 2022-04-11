@@ -7,20 +7,22 @@ import org.ax1.lisp.psi.LispFile;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
-import org.ax1.lisp.psi.impl.LispSymbolMixin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.ax1.lisp.psi.impl.LispSymbolMixin.SymbolType.*;
+import static org.ax1.lisp.SymbolCache.BindingType.DYNAMIC;
+import static org.ax1.lisp.SymbolCache.BindingType.LEXICAL;
+import static org.ax1.lisp.SymbolCache.SymbolType.FUNCTION;
+import static org.ax1.lisp.SymbolCache.SymbolType.VARIABLE;
 
 public class SyntaxAnalyzer {
   private final LispFile lispFile;
   private final AnnotationHolder holder;
   private String packageName = "CL-USER";
-  private final SymbolStack functions = new SymbolStack(FUNCTION_DEFINITION, FUNCTION_USAGE);
-  private final SymbolStack variables = new SymbolStack(VARIABLE_DEFINITION, VARIABLE_USAGE);
+  private final SymbolStack functions = new SymbolStack(FUNCTION);
+  private final SymbolStack variables = new SymbolStack(VARIABLE);
 
   public SyntaxAnalyzer(LispFile lispFile, @NotNull AnnotationHolder holder) {
     this.lispFile = lispFile;
@@ -225,44 +227,41 @@ public class SyntaxAnalyzer {
   }
 
   private static class SymbolStack {
-
     private final Map<String, SymbolCache> special = new HashMap<>();
     private final Stack<Map<String, SymbolCache>> lexical = new Stack<>();
     private final List<SymbolCache> retired = new ArrayList<>();
-    private final LispSymbolMixin.SymbolType definition;
-    private final LispSymbolMixin.SymbolType usage;
+    private final SymbolCache.SymbolType symbolType;
 
-    public SymbolStack(LispSymbolMixin.SymbolType definition, LispSymbolMixin.SymbolType usage) {
-      this.definition = definition;
-      this.usage = usage;
+    public SymbolStack(SymbolCache.SymbolType symbolType) {
+      this.symbolType = symbolType;
     }
 
     public void registerUsage(LispSymbol symbol) {
       String symbolName = symbol.getText();
       SymbolCache symbolCache = getSymbol(symbolName);
       symbolCache.addUsage(symbol);
-      symbol.setSymbol(usage, symbolCache);
+      symbol.setSymbolCache(symbolCache);
     }
 
     public void registerSpecialDefinition(LispList container, LispSymbol symbol) {
       String symbolName = symbol.getText();
       SymbolCache symbolCache = special.get(symbolName);
       if (symbolCache == null) {
-        symbolCache = new SymbolCache();
+        symbolCache = new SymbolCache(symbolType, DYNAMIC);
         special.put(symbolName, symbolCache);
       }
       symbolCache.setDefinition(container, symbol);
-      symbol.setSymbol(definition, symbolCache);
+      symbol.setSymbolCache(symbolCache);
     }
 
     public void registerLexicalDefinitions(LispList container, List<LispSymbol> variableList) {
       Map<String, SymbolCache> newDictionary = new HashMap<>();
       for (LispSymbol symbol : variableList) {
         String symbolName = symbol.getText();
-        SymbolCache symbolCache = new SymbolCache();
+        SymbolCache symbolCache = new SymbolCache(symbolType, LEXICAL);
         symbolCache.setDefinition(container, symbol);
         newDictionary.put(symbolName, symbolCache);
-        symbol.setSymbol(definition, symbolCache);
+        symbol.setSymbolCache(symbolCache);
       }
       lexical.push(newDictionary);
     }
@@ -278,7 +277,7 @@ public class SyntaxAnalyzer {
       }
       SymbolCache symbol = special.get(symbolName);
       if (symbol == null) {
-        symbol = new SymbolCache();
+        symbol = new SymbolCache(symbolType, DYNAMIC);
         special.put(symbolName, symbol);
       }
       return symbol;
