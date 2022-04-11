@@ -11,9 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.ax1.lisp.psi.impl.LispListMixin.ListSyntaxType.FUNCTION_CALL;
-import static org.ax1.lisp.psi.impl.LispSymbolMixin.SymbolSyntaxType.VARIABLE_USAGE;
-
 public class LispFile extends PsiFileBase {
 
   public LispFile(@NotNull FileViewProvider viewProvider) {
