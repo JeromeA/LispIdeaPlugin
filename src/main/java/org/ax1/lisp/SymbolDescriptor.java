@@ -7,14 +7,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SymbolCache {
+public class SymbolDescriptor {
   private LispList container;
   private final SymbolType symbolType;
   private final BindingType bindingType;
   private LispSymbol definition;
   private final Set<LispSymbol> usages = new HashSet<>();
 
-  public SymbolCache(SymbolType symbolType, BindingType bindingType) {
+  public SymbolDescriptor(SymbolType symbolType, BindingType bindingType) {
     this.symbolType = symbolType;
     this.bindingType = bindingType;
   }
