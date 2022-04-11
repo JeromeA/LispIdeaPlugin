@@ -15,7 +15,6 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.text.StringUtil;
 import org.ax1.lisp.LispLanguage;
 import org.ax1.lisp.settings.LispSettingsState;
 import org.jetbrains.annotations.NotNull;
@@ -23,8 +22,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import static com.intellij.openapi.components.Service.Level.PROJECT;
 

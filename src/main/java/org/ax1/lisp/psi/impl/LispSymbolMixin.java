@@ -1,6 +1,7 @@
 package org.ax1.lisp.psi.impl;
 
 import com.intellij.psi.PsiNameIdentifierOwner;
+import org.ax1.lisp.SymbolCache;
 import org.ax1.lisp.psi.LispList;
 
 public interface LispSymbolMixin extends PsiNameIdentifierOwner {
@@ -19,21 +20,16 @@ public interface LispSymbolMixin extends PsiNameIdentifierOwner {
 
   boolean isDestructuringBindVariableName();
 
-  SymbolSyntaxType getSyntaxType();
-
-  void setSyntaxType(SymbolSyntaxType syntaxType);
-
   LispList getDefunFromParameter();
 
-  LispList getVariableContainer();
+  void setSymbol(SymbolType symbolType, SymbolCache symbolCache);
 
-  enum SymbolSyntaxType {
-    UNKNOWN,
-    IGNORED, // &KEY, loop keyword, etc.
-    DATA, // Inside quote
+  SymbolCache getSymbolCache();
+
+  enum SymbolType{
     FUNCTION_DEFINITION,
     FUNCTION_USAGE,
     VARIABLE_DEFINITION,
-    VARIABLE_USAGE,
+    VARIABLE_USAGE
   }
 }

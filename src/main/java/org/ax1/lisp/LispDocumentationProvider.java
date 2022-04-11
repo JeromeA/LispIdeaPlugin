@@ -95,7 +95,7 @@ public class LispDocumentationProvider extends AbstractDocumentationProvider {
 
   private String getFunctionDocString(LispList defun) {
     List<LispSexp> sexpList = defun.getSexpList();
-    if (sexpList.size() < 3) return null;
+    if (sexpList.size() <= 3) return null;
     LispSexp docString = sexpList.get(3);
     PsiElement firstChild = docString.getFirstChild();
     if (!(firstChild instanceof LeafPsiElement)) return null;

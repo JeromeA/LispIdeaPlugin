@@ -7,30 +7,28 @@ import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
-import org.ax1.lisp.usages.LispFunctionReference;
-import org.ax1.lisp.usages.LispVariableReference;
+import org.ax1.lisp.SymbolCache;
+import org.ax1.lisp.usages.LispSymbolReference;
 import org.ax1.lisp.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static org.ax1.lisp.psi.impl.LispListMixin.ListSyntaxType.*;
+import static org.ax1.lisp.psi.impl.LispSymbolMixin.SymbolType.*;
 
 public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implements PsiNameIdentifierOwner, LispSymbol {
 
-  private SymbolSyntaxType syntaxType = SymbolSyntaxType.UNKNOWN;
+  private SymbolType symbolType;
+  private SymbolCache symbolCache;
 
   public LispSymbolMixinImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public PsiReference getReference() {
-    if (isFunctionCall()) {
-      return new LispFunctionReference(this);
-    }
-    if (isVariableReference()) {
-      return new LispVariableReference(this);
+    if (isFunctionCall() || isVariableReference()) {
+      return new LispSymbolReference(this);
     }
     return null;
   }
@@ -49,22 +47,22 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
 
   @Override
   public boolean isFunctionCall() {
-    return getSyntaxType() == SymbolSyntaxType.FUNCTION_USAGE;
+    return symbolType == FUNCTION_USAGE;
   }
 
   @Override
   public boolean isVariableReference() {
-    return getSyntaxType() == SymbolSyntaxType.VARIABLE_USAGE;
+    return symbolType == VARIABLE_USAGE;
   }
 
   @Override
   public boolean isFunctionDefinition() {
-    return getSyntaxType() == SymbolSyntaxType.FUNCTION_DEFINITION;
+    return symbolType == FUNCTION_DEFINITION;
   }
 
   @Override
   public boolean isVariableDefinition() {
-    return isLetVariableName() || isParameterName() || isDestructuringBindVariableName();
+    return symbolType == VARIABLE_DEFINITION;
   }
 
   @Override
@@ -110,42 +108,14 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   public boolean isDestructuringBindVariableName() {
-    for (PsiElement container = getParent().getParent(); container instanceof LispList ; container = container.getParent().getParent()) {
-      LispList list = (LispList) container;
-      if (list.isFormDestructuringBind()) {
-        return contains(list.getDestructuringBindVariableList(), this);
-      }
-    }
-    return false;
-  }
-
-  private boolean contains(LispList list, LispSymbol symbol) {
-    List<LispSexp> sexpList = list.getSexpList();
-    for (LispSexp lispSexp : sexpList) {
-      if (lispSexp.getSymbol() == symbol) return true;
-      LispList subList = lispSexp.getList();
-      if (subList != null && contains(subList, symbol)) return true;
-    }
-    return false;
+    LispList destructuringBind = getSymbolCache().getContainer();
+    LispSexp lispSexp = destructuringBind.getSexpList().get(0);
+    return lispSexp.getSymbol().getText().equals("destructuring-bind");
   }
 
   @Override
   public @Nullable PsiElement getNameIdentifier() {
     return this;
-  }
-
-  public SymbolSyntaxType getSyntaxType() {
-    if (syntaxType == SymbolSyntaxType.UNKNOWN) {
-      ((LispFile) getContainingFile()).computeSyntaxType();
-      if (syntaxType == SymbolSyntaxType.UNKNOWN) {
-        System.err.println("Oh no, syntax type was not updated!");
-      }
-    }
-    return syntaxType;
-  }
-
-  public void setSyntaxType(SymbolSyntaxType syntaxType) {
-    this.syntaxType = syntaxType;
   }
 
   @Override
@@ -155,18 +125,20 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
-  public LispList getVariableContainer() {
-    LispList varList = (LispList) getParent().getParent();
-    while (varList.getSyntaxType() != FUNCTION_CALL) {
-      varList = (LispList) varList.getParent().getParent();
-    }
-    return varList;
+  public void setSymbol(SymbolType symbolType, SymbolCache symbolCache) {
+    this.symbolType = symbolType;
+    this.symbolCache = symbolCache;
+  }
+
+  @Override
+  public SymbolCache getSymbolCache() {
+    return symbolCache;
   }
 
   @Override
   public @NotNull SearchScope getUseScope() {
-    if (isVariableDefinition()) {
-      return new LocalSearchScope(getVariableContainer());
+    if (symbolCache != null && symbolCache.getContainer() != null) {
+      return new LocalSearchScope(symbolCache.getContainer());
     }
     return super.getUseScope();
   }

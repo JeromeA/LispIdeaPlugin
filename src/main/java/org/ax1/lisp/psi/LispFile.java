@@ -34,17 +34,4 @@ public class LispFile extends PsiFileBase {
   public List<LispSexp> getSexpList() {
     return Arrays.stream(getChildren()).filter(psi -> psi instanceof LispSexp).map(psi -> (LispSexp)psi).collect(Collectors.toList());
   }
-
-  public void computeSyntaxType() {
-    for (LispSexp sexp : getSexpList()) {
-      LispSymbol symbol = sexp.getSymbol();
-      if (symbol != null) {
-        symbol.setSyntaxType(VARIABLE_USAGE);
-      }
-      LispList list = sexp.getList();
-      if (list != null) {
-        list.setSyntaxType(FUNCTION_CALL);
-      }
-    }
-  }
 }
