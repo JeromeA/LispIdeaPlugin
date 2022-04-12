@@ -16,6 +16,7 @@ import static org.ax1.lisp.SymbolDescriptor.BindingType.DYNAMIC;
 import static org.ax1.lisp.SymbolDescriptor.BindingType.LEXICAL;
 import static org.ax1.lisp.SymbolDescriptor.SymbolType.FUNCTION;
 import static org.ax1.lisp.SymbolDescriptor.SymbolType.VARIABLE;
+import static org.ax1.lisp.parsing.LispSyntaxHighlighter.FUNCTION_DECLARATION;
 
 public class SyntaxAnalyzer {
   private final LispFile lispFile;
@@ -56,11 +57,17 @@ public class SyntaxAnalyzer {
     if (symbol0 != null) {
       String symbolName = symbol0.getText();
       switch (symbolName) {
+        case "in-package":
+          analyzeInPackage(form);
+          break;
         case "defun":
           analyzeDefun(form);
           break;
         case "let":
           analyzeLet(form);
+          break;
+        case "let*":
+          analyzeLetStar(form);
           break;
         case "cond":
           analyzeCond(form);
@@ -76,6 +83,10 @@ public class SyntaxAnalyzer {
     }
   }
 
+  private void analyzeInPackage(LispList form) {
+
+  }
+
   private void analyzeDefun(LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
@@ -86,20 +97,24 @@ public class SyntaxAnalyzer {
     LispSymbol symbol1 = sexp1.getSymbol();
     if (symbol1 != null) {
       functions.registerSpecialDefinition(form, symbol1);
-      LispList lambdaList = list.get(2).getList();
-      if (lambdaList == null) {
-        error(list.get(2), "Lambda list expected");
-        return;
-      }
-      variables.registerLexicalDefinitions(form, lambdaList.getSexpList().stream()
-                .map(LispSexp::getSymbol)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()));
-      analyzeForms(list, 3);
-      variables.dropLexicalDefinitions();
+      holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+          .range(symbol1)
+          .textAttributes(FUNCTION_DECLARATION)
+          .create();
     } else {
-      // TODO: check SETF case.
+      // TODO: check DEFUN SETF case.
     }
+    LispList lambdaList = list.get(2).getList();
+    if (lambdaList == null) {
+      error(list.get(2), "Lambda list expected");
+      return;
+    }
+    variables.registerLexicalDefinitions(form, lambdaList.getSexpList().stream()
+        .map(LispSexp::getSymbol)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList()));
+    analyzeForms(list, 3);
+    variables.dropLexicalDefinitions();
   }
 
   private void analyzeDestructuringBind(LispList form) {
@@ -123,15 +138,61 @@ public class SyntaxAnalyzer {
     List<LispSymbol> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
       LispSymbol symbol = sexp.getSymbol();
+      LispList list = sexp.getList();
       if (symbol != null) {
         result.add(symbol);
-      }
-      LispList list = sexp.getList();
-      if (list != null) {
+      } else if (list != null) {
         result.addAll(getDestructuringBindVariableSymbols(list.getSexpList()));
+      } else {
+        error(sexp, "Destructuring lambda list expected");
       }
     }
     return result;
+  }
+
+  private void analyzeLetStar(LispList form) {
+    List<LispSexp> list = form.getSexpList();
+    if (list.size() < 2) {
+      error(form, "LET* needs at least 1 argument");
+      return;
+    }
+    LispList list1 = list.get(1).getList();
+    if (list1 == null) {
+      error(list.get(1), "Variable binding list expected");
+      return;
+    }
+    analyzeLetStarVarList(form, list1.getSexpList(), 0);
+  }
+
+  private void analyzeLetStarVarList(LispList form, @NotNull List<LispSexp> varList, int startAt) {
+    if (startAt >= varList.size()) {
+      analyzeForms(form.getSexpList(), 2);
+    } else {
+      LispSexp sexp = varList.get(startAt);
+      LispSymbol symbol = sexp.getSymbol();
+      LispList varWithInit = sexp.getList();
+      if (symbol != null) {
+        analyzeLetStarVarList(form, varList, startAt + 1);
+      } else if (varWithInit != null) {
+        List<LispSexp> varWithInitList = varWithInit.getSexpList();
+        if (varWithInitList.size() != 2) {
+          error(varWithInit, "Variable binding expected");
+          return;
+        }
+        LispSymbol variable = varWithInitList.get(0).getSymbol();
+        LispSexp init = varWithInitList.get(1);
+        if (variable == null) {
+          error(varWithInitList.get(0), "Expected variable name");
+          return;
+        }
+        analyzeForm(init);
+        variables.registerLexicalDefinitions(form, List.of(variable));
+        analyzeLetStarVarList(form, varList, startAt + 1);
+        variables.dropLexicalDefinitions();
+      } else {
+        error(sexp, "Variable binding expected");
+      }
+    }
   }
 
   private void analyzeLet(LispList form) {
@@ -170,17 +231,18 @@ public class SyntaxAnalyzer {
     List<LispSymbol> result = new ArrayList<>();
     for (LispSexp sexp : varList) {
       LispSymbol symbol = sexp.getSymbol();
+      LispList list = sexp.getList();
       if (symbol != null) {
         result.add(symbol);
-      }
-      LispList list = sexp.getList();
-      if (list != null) {
+      } else if (list != null) {
         List<LispSexp> sexpList = list.getSexpList();
         if (!isVarInitValid(sexpList)) {
-          error(list, "Invalid var init form");
+          error(list, "Expected var init form");
           continue;
         }
         result.add(sexpList.get(0).getSymbol());
+      } else {
+        error(sexp, "Expected var binding");
       }
     }
     return result;
