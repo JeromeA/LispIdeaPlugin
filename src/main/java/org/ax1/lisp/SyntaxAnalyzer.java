@@ -1,5 +1,6 @@
 package org.ax1.lisp;
 
+import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.psi.PsiElement;
@@ -19,11 +20,12 @@ import static org.ax1.lisp.SymbolDescriptor.BindingType.LEXICAL;
 import static org.ax1.lisp.SymbolDescriptor.SymbolType.FUNCTION;
 import static org.ax1.lisp.SymbolDescriptor.SymbolType.VARIABLE;
 import static org.ax1.lisp.parsing.LispSyntaxHighlighter.FUNCTION_DECLARATION;
+import static org.ax1.lisp.psi.LispTypes.STRING;
 
 public class SyntaxAnalyzer {
   private final LispFile lispFile;
   private final AnnotationHolder holder;
-  private final String packageName = "CL-USER";
+  private String packageName = "CL-USER";
   private final SymbolStack functions = new SymbolStack(FUNCTION);
   private final SymbolStack variables = new SymbolStack(VARIABLE);
 
@@ -118,7 +120,36 @@ public class SyntaxAnalyzer {
   }
 
   private void analyzeInPackage(LispList form) {
+    if (form.getSexpList().size() != 2) {
+      error(form, "IN-PACKAGE needs exactly 1 argument");
+      return;
+    }
+    LispSexp arg = form.getSexpList().get(1);
+    String stringDesignator = decodeStringDesignator(arg);
+    if (stringDesignator == null) {
+      error(arg, "Expected name designator");
+      return;
+    }
+    packageName = stringDesignator;
+  }
 
+  private String decodeStringDesignator(LispSexp nameDesignator) {
+    if (nameDesignator.getList() != null) return null;
+    LispSymbol symbol = nameDesignator.getSymbol();
+    if (symbol != null) {
+      String text = symbol.getText();
+      int colonIndex = text.indexOf(':');
+      if (colonIndex >= 0) {
+        return text.substring(colonIndex + 1);
+      }
+      return text;
+    }
+    ASTNode token = nameDesignator.getFirstChild().getNode();
+    if (token.getElementType() == STRING) {
+      String text = token.getText();
+      return text.substring(1, text.length() - 1);
+    }
+    return null;
   }
 
   private void analyzeDefun(LispList form) {
