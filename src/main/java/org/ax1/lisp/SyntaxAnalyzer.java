@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.intellij.openapi.editor.colors.CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
+import static com.intellij.openapi.editor.colors.CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES;
 import static org.ax1.lisp.SymbolDescriptor.BindingType.DYNAMIC;
 import static org.ax1.lisp.SymbolDescriptor.BindingType.LEXICAL;
 import static org.ax1.lisp.SymbolDescriptor.SymbolType.FUNCTION;
@@ -32,6 +34,38 @@ public class SyntaxAnalyzer {
 
   public void analyze() {
     analyzeForms(lispFile.getSexpList(), 0);
+    annotateSymbols(functions);
+    annotateSymbols(variables);
+  }
+
+  private void annotateSymbols(SymbolStack symbols) {
+    if (!symbols.lexical.empty()) throw new RuntimeException("Unbalanced lexical stack.");
+    for (SymbolDescriptor symbolDescriptor : symbols.retired) {
+      if (symbolDescriptor.getUsages().isEmpty()) {
+        holder.newAnnotation(HighlightSeverity.WARNING,
+                symbolDescriptor.getSymbolType() == FUNCTION ? "Function is never called" : "Variable is never used")
+            .textAttributes(NOT_USED_ELEMENT_ATTRIBUTES)
+            .range(symbolDescriptor.getDefinition())
+            .create();
+      }
+    }
+    symbols.special.values().forEach(symbolDescriptor -> {
+      if (symbolDescriptor.getUsages().isEmpty()) {
+        holder.newAnnotation(HighlightSeverity.WARNING,
+                symbolDescriptor.getSymbolType() == FUNCTION ? "Function is never called" : "Variable is never used")
+            .textAttributes(NOT_USED_ELEMENT_ATTRIBUTES)
+            .range(symbolDescriptor.getDefinition())
+            .create();
+      }
+      if (symbolDescriptor.getDefinition() == null) {
+        symbolDescriptor.getUsages().forEach(usage ->
+            holder.newAnnotation(HighlightSeverity.ERROR,
+                    symbolDescriptor.getSymbolType() == FUNCTION ? "Function does not exist" : "Variable is not defined")
+                .textAttributes(WRONG_REFERENCES_ATTRIBUTES)
+                .range(usage)
+                .create());
+      }
+    });
   }
 
   private void analyzeForms(Collection<LispSexp> forms, int skip) {
