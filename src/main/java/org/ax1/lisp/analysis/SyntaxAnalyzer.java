@@ -15,8 +15,7 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.editor.colors.CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
 import static com.intellij.openapi.editor.colors.CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES;
-import static org.ax1.lisp.analysis.SymbolDescriptor.BindingType.DYNAMIC;
-import static org.ax1.lisp.analysis.SymbolDescriptor.BindingType.LEXICAL;
+import static com.intellij.openapi.fileTypes.SyntaxHighlighterBase.pack;
 import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.FUNCTION;
 import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.VARIABLE;
 import static org.ax1.lisp.parsing.LispSyntaxHighlighter.FUNCTION_DECLARATION;
@@ -26,13 +25,15 @@ import static org.ax1.lisp.psi.LispTypes.STRING;
 public class SyntaxAnalyzer {
   private final LispFile lispFile;
   private final AnnotationHolder holder;
-  private String packageName = "CL-USER";
+  private String packageName = "cl-user";
   private final SymbolStack functions = new SymbolStack(FUNCTION);
   private final SymbolStack variables = new SymbolStack(VARIABLE);
+  private final PackageManager packages;
 
   public SyntaxAnalyzer(LispFile lispFile, @NotNull AnnotationHolder holder) {
     this.lispFile = lispFile;
     this.holder = holder;
+    this.packages = PackageManager.getInstance(lispFile.getProject());
   }
 
   public void analyze() {
@@ -42,8 +43,8 @@ public class SyntaxAnalyzer {
   }
 
   private void annotateSymbols(SymbolStack symbols) {
-    if (!symbols.lexical.empty()) throw new RuntimeException("Unbalanced lexical stack.");
-    for (SymbolDescriptor symbolDescriptor : symbols.retired) {
+    if (!symbols.getLexical().empty()) throw new RuntimeException("Unbalanced lexical stack.");
+    for (SymbolDescriptor symbolDescriptor : symbols.getRetired()) {
       if (symbolDescriptor.getUsages().isEmpty()) {
         holder.newAnnotation(HighlightSeverity.WARNING,
                 symbolDescriptor.getSymbolType() == FUNCTION ? "Function is never called" : "Variable is never used")
@@ -52,7 +53,7 @@ public class SyntaxAnalyzer {
             .create();
       }
     }
-    symbols.special.values().forEach(symbolDescriptor -> {
+    symbols.getSpecial().values().forEach(symbolDescriptor -> {
       if (symbolDescriptor.getUsages().isEmpty()) {
         holder.newAnnotation(HighlightSeverity.WARNING,
                 symbolDescriptor.getSymbolType() == FUNCTION ? "Function is never called" : "Variable is never used")
@@ -60,15 +61,16 @@ public class SyntaxAnalyzer {
             .range(symbolDescriptor.getDefinition())
             .create();
       }
-      if (symbolDescriptor.getDefinition() == null) {
+      if (symbolDescriptor.getDefinition() == null
+          && !getPackage().isSymbol(symbolDescriptor.getSymbolType(), symbolDescriptor.getName())) {
         symbolDescriptor.getUsages().forEach(usage ->
-            holder.newAnnotation(HighlightSeverity.ERROR,
-                    symbolDescriptor.getSymbolType() == FUNCTION ? "Function does not exist" : "Variable is not defined")
-                .textAttributes(WRONG_REFERENCES_ATTRIBUTES)
-                .range(usage)
-                .create());
+            highlightUnknown(usage, symbolDescriptor.getSymbolType() == FUNCTION ? "Function does not exist" : "Variable is not defined"));
       }
     });
+  }
+
+  private Package getPackage() {
+    return packages.get(packageName);
   }
 
   private void analyzeForms(Collection<LispSexp> forms, int skip) {
@@ -130,6 +132,10 @@ public class SyntaxAnalyzer {
     String stringDesignator = decodeStringDesignator(arg);
     if (stringDesignator == null) {
       highlightError(arg, "Expected name designator");
+      return;
+    }
+    if (packages.get(stringDesignator) == null) {
+      highlightUnknown(arg, "Unknown package");
       return;
     }
     packageName = stringDesignator;
@@ -358,61 +364,11 @@ public class SyntaxAnalyzer {
         .create();
   }
 
-  private static class SymbolStack {
-    private final Map<String, SymbolDescriptor> special = new HashMap<>();
-    private final Stack<Map<String, SymbolDescriptor>> lexical = new Stack<>();
-    private final List<SymbolDescriptor> retired = new ArrayList<>();
-    private final SymbolDescriptor.SymbolType symbolType;
-
-    public SymbolStack(SymbolDescriptor.SymbolType symbolType) {
-      this.symbolType = symbolType;
-    }
-
-    public void registerUsage(LispSymbol symbol) {
-      String symbolName = symbol.getText();
-      SymbolDescriptor symbolDescriptor = getSymbol(symbolName);
-      symbolDescriptor.addUsage(symbol);
-      symbol.setSymbolCache(symbolDescriptor);
-    }
-
-    public void registerSpecialDefinition(LispList container, LispSymbol symbol) {
-      String symbolName = symbol.getText();
-      SymbolDescriptor symbolDescriptor = special.get(symbolName);
-      if (symbolDescriptor == null) {
-        symbolDescriptor = new SymbolDescriptor(symbolType, DYNAMIC);
-        special.put(symbolName, symbolDescriptor);
-      }
-      symbolDescriptor.setDefinition(container, symbol);
-      symbol.setSymbolCache(symbolDescriptor);
-    }
-
-    public void registerLexicalDefinitions(LispList container, List<LispSymbol> variableList) {
-      Map<String, SymbolDescriptor> newDictionary = new HashMap<>();
-      for (LispSymbol symbol : variableList) {
-        String symbolName = symbol.getText();
-        SymbolDescriptor symbolDescriptor = new SymbolDescriptor(symbolType, LEXICAL);
-        symbolDescriptor.setDefinition(container, symbol);
-        newDictionary.put(symbolName, symbolDescriptor);
-        symbol.setSymbolCache(symbolDescriptor);
-      }
-      lexical.push(newDictionary);
-    }
-
-    public void dropLexicalDefinitions() {
-      retired.addAll(lexical.pop().values());
-    }
-
-    private SymbolDescriptor getSymbol(String symbolName) {
-      for (int i = lexical.size()-1 ; i >= 0 ; i--) {
-        SymbolDescriptor symbol = lexical.get(i).get(symbolName);
-        if (symbol != null) return symbol;
-      }
-      SymbolDescriptor symbol = special.get(symbolName);
-      if (symbol == null) {
-        symbol = new SymbolDescriptor(symbolType, DYNAMIC);
-        special.put(symbolName, symbol);
-      }
-      return symbol;
-    }
+  private void highlightUnknown(PsiElement psiElement, String message) {
+    holder.newAnnotation(HighlightSeverity.ERROR, message)
+        .textAttributes(WRONG_REFERENCES_ATTRIBUTES)
+        .range(psiElement)
+        .create();
   }
+
 }

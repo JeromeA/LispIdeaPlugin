@@ -8,13 +8,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SymbolDescriptor {
+  private final String name;
   private LispList container;
   private final SymbolType symbolType;
   private final BindingType bindingType;
   private LispSymbol definition;
   private final Set<LispSymbol> usages = new HashSet<>();
 
-  public SymbolDescriptor(SymbolType symbolType, BindingType bindingType) {
+  public SymbolDescriptor(String name, SymbolType symbolType, BindingType bindingType) {
+    this.name = name;
     this.symbolType = symbolType;
     this.bindingType = bindingType;
   }
@@ -46,6 +48,10 @@ public class SymbolDescriptor {
 
   public BindingType getBindingType() {
     return bindingType;
+  }
+
+  public String getName() {
+    return name;
   }
 
   public enum SymbolType {
