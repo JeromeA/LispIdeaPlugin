@@ -22,8 +22,9 @@ eol = \r | \n | \r\n
 white_space = [\ \r\n\t]
 comment = ; [^\r\n]* {eol}?
 number = [0-9]+
-quote = \"
-symbol = [^\ \r\n\t\";()0-9] [^\ \r\n\t\";()]*
+quote = '
+double_quote = \"
+symbol = [^\ \r\n\t\"';()0-9] [^\ \r\n\t\"';()]*
 
 %state STRING
 
@@ -34,13 +35,14 @@ symbol = [^\ \r\n\t\";()0-9] [^\ \r\n\t\";()]*
   {rparen}                       { return LispTypes.RPAREN; }
   {comment}                      { return LispTypes.COMMENT; }
   {number}                       { return LispTypes.NUMBER; }
-  {quote}                        { yybegin(STRING); }
+  {quote}                        { return LispTypes.QUOTE; }
+  {double_quote}                 { yybegin(STRING); }
   {white_space}+                 { return TokenType.WHITE_SPACE; }
   {symbol}                       { return LispTypes.SYMBOL_TOKEN; }
 }
 
 <STRING> {
-  {quote}                        { yybegin(YYINITIAL); return LispTypes.STRING; }
+  {double_quote}                 { yybegin(YYINITIAL); return LispTypes.STRING; }
   [^\"]+                         { }
   <<EOF>>                        { yybegin(YYINITIAL); return LispTypes.STRING; }
 }

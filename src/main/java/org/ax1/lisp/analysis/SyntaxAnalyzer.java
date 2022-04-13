@@ -4,15 +4,13 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.psi.PsiElement;
-import org.ax1.lisp.psi.LispFile;
-import org.ax1.lisp.psi.LispList;
-import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
+import org.ax1.lisp.psi.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.CONSTANT;
 import static com.intellij.openapi.editor.colors.CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
 import static com.intellij.openapi.editor.colors.CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES;
 import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.FUNCTION;
@@ -88,6 +86,13 @@ public class SyntaxAnalyzer {
     LispList list = form.getList();
     if (list != null) {
       analyzeCompoundForm(list);
+    }
+    LispQuoted quoted = form.getQuoted();
+    if (quoted != null) {
+      holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+          .range(quoted)
+          .textAttributes(CONSTANT)
+          .create();
     }
   }
 

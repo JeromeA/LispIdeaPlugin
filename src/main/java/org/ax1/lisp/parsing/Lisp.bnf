@@ -23,7 +23,8 @@
 lispFile ::= topLevelUnit_*
 private topLevelUnit_ ::= syntaxUnit_ | invalidClose
 private syntaxUnit_ ::= COMMENT | sexp
-sexp ::= STRING | NUMBER | symbol | list
+sexp ::= STRING | NUMBER | symbol | list | quoted
 list ::= (LPAREN syntaxUnit_* RPAREN?)
 symbol ::= SYMBOL_TOKEN
 invalidClose ::= RPAREN
+quoted ::= QUOTE sexp

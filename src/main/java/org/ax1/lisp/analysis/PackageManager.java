@@ -12,7 +12,7 @@ import java.util.Set;
 public final class PackageManager {
   private static final Collection<String> COMMON_LISP_FUNCTIONS = Set.of(
       "+", "and", "assoc", "cdr", "char-code", "characterp", "declare", "equal", "error", "eval", "format", "funcall",
-      "if", "gethash", "integerp", "member", "null", "second", "symbol-value", "symbolp", "unless", "when");
+      "if", "gethash", "integerp", "list", "member", "null", "second", "symbol-value", "symbolp", "unless", "when");
   private static final Collection<String> COMMON_LISP_VARIABLES = Set.of("nil", "t");
 
   private final Map<String, Package> packages = new HashMap<>();
