@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.intellij.lang.annotation.HighlightSeverity.INFORMATION;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.CONSTANT;
 import static com.intellij.openapi.editor.colors.CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
 import static com.intellij.openapi.editor.colors.CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES;
@@ -20,6 +21,10 @@ import static org.ax1.lisp.parsing.LispSyntaxHighlighter.KEYWORD;
 import static org.ax1.lisp.psi.LispTypes.STRING;
 
 public class SyntaxAnalyzer {
+
+  // Names that are used like function calls, but are really not.
+  private static final Set<String> KEYWORDS = Set.of("declare", "if", "ignore", "unless", "when");
+
   private final LispFile lispFile;
   private final AnnotationHolder holder;
   private String packageName = "cl-user";
@@ -89,7 +94,7 @@ public class SyntaxAnalyzer {
     }
     LispQuoted quoted = form.getQuoted();
     if (quoted != null) {
-      holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+      holder.newSilentAnnotation(INFORMATION)
           .range(quoted)
           .textAttributes(CONSTANT)
           .create();
@@ -179,7 +184,7 @@ public class SyntaxAnalyzer {
     LispSymbol symbol1 = sexp1.getSymbol();
     if (symbol1 != null) {
       functions.registerSpecialDefinition(form, symbol1);
-      holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+      holder.newSilentAnnotation(INFORMATION)
           .range(symbol1)
           .textAttributes(FUNCTION_DECLARATION)
           .create();
@@ -354,8 +359,14 @@ public class SyntaxAnalyzer {
     }
   }
 
-  private void analyzeFunctionCall(LispSymbol symbol0, LispList form) {
-    functions.registerUsage(symbol0);
+  private void analyzeFunctionCall(LispSymbol functionName, LispList form) {
+    if (KEYWORDS.contains(functionName.getName())) {
+      holder.newSilentAnnotation(INFORMATION)
+          .range(functionName)
+          .textAttributes(KEYWORD)
+          .create();
+    }
+    functions.registerUsage(functionName);
     analyzeForms(form.getSexpList(), 1);
   }
 
@@ -366,7 +377,7 @@ public class SyntaxAnalyzer {
   }
 
   private void highlightKeyword(LispList form) {
-    holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+    holder.newSilentAnnotation(INFORMATION)
         .range(form.getSexpList().get(0))
         .textAttributes(KEYWORD)
         .create();
