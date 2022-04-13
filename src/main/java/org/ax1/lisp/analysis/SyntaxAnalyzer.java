@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.editor.colors.CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
 import static com.intellij.openapi.editor.colors.CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES;
-import static com.intellij.openapi.fileTypes.SyntaxHighlighterBase.pack;
 import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.FUNCTION;
 import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.VARIABLE;
 import static org.ax1.lisp.parsing.LispSyntaxHighlighter.FUNCTION_DECLARATION;
@@ -45,28 +44,32 @@ public class SyntaxAnalyzer {
   private void annotateSymbols(SymbolStack symbols) {
     if (!symbols.getLexical().empty()) throw new RuntimeException("Unbalanced lexical stack.");
     for (SymbolDescriptor symbolDescriptor : symbols.getRetired()) {
-      if (symbolDescriptor.getUsages().isEmpty()) {
-        holder.newAnnotation(HighlightSeverity.WARNING,
-                symbolDescriptor.getSymbolType() == FUNCTION ? "Function is never called" : "Variable is never used")
-            .textAttributes(NOT_USED_ELEMENT_ATTRIBUTES)
-            .range(symbolDescriptor.getDefinition())
-            .create();
-      }
+      checkNoUsages(symbolDescriptor);
     }
     symbols.getSpecial().values().forEach(symbolDescriptor -> {
-      if (symbolDescriptor.getUsages().isEmpty()) {
-        holder.newAnnotation(HighlightSeverity.WARNING,
-                symbolDescriptor.getSymbolType() == FUNCTION ? "Function is never called" : "Variable is never used")
-            .textAttributes(NOT_USED_ELEMENT_ATTRIBUTES)
-            .range(symbolDescriptor.getDefinition())
-            .create();
-      }
-      if (symbolDescriptor.getDefinition() == null
-          && !getPackage().isSymbol(symbolDescriptor.getSymbolType(), symbolDescriptor.getName())) {
-        symbolDescriptor.getUsages().forEach(usage ->
-            highlightUnknown(usage, symbolDescriptor.getSymbolType() == FUNCTION ? "Function does not exist" : "Variable is not defined"));
-      }
+      checkNoUsages(symbolDescriptor);
+      checkNoDefinition(symbolDescriptor);
     });
+  }
+
+  private void checkNoDefinition(SymbolDescriptor symbolDescriptor) {
+    if (symbolDescriptor.getDefinition() == null
+        && !getPackage().isSymbol(symbolDescriptor.getSymbolType(), symbolDescriptor.getName())) {
+      String message = symbolDescriptor.getSymbolType() == FUNCTION ? "Function '%s' does not exist" : "Variable '%s' is not defined";
+      symbolDescriptor.getUsages().forEach(usage ->
+          highlightUnknown(usage, String.format(message, symbolDescriptor.getName())));
+    }
+  }
+
+  private void checkNoUsages(SymbolDescriptor symbolDescriptor) {
+    if (symbolDescriptor.getUsages().isEmpty()) {
+      String message = symbolDescriptor.getSymbolType() == FUNCTION ? "Function '%s' is never called" : "Variable '%s' is never used";
+      holder.newAnnotation(HighlightSeverity.WARNING,
+              String.format(message, symbolDescriptor.getName()))
+          .textAttributes(NOT_USED_ELEMENT_ATTRIBUTES)
+          .range(symbolDescriptor.getDefinition())
+          .create();
+    }
   }
 
   private Package getPackage() {
@@ -135,7 +138,7 @@ public class SyntaxAnalyzer {
       return;
     }
     if (packages.get(stringDesignator) == null) {
-      highlightUnknown(arg, "Unknown package");
+      highlightUnknown(arg, String.format("Unknown package '%s'", stringDesignator));
       return;
     }
     packageName = stringDesignator;
