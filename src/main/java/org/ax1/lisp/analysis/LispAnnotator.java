@@ -1,20 +1,11 @@
-package org.ax1.lisp;
+package org.ax1.lisp.analysis;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
-import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.psi.PsiElement;
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispFile;
-import org.ax1.lisp.psi.LispList;
-import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Set;
-
-import static org.ax1.lisp.parsing.LispSyntaxHighlighter.FUNCTION_DECLARATION;
-import static org.ax1.lisp.parsing.LispSyntaxHighlighter.KEYWORD;
 
 public class LispAnnotator implements Annotator {
 

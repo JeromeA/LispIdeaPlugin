@@ -26,7 +26,7 @@
         implementationClass="org.ax1.lisp.parsing.LispSyntaxHighlighterFactory"/>
     <annotator
         language="Lisp"
-        implementationClass="org.ax1.lisp.LispAnnotator"/>
+        implementationClass="org.ax1.lisp.analysis.LispAnnotator"/>
     <braceMatcher filetype="Lisp" implementationClass="org.ax1.lisp.LispBraceMatcher"/>
     <findUsagesHandlerFactory
         implementation="org.ax1.lisp.usages.LispFindUsagesHandlerFactory"

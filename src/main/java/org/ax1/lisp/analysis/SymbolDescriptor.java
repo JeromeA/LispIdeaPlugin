@@ -1,4 +1,4 @@
-package org.ax1.lisp;
+package org.ax1.lisp.analysis;
 
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSymbol;

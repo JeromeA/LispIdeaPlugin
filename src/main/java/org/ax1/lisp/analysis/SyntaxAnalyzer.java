@@ -1,4 +1,4 @@
-package org.ax1.lisp;
+package org.ax1.lisp.analysis;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.editor.colors.CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
 import static com.intellij.openapi.editor.colors.CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES;
-import static org.ax1.lisp.SymbolDescriptor.BindingType.DYNAMIC;
-import static org.ax1.lisp.SymbolDescriptor.BindingType.LEXICAL;
-import static org.ax1.lisp.SymbolDescriptor.SymbolType.FUNCTION;
-import static org.ax1.lisp.SymbolDescriptor.SymbolType.VARIABLE;
+import static org.ax1.lisp.analysis.SymbolDescriptor.BindingType.DYNAMIC;
+import static org.ax1.lisp.analysis.SymbolDescriptor.BindingType.LEXICAL;
+import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.FUNCTION;
+import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.VARIABLE;
 import static org.ax1.lisp.parsing.LispSyntaxHighlighter.FUNCTION_DECLARATION;
 import static org.ax1.lisp.parsing.LispSyntaxHighlighter.KEYWORD;
 import static org.ax1.lisp.psi.LispTypes.STRING;
