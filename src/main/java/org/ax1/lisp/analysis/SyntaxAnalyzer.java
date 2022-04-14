@@ -136,7 +136,11 @@ public class SyntaxAnalyzer {
   }
 
   void highlightKeyword(LispList form) {
-    highlight(form.getSexpList().get(0), KEYWORD);
+    highlightKeyword(form.getSexpList().get(0));
+  }
+
+  void highlightKeyword(PsiElement psiElement) {
+    highlight(psiElement, KEYWORD);
   }
 
   void highlightUnknown(PsiElement psiElement, String message) {

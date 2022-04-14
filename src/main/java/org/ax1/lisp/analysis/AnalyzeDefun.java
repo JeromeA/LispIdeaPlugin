@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis;
 
+import org.ax1.lisp.analysis.SymbolStack.LexicalDrop;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -33,11 +34,12 @@ public class AnalyzeDefun implements Analyzer {
       analyzer.highlightError(list.get(2), "Lambda list expected");
       return;
     }
-    analyzer.variables.registerLexicalDefinitions(form, lambdaList.getSexpList().stream()
+    List<LispSymbol> variables = lambdaList.getSexpList().stream()
         .map(LispSexp::getSymbol)
         .filter(Objects::nonNull)
-        .collect(Collectors.toList()));
-    analyzer.analyzeForms(list, 3);
-    analyzer.variables.dropLexicalDefinitions();
+        .collect(Collectors.toList());
+    try(LexicalDrop lexicalDrop = analyzer.variables.registerLexicalDefinitions(form, variables)) {
+      analyzer.analyzeForms(list, 3);
+    }
   }
 }

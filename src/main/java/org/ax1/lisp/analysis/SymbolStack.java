@@ -13,6 +13,7 @@ class SymbolStack {
   private final Stack<Map<String, SymbolDescriptor>> lexical = new Stack<>();
   private final List<SymbolDescriptor> retired = new ArrayList<>();
   private final SymbolDescriptor.SymbolType symbolType;
+  public final LexicalDrop lexicalDrop = new LexicalDrop();
 
   public SymbolStack(SymbolDescriptor.SymbolType symbolType) {
     this.symbolType = symbolType;
@@ -36,7 +37,7 @@ class SymbolStack {
     symbol.setSymbolCache(symbolDescriptor);
   }
 
-  public void registerLexicalDefinitions(LispList container, List<LispSymbol> variableList) {
+  public LexicalDrop registerLexicalDefinitions(LispList container, List<LispSymbol> variableList) {
     Map<String, SymbolDescriptor> newDictionary = new HashMap<>();
     for (LispSymbol symbol : variableList) {
       String symbolName = symbol.getText();
@@ -46,6 +47,7 @@ class SymbolStack {
       symbol.setSymbolCache(symbolDescriptor);
     }
     lexical.push(newDictionary);
+    return lexicalDrop;
   }
 
   public void dropLexicalDefinitions() {
@@ -75,5 +77,12 @@ class SymbolStack {
 
   public Map<String, SymbolDescriptor> getSpecial() {
     return special;
+  }
+
+  public class LexicalDrop implements AutoCloseable {
+    @Override
+    public void close() {
+      dropLexicalDefinitions();
+    }
   }
 }
