@@ -5,6 +5,7 @@ import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.PsiElement;
 import org.apache.groovy.util.Maps;
+import org.ax1.lisp.analysis.AnalyzeDefun.Type;
 import org.ax1.lisp.psi.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,7 +27,8 @@ public class SyntaxAnalyzer {
 
   private static final Map<String, Analyzer> ANALYZERS = Maps.of(
       "cond", new AnalyzeCond(),
-      "defun", new AnalyzeDefun(),
+      "defmacro", new AnalyzeDefun(Type.DEFMACRO),
+      "defun", new AnalyzeDefun(Type.DEFUN),
       "defvar", new AnalyzeDefvar(),
       "defparameter", new AnalyzeDefparameter(),
       "dolist", new AnalyzeDolist(),

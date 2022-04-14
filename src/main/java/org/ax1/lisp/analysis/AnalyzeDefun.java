@@ -13,12 +13,18 @@ import static org.ax1.lisp.parsing.LispSyntaxHighlighter.FUNCTION_DECLARATION;
 
 public class AnalyzeDefun implements Analyzer {
 
+  private final Type type;
+
+  public AnalyzeDefun(Type type) {
+    this.type = type;
+  }
+
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
     analyzer.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
-      analyzer.highlightError(form, "DEFUN needs at least 2 arguments.");
+      analyzer.highlightError(form, type.name() + " needs at least 2 arguments.");
       return;
     }
     LispSexp sexp1 = list.get(1);
@@ -41,5 +47,10 @@ public class AnalyzeDefun implements Analyzer {
     try(LexicalDrop lexicalDrop = analyzer.variables.registerLexicalDefinitions(form, variables)) {
       analyzer.analyzeForms(list, 3);
     }
+  }
+
+  public static enum Type {
+    DEFUN,
+    DEFMACRO
   }
 }
