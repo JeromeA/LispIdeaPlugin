@@ -4,6 +4,7 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.PsiElement;
+import org.apache.groovy.util.Maps;
 import org.ax1.lisp.psi.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,11 +23,12 @@ public class SyntaxAnalyzer {
   // Names that could look like function calls, but are really not.
   private static final Set<String> KEYWORDS = Set.of("declare", "if", "ignore", "return", "setq", "unless", "when");
 
-  private static final Map<String, Analyzer> ANALYZERS = Map.of(
+  private static final Map<String, Analyzer> ANALYZERS = Maps.of(
       "cond", new AnalyzeCond(),
       "defun", new AnalyzeDefun(),
       "defvar", new AnalyzeDefvar(),
       "defparameter", new AnalyzeDefparameter(),
+      "dolist", new AnalyzeDolist(),
       "ecase", new AnalyzeEcase(),
       "destructuring-bind", new AnalyzeDestructuringBind(),
       "in-package", new AnalyzeInPackage(),
