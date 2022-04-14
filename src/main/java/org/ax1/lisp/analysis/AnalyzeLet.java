@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class AnalyzeLet implements Analyzer {
+
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
     analyzer.highlightKeyword(form);
@@ -24,13 +25,13 @@ public class AnalyzeLet implements Analyzer {
       return;
     }
     List<LispSexp> varList = list1.getSexpList();
-    analyzer.analyzeForms(getInitForms(analyzer, varList), 0);
+    analyzer.analyzeForms(getInitForms(varList), 0);
     analyzer.variables.registerLexicalDefinitions(form, getLetVariableSymbols(analyzer, varList));
     analyzer.analyzeForms(list, 2);
     analyzer.variables.dropLexicalDefinitions();
   }
 
-  private Collection<LispSexp> getInitForms(SyntaxAnalyzer analyzer, List<LispSexp> varList) {
+  private Collection<LispSexp> getInitForms(List<LispSexp> varList) {
     List<LispSexp> result = new ArrayList<>();
     for (LispSexp sexp : varList) {
       LispList list = sexp.getList();
@@ -68,7 +69,6 @@ public class AnalyzeLet implements Analyzer {
   private static boolean isVarInitValid(List<LispSexp> sexpList) {
     if (sexpList.size() != 2) return false;
     if (sexpList.get(0).getSymbol() == null) return false;
-    if (sexpList.get(1).getList() == null) return false;
     return true;
   }
 
