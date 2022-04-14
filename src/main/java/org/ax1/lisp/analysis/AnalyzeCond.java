@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AnalyzeCond implements Analyzer{
+
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
     analyzer.highlightKeyword(form);

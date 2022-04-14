@@ -19,13 +19,15 @@ import static org.ax1.lisp.parsing.LispSyntaxHighlighter.KEYWORD;
 
 public class SyntaxAnalyzer {
 
-  // Names that are used like function calls, but are really not.
-  private static final Set<String> KEYWORDS = Set.of("declare", "if", "ignore", "unless", "when");
+  // Names that could look like function calls, but are really not.
+  private static final Set<String> KEYWORDS = Set.of("declare", "if", "ignore", "return", "setq", "unless", "when");
+
   private static final Map<String, Analyzer> ANALYZERS = Map.of(
       "cond", new AnalyzeCond(),
       "defun", new AnalyzeDefun(),
       "defvar", new AnalyzeDefvar(),
       "defparameter", new AnalyzeDefparameter(),
+      "ecase", new AnalyzeEcase(),
       "destructuring-bind", new AnalyzeDestructuringBind(),
       "in-package", new AnalyzeInPackage(),
       "let", new AnalyzeLet(),
