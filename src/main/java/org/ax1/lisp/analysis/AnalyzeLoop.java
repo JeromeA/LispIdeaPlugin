@@ -30,10 +30,14 @@ public class AnalyzeLoop implements Analyzer {
       case "for":
         analyzeFor(analyzer, form, startAt);
         break;
+      case "with":
+        analyzeWith(analyzer, form, startAt);
+        break;
       case "always":
       case "append":
       case "collect":
       case "do":
+      case "finally":
       case "never":
       case "repeat":
       case "until":
@@ -50,6 +54,26 @@ public class AnalyzeLoop implements Analyzer {
     analyzer.highlightKeyword(list.get(startAt));
     analyzer.analyzeForm(list.get(startAt + 1));
     analyze(analyzer, form, startAt + 2);
+  }
+
+  private void analyzeWith(SyntaxAnalyzer analyzer, LispList form, int startAt) {
+    List<LispSexp> list = form.getSexpList();
+    analyzer.highlightKeyword(list.get(startAt));
+    LispSexp sexp1 = list.get(startAt + 1);
+    if (sexp1.getSymbol() == null) {
+      analyzer.highlightError(sexp1, "Variable name expected");
+      return;
+    }
+    try (LexicalDrop lexicalDrop = analyzer.variables.registerLexicalDefinitions(form, List.of(sexp1.getSymbol()))) {
+      LispSexp sexp2 = list.get(startAt + 2);
+      if (sexp2.getSymbol() == null || ! sexp2.getSymbol().getText().equals("=")) {
+        analyzer.highlightError(sexp2, "'=' expected");
+        return;
+      }
+      analyzer.highlightKeyword(sexp2);
+      analyzer.analyzeForm(list.get(startAt + 3));
+      analyze(analyzer, form, startAt + 4);
+    }
   }
 
   private void analyzeFor(SyntaxAnalyzer analyzer, LispList form, int startAt) {

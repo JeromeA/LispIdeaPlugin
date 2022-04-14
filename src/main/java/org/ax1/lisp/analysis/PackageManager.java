@@ -11,8 +11,9 @@ import java.util.Set;
 @Service(Service.Level.PROJECT)
 public final class PackageManager {
   private static final Collection<String> COMMON_LISP_FUNCTIONS = Set.of(
-      "+", "and", "assoc", "cdr", "char-code", "characterp", "declare", "equal", "error", "eval", "format", "funcall",
-      "if", "gethash", "ignore", "integerp", "list", "member", "null", "second", "symbol-value", "symbolp", "unless", "when");
+      "+", "and", "ash", "assoc", "cdr", "char-code", "characterp", "declare", "equal", "error", "eval",
+      "format", "funcall", "if", "gethash", "ignore", "integerp", "list", "member", "null", "second",
+      "symbol-value", "symbolp", "unless", "when");
   private static final Collection<String> COMMON_LISP_VARIABLES = Set.of("nil", "t");
 
   private final Map<String, Package> packages = new HashMap<>();
