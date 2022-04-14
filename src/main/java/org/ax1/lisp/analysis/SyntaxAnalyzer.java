@@ -24,6 +24,8 @@ public class SyntaxAnalyzer {
   private static final Map<String, Analyzer> ANALYZERS = Map.of(
       "cond", new AnalyzeCond(),
       "defun", new AnalyzeDefun(),
+      "defvar", new AnalyzeDefvar(),
+      "defparameter", new AnalyzeDefparameter(),
       "destructuring-bind", new AnalyzeDestructuringBind(),
       "in-package", new AnalyzeInPackage(),
       "let", new AnalyzeLet(),
