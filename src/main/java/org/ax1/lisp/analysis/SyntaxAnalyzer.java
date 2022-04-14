@@ -21,7 +21,8 @@ import static org.ax1.lisp.parsing.LispSyntaxHighlighter.KEYWORD;
 public class SyntaxAnalyzer {
 
   // Names that could look like function calls, but are really not.
-  private static final Set<String> KEYWORDS = Set.of("declare", "if", "ignore", "return", "setq", "unless", "when");
+  private static final Set<String> KEYWORDS =
+      Set.of("declare", "if", "ignore", "return", "setq", "special", "unless", "when");
 
   private static final Map<String, Analyzer> ANALYZERS = Maps.of(
       "cond", new AnalyzeCond(),
@@ -97,7 +98,11 @@ public class SyntaxAnalyzer {
   void analyzeForm(LispSexp form) {
     LispSymbol symbol = form.getSymbol();
     if (symbol != null) {
-      variables.registerUsage(symbol);
+      if (symbol.getText().startsWith(":")) {
+        highlight(symbol, CONSTANT);
+      } else {
+        variables.registerUsage(symbol);
+      }
     }
     LispList list = form.getList();
     if (list != null) {
