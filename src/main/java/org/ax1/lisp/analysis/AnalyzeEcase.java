@@ -23,7 +23,7 @@ public class AnalyzeEcase implements Analyzer {
       if (list == null || list.getSexpList().size() < 2) {
         analyzer.highlightError(sexp, "key-form clause expected");
       } else {
-        analyzer.highlight(list.getSexpList().get(0), CONSTANT);
+        analyzer.highlightConstant(list.getSexpList().get(0));
         analyzer.analyzeForms(list.getSexpList(), 1);
       }
     });

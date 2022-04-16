@@ -993,7 +993,8 @@ public class CommonLispPackage extends Package {
   };
 
   public CommonLispPackage() {
-    super(Set.of("common-lisp", "cl"), Set.of());
+    super("common-lisp");
+    setNicknames(Set.of("cl"));
     Arrays.stream(COMMON_LISP_FUNCTIONS).forEach(this::addFunction);
     Arrays.stream(COMMON_LISP_VARIABLES).forEach(this::addVariable);
     Arrays.stream(COMMON_LISP_CONSTANTS).forEach(this::addVariable);

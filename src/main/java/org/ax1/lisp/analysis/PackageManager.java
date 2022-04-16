@@ -19,7 +19,9 @@ public final class PackageManager {
   public PackageManager() {
     Package commonLisp = new CommonLispPackage();
     add(commonLisp);
-    Package commonLispUser = new Package(Set.of("common-lisp-user", "cl-user"), Set.of(commonLisp));
+    Package commonLispUser = new Package("common-lisp-user");
+    commonLispUser.addUse(commonLisp);
+    commonLispUser.setNicknames(Set.of("cl-user"));
     add(commonLispUser);
   }
 
@@ -28,6 +30,7 @@ public final class PackageManager {
   }
 
   public void add(Package packageToAdd) {
-    packageToAdd.getNames().forEach(name -> packages.put(name, packageToAdd));
+    packages.put(packageToAdd.getName(), packageToAdd);
+    packageToAdd.getNicknames().forEach(name -> packages.put(name, packageToAdd));
   }
 }

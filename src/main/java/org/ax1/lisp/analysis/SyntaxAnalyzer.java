@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis;
 
+import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -18,6 +19,7 @@ import static com.intellij.openapi.editor.colors.CodeInsightColors.WRONG_REFEREN
 import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.FUNCTION;
 import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.VARIABLE;
 import static org.ax1.lisp.parsing.LispSyntaxHighlighter.KEYWORD;
+import static org.ax1.lisp.psi.LispTypes.STRING;
 
 public class SyntaxAnalyzer {
 
@@ -30,6 +32,7 @@ public class SyntaxAnalyzer {
       "defmacro", new AnalyzeDefun(Type.DEFMACRO),
       "defun", new AnalyzeDefun(Type.DEFUN),
       "defvar", new AnalyzeDefvar(),
+      "defpackage", new AnalyzeDefpackage(),
       "defparameter", new AnalyzeDefparameter(),
       "dolist", new AnalyzeDolist(),
       "ecase", new AnalyzeEcase(),
@@ -50,6 +53,26 @@ public class SyntaxAnalyzer {
     this.lispFile = lispFile;
     this.holder = holder;
     this.packages = PackageManager.getInstance(lispFile.getProject());
+  }
+
+  public String getStringDesignator(LispSexp nameDesignator) {
+    if (nameDesignator.getList() != null) return null;
+    LispSymbol symbol = nameDesignator.getSymbol();
+    if (symbol != null) {
+      highlightConstant(symbol);
+      String text = symbol.getText();
+      int colonIndex = text.indexOf(':');
+      if (colonIndex >= 0) {
+        return text.substring(colonIndex + 1);
+      }
+      return text;
+    }
+    ASTNode token = nameDesignator.getFirstChild().getNode();
+    if (token.getElementType() == STRING) {
+      String text = token.getText();
+      return text.substring(1, text.length() - 1);
+    }
+    return null;
   }
 
   public void analyze() {
@@ -101,7 +124,7 @@ public class SyntaxAnalyzer {
     LispSymbol symbol = form.getSymbol();
     if (symbol != null) {
       if (symbol.getText().startsWith(":")) {
-        highlight(symbol, CONSTANT);
+        highlightConstant(symbol);
       } else {
         variables.registerUsage(symbol);
       }
@@ -112,7 +135,7 @@ public class SyntaxAnalyzer {
     }
     LispQuoted quoted = form.getQuoted();
     if (quoted != null) {
-      highlight(quoted, CONSTANT);
+      highlightConstant(quoted);
     }
   }
 
@@ -136,7 +159,7 @@ public class SyntaxAnalyzer {
 
   private void analyzeFunctionCall(LispSymbol functionName, LispList form) {
     if (KEYWORDS.contains(functionName.getName())) {
-      highlight(functionName, KEYWORD);
+      highlightKeyword(functionName);
     }
     functions.registerUsage(functionName);
     analyzeForms(form.getSexpList(), 1);
@@ -154,6 +177,10 @@ public class SyntaxAnalyzer {
 
   void highlightKeyword(PsiElement psiElement) {
     highlight(psiElement, KEYWORD);
+  }
+
+  void highlightConstant(PsiElement psiElement) {
+    highlight(psiElement, CONSTANT);
   }
 
   void highlightUnknown(PsiElement psiElement, String message) {
