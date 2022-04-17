@@ -48,9 +48,9 @@ public class AnalyzeLetStar implements Analyzer {
           return;
         }
         analyzer.analyzeForm(init);
-        analyzer.variables.registerLexicalDefinitions(form, List.of(variable));
+        analyzer.lexicalSymbols.defineLexicalVariables(form, List.of(variable));
         analyzeLetStarVarList(analyzer, form, varList, startAt + 1);
-        analyzer.variables.dropLexicalDefinitions();
+        analyzer.lexicalSymbols.dropLexicalVariables();
       } else {
         analyzer.highlightError(sexp, "Variable binding expected");
       }

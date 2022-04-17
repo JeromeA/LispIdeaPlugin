@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SymbolDescriptor {
+public class SymbolBinding {
   private final String name;
   private LispList container;
   private final SymbolType symbolType;
@@ -15,7 +15,7 @@ public class SymbolDescriptor {
   private LispSymbol definition;
   private final Set<LispSymbol> usages = new HashSet<>();
 
-  public SymbolDescriptor(String name, SymbolType symbolType, BindingType bindingType) {
+  public SymbolBinding(String name, SymbolType symbolType, BindingType bindingType) {
     this.name = name;
     this.symbolType = symbolType;
     this.bindingType = bindingType;

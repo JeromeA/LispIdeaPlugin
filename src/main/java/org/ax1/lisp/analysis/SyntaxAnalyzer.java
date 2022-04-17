@@ -4,6 +4,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import org.apache.groovy.util.Maps;
 import org.ax1.lisp.analysis.AnalyzeDefun.Type;
@@ -11,13 +12,13 @@ import org.ax1.lisp.psi.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.intellij.lang.annotation.HighlightSeverity.INFORMATION;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.CONSTANT;
 import static com.intellij.openapi.editor.colors.CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
 import static com.intellij.openapi.editor.colors.CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES;
-import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.FUNCTION;
-import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.VARIABLE;
+import static org.ax1.lisp.analysis.SymbolBinding.SymbolType.FUNCTION;
 import static org.ax1.lisp.parsing.LispSyntaxHighlighter.KEYWORD;
 import static org.ax1.lisp.psi.LispTypes.STRING;
 
@@ -44,15 +45,18 @@ public class SyntaxAnalyzer {
 
   private final LispFile lispFile;
   private final AnnotationHolder holder;
-  String packageName = "cl-user";
-  final SymbolStack functions = new SymbolStack(FUNCTION);
-  final SymbolStack variables = new SymbolStack(VARIABLE);
   final PackageManager packages;
+  final DynamicSymbolManager dynamicSymbols;
+  final LexicalSymbolManager lexicalSymbols;
+  String packageName = "cl-user";
 
   public SyntaxAnalyzer(LispFile lispFile, @NotNull AnnotationHolder holder) {
     this.lispFile = lispFile;
     this.holder = holder;
-    this.packages = PackageManager.getInstance(lispFile.getProject());
+    Project project = lispFile.getProject();
+    this.packages = PackageManager.getInstance(project);
+    this.dynamicSymbols = DynamicSymbolManager.getInstance(project);
+    this.lexicalSymbols = new LexicalSymbolManager(dynamicSymbols);
   }
 
   public String getStringDesignator(LispSexp nameDesignator) {
@@ -77,37 +81,35 @@ public class SyntaxAnalyzer {
 
   public void analyze() {
     analyzeForms(lispFile.getSexpList(), 0);
-    annotateSymbols(functions);
-    annotateSymbols(variables);
-  }
-
-  private void annotateSymbols(SymbolStack symbols) {
-    if (!symbols.getLexical().empty()) throw new RuntimeException("Unbalanced lexical stack.");
-    for (SymbolDescriptor symbolDescriptor : symbols.getRetired()) {
-      checkNoUsages(symbolDescriptor);
+    if (!lexicalSymbols.isEmpty()) throw new RuntimeException("Unbalanced lexical stack.");
+    for (SymbolBinding symbolBinding : lexicalSymbols.getRetired()) {
+      checkNoUsages(symbolBinding);
     }
-    symbols.getSpecial().values().forEach(symbolDescriptor -> {
-      checkNoUsages(symbolDescriptor);
-      checkNoDefinition(symbolDescriptor);
-    });
+    dynamicSymbols.getSymbols().values().stream()
+        .flatMap(descriptor -> Stream.of(descriptor.getFunction(), descriptor.getVariable()))
+        .filter(binding -> binding.getDefinition() != null || !binding.getUsages().isEmpty())
+        .forEach(binding -> {
+          checkNoUsages(binding);
+          checkNoDefinition(binding);
+        });
   }
 
-  private void checkNoDefinition(SymbolDescriptor symbolDescriptor) {
-    if (symbolDescriptor.getDefinition() == null
-        && !getPackage().isSymbol(symbolDescriptor.getSymbolType(), symbolDescriptor.getName())) {
-      String message = symbolDescriptor.getSymbolType() == FUNCTION ? "Function '%s' does not exist" : "Variable '%s' is not defined";
-      symbolDescriptor.getUsages().forEach(usage ->
-          highlightUnknown(usage, String.format(message, symbolDescriptor.getName())));
+  private void checkNoDefinition(SymbolBinding symbolBinding) {
+    if (symbolBinding.getDefinition() == null
+        && !getPackage().isSymbol(symbolBinding.getSymbolType(), symbolBinding.getName())) {
+      String message = symbolBinding.getSymbolType() == FUNCTION ? "Function '%s' does not exist" : "Variable '%s' is not defined";
+      symbolBinding.getUsages().forEach(usage ->
+          highlightUnknown(usage, String.format(message, symbolBinding.getName())));
     }
   }
 
-  private void checkNoUsages(SymbolDescriptor symbolDescriptor) {
-    if (symbolDescriptor.getUsages().isEmpty()) {
-      String message = symbolDescriptor.getSymbolType() == FUNCTION ? "Function '%s' is never called" : "Variable '%s' is never used";
+  private void checkNoUsages(SymbolBinding symbolBinding) {
+    if (symbolBinding.getUsages().isEmpty()) {
+      String message = symbolBinding.getSymbolType() == FUNCTION ? "Function '%s' is never called" : "Variable '%s' is never used";
       holder.newAnnotation(HighlightSeverity.WARNING,
-              String.format(message, symbolDescriptor.getName()))
+              String.format(message, symbolBinding.getName()))
           .textAttributes(NOT_USED_ELEMENT_ATTRIBUTES)
-          .range(symbolDescriptor.getDefinition())
+          .range(symbolBinding.getDefinition())
           .create();
     }
   }
@@ -126,7 +128,7 @@ public class SyntaxAnalyzer {
       if (symbol.getText().startsWith(":")) {
         highlightConstant(symbol);
       } else {
-        variables.registerUsage(symbol);
+        lexicalSymbols.registerVariableUsage(symbol);
       }
     }
     LispList list = form.getList();
@@ -161,7 +163,7 @@ public class SyntaxAnalyzer {
     if (KEYWORDS.contains(functionName.getName())) {
       highlightKeyword(functionName);
     }
-    functions.registerUsage(functionName);
+    lexicalSymbols.registerFunctionUsage(functionName);
     analyzeForms(form.getSexpList(), 1);
   }
 

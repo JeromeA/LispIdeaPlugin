@@ -24,9 +24,9 @@ public class AnalyzeDestructuringBind implements Analyzer {
       analyzer.highlightError(sexp1, "Destructuring lambda list expected");
       return;
     }
-    analyzer.variables.registerLexicalDefinitions(form, getDestructuringBindVariableSymbols(analyzer, list1.getSexpList()));
+    analyzer.lexicalSymbols.defineLexicalVariables(form, getDestructuringBindVariableSymbols(analyzer, list1.getSexpList()));
     analyzer.analyzeForms(list, 2);
-    analyzer.variables.dropLexicalDefinitions();
+    analyzer.lexicalSymbols.dropLexicalVariables();
   }
 
   private List<LispSymbol> getDestructuringBindVariableSymbols(SyntaxAnalyzer analyzer, @NotNull List<LispSexp> lambdaList) {

@@ -7,7 +7,7 @@ import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
-import org.ax1.lisp.analysis.SymbolDescriptor;
+import org.ax1.lisp.analysis.SymbolBinding;
 import org.ax1.lisp.usages.LispSymbolReference;
 import org.ax1.lisp.psi.*;
 import org.jetbrains.annotations.NotNull;
@@ -15,13 +15,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static org.ax1.lisp.analysis.SymbolDescriptor.BindingType.LEXICAL;
-import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.FUNCTION;
-import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.VARIABLE;
+import static org.ax1.lisp.analysis.SymbolBinding.BindingType.LEXICAL;
+import static org.ax1.lisp.analysis.SymbolBinding.SymbolType.FUNCTION;
+import static org.ax1.lisp.analysis.SymbolBinding.SymbolType.VARIABLE;
 
 public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implements PsiNameIdentifierOwner, LispSymbol {
 
-  private SymbolDescriptor symbolDescriptor;
+  private SymbolBinding symbolBinding;
 
   public LispSymbolMixinImpl(@NotNull ASTNode node) {
     super(node);
@@ -48,22 +48,22 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
 
   @Override
   public boolean isFunctionCall() {
-    return symbolDescriptor != null && symbolDescriptor.getSymbolType() == FUNCTION && symbolDescriptor.getDefinition() != this;
+    return symbolBinding != null && symbolBinding.getSymbolType() == FUNCTION && symbolBinding.getDefinition() != this;
   }
 
   @Override
   public boolean isFunctionDefinition() {
-    return symbolDescriptor != null && symbolDescriptor.getSymbolType() == FUNCTION && symbolDescriptor.getDefinition() == this;
+    return symbolBinding != null && symbolBinding.getSymbolType() == FUNCTION && symbolBinding.getDefinition() == this;
   }
 
   @Override
   public boolean isVariableReference() {
-    return symbolDescriptor != null && symbolDescriptor.getSymbolType() == VARIABLE && symbolDescriptor.getDefinition() != this;
+    return symbolBinding != null && symbolBinding.getSymbolType() == VARIABLE && symbolBinding.getDefinition() != this;
   }
 
   @Override
   public boolean isVariableDefinition() {
-    return symbolDescriptor != null && symbolDescriptor.getSymbolType() == VARIABLE && symbolDescriptor.getDefinition() == this;
+    return symbolBinding != null && symbolBinding.getSymbolType() == VARIABLE && symbolBinding.getDefinition() == this;
   }
 
   @Override
@@ -109,7 +109,7 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   public boolean isDestructuringBindVariableName() {
-    LispList destructuringBind = getSymbolCache().getContainer();
+    LispList destructuringBind = getSymbolDescriptor().getContainer();
     LispSexp lispSexp = destructuringBind.getSexpList().get(0);
     return lispSexp.getSymbol().getText().equals("destructuring-bind");
   }
@@ -126,19 +126,19 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
-  public void setSymbolCache(SymbolDescriptor symbolDescriptor) {
-    this.symbolDescriptor = symbolDescriptor;
+  public void setSymbolBinding(SymbolBinding symbolBinding) {
+    this.symbolBinding = symbolBinding;
   }
 
   @Override
-  public SymbolDescriptor getSymbolCache() {
-    return symbolDescriptor;
+  public SymbolBinding getSymbolDescriptor() {
+    return symbolBinding;
   }
 
   @Override
   public @NotNull SearchScope getUseScope() {
-    if (symbolDescriptor != null && symbolDescriptor.getBindingType() == LEXICAL && symbolDescriptor.getContainer() != null) {
-      return new LocalSearchScope(symbolDescriptor.getContainer());
+    if (symbolBinding != null && symbolBinding.getBindingType() == LEXICAL && symbolBinding.getContainer() != null) {
+      return new LocalSearchScope(symbolBinding.getContainer());
     }
     return super.getUseScope();
   }

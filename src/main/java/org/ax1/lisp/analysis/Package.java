@@ -3,7 +3,7 @@ package org.ax1.lisp.analysis;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.ax1.lisp.analysis.SymbolDescriptor.SymbolType.FUNCTION;
+import static org.ax1.lisp.analysis.SymbolBinding.SymbolType.FUNCTION;
 
 public class Package {
   private final String name;
@@ -40,7 +40,7 @@ public class Package {
     variables.add(variableName);
   }
 
-  public boolean isSymbol(SymbolDescriptor.SymbolType symbolType, String name) {
+  public boolean isSymbol(SymbolBinding.SymbolType symbolType, String name) {
     return symbolType == FUNCTION ? isFunction(name) : isVariable(name);
   }
 

@@ -1,7 +1,7 @@
 package org.ax1.lisp.psi.impl;
 
 import com.intellij.psi.PsiNameIdentifierOwner;
-import org.ax1.lisp.analysis.SymbolDescriptor;
+import org.ax1.lisp.analysis.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 
 public interface LispSymbolMixin extends PsiNameIdentifierOwner {
@@ -22,7 +22,7 @@ public interface LispSymbolMixin extends PsiNameIdentifierOwner {
 
   LispList getDefunFromParameter();
 
-  void setSymbolCache(SymbolDescriptor symbolDescriptor);
+  void setSymbolBinding(SymbolBinding symbolBinding);
 
-  SymbolDescriptor getSymbolCache();
+  SymbolBinding getSymbolDescriptor();
 }

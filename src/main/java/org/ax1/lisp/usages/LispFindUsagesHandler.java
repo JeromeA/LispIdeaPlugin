@@ -20,7 +20,7 @@ public class LispFindUsagesHandler extends FindUsagesHandler {
   public @NotNull Collection<PsiReference> findReferencesToHighlight(@NotNull PsiElement target, @NotNull SearchScope searchScope) {
     LispSymbol symbol = (LispSymbol) target;
     if (symbol.isFunctionDefinition() || symbol.isVariableDefinition()) {
-      return symbol.getSymbolCache().getUsages().stream().map(PsiElement::getReference).collect(Collectors.toList());
+      return symbol.getSymbolDescriptor().getUsages().stream().map(PsiElement::getReference).collect(Collectors.toList());
     }
     return List.of();
   }

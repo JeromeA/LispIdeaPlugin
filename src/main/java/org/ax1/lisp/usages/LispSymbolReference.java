@@ -17,7 +17,7 @@ public class LispSymbolReference extends PsiReferenceBase<LispSymbol> {
 
   @Override
   public @Nullable PsiElement resolve() {
-    return myElement.getSymbolCache().getDefinition();
+    return myElement.getSymbolDescriptor().getDefinition();
   }
 
   @Override
