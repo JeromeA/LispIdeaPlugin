@@ -5,8 +5,13 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.FileTypeIndex;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.apache.groovy.util.Maps;
+import org.ax1.lisp.LispFileType;
 import org.ax1.lisp.analysis.AnalyzeDefun.Type;
 import org.ax1.lisp.psi.*;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +48,7 @@ public class SyntaxAnalyzer {
       "let*", new AnalyzeLetStar(),
       "loop", new AnalyzeLoop());
 
+  private final Project project;
   private final LispFile lispFile;
   private final AnnotationHolder holder;
   final PackageManager packages;
@@ -53,10 +59,26 @@ public class SyntaxAnalyzer {
   public SyntaxAnalyzer(LispFile lispFile, @NotNull AnnotationHolder holder) {
     this.lispFile = lispFile;
     this.holder = holder;
-    Project project = lispFile.getProject();
+    this.project = lispFile.getProject();
     this.packages = PackageManager.getInstance(project);
     this.dynamicSymbols = DynamicSymbolManager.getInstance(project);
     this.lexicalSymbols = new LexicalSymbolManager(dynamicSymbols);
+  }
+
+  public void analyze() {
+    analyzeProject();
+    annotateSymbols();
+  }
+
+  private void analyzeProject() {
+    Collection<VirtualFile> virtualFiles =
+        FileTypeIndex.getFiles(LispFileType.INSTANCE, GlobalSearchScope.allScope(project));
+    for (VirtualFile virtualFile : virtualFiles) {
+      LispFile lispFile = (LispFile) PsiManager.getInstance(project).findFile(virtualFile);
+      if (lispFile != null) {
+        analyzeForms(lispFile.getSexpList(), 0);
+      }
+    }
   }
 
   public String getStringDesignator(LispSexp nameDesignator) {
@@ -77,11 +99,6 @@ public class SyntaxAnalyzer {
       return text.substring(1, text.length() - 1);
     }
     return null;
-  }
-
-  public void analyze() {
-    analyzeForms(lispFile.getSexpList(), 0);
-    annotateSymbols();
   }
 
   private void annotateSymbols() {
@@ -167,12 +184,6 @@ public class SyntaxAnalyzer {
     analyzeForms(form.getSexpList(), 1);
   }
 
-  void highlightError(PsiElement psiElement, String message) {
-    holder.newAnnotation(HighlightSeverity.ERROR, message)
-        .range(psiElement)
-        .create();
-  }
-
   void highlightKeyword(LispList form) {
     highlightKeyword(form.getSexpList().get(0));
   }
@@ -186,25 +197,37 @@ public class SyntaxAnalyzer {
   }
 
   void highlightUnknown(PsiElement psiElement, String message) {
-    if (psiElement.getContainingFile() != lispFile) return;
-    holder.newAnnotation(HighlightSeverity.ERROR, message)
-        .textAttributes(WRONG_REFERENCES_ATTRIBUTES)
-        .range(psiElement)
-        .create();
+    annotate(psiElement, HighlightSeverity.ERROR, message, WRONG_REFERENCES_ATTRIBUTES);
   }
 
   void highlightUnused(PsiElement psiElement, String message) {
+    annotate(psiElement, HighlightSeverity.WARNING, message, NOT_USED_ELEMENT_ATTRIBUTES);
+  }
+
+  void highlight(PsiElement psiElement, TextAttributesKey constant) {
+    silentlyAnnotate(psiElement, INFORMATION, constant);
+  }
+
+  void highlightError(PsiElement psiElement, String message) {
     if (psiElement.getContainingFile() != lispFile) return;
-    holder.newAnnotation(HighlightSeverity.WARNING, message)
-        .textAttributes(NOT_USED_ELEMENT_ATTRIBUTES)
+    holder.newAnnotation(HighlightSeverity.ERROR, message)
+        .range(psiElement)
+        .create();
+  }
+  private void silentlyAnnotate(PsiElement psiElement, HighlightSeverity severity, TextAttributesKey attributes) {
+    if (psiElement.getContainingFile() != lispFile) return;
+    holder.newSilentAnnotation(severity)
+        .range(psiElement)
+        .textAttributes(attributes)
+        .create();
+  }
+
+  private void annotate(PsiElement psiElement, HighlightSeverity severity, String message, TextAttributesKey attributes) {
+    if (psiElement.getContainingFile() != lispFile) return;
+    holder.newAnnotation(severity, message)
+        .textAttributes(attributes)
         .range(psiElement)
         .create();
   }
 
-  void highlight(PsiElement psiElement, TextAttributesKey constant) {
-    holder.newSilentAnnotation(INFORMATION)
-        .range(psiElement)
-        .textAttributes(constant)
-        .create();
-  }
 }
