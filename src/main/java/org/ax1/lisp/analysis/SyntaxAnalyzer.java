@@ -81,6 +81,10 @@ public class SyntaxAnalyzer {
 
   public void analyze() {
     analyzeForms(lispFile.getSexpList(), 0);
+    annotateSymbols();
+  }
+
+  private void annotateSymbols() {
     if (!lexicalSymbols.isEmpty()) throw new RuntimeException("Unbalanced lexical stack.");
     for (SymbolBinding symbolBinding : lexicalSymbols.getRetired()) {
       checkNoUsages(symbolBinding);
@@ -106,11 +110,7 @@ public class SyntaxAnalyzer {
   private void checkNoUsages(SymbolBinding symbolBinding) {
     if (symbolBinding.getUsages().isEmpty()) {
       String message = symbolBinding.getSymbolType() == FUNCTION ? "Function '%s' is never called" : "Variable '%s' is never used";
-      holder.newAnnotation(HighlightSeverity.WARNING,
-              String.format(message, symbolBinding.getName()))
-          .textAttributes(NOT_USED_ELEMENT_ATTRIBUTES)
-          .range(symbolBinding.getDefinition())
-          .create();
+      highlightUnused(symbolBinding.getDefinition(), String.format(message, symbolBinding.getName()));
     }
   }
 
@@ -186,8 +186,17 @@ public class SyntaxAnalyzer {
   }
 
   void highlightUnknown(PsiElement psiElement, String message) {
+    if (psiElement.getContainingFile() != lispFile) return;
     holder.newAnnotation(HighlightSeverity.ERROR, message)
         .textAttributes(WRONG_REFERENCES_ATTRIBUTES)
+        .range(psiElement)
+        .create();
+  }
+
+  void highlightUnused(PsiElement psiElement, String message) {
+    if (psiElement.getContainingFile() != lispFile) return;
+    holder.newAnnotation(HighlightSeverity.WARNING, message)
+        .textAttributes(NOT_USED_ELEMENT_ATTRIBUTES)
         .range(psiElement)
         .create();
   }
