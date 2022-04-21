@@ -29,7 +29,12 @@ import static org.ax1.lisp.psi.LispTypes.STRING;
 
 public class SyntaxAnalyzer {
 
-  // Names that could look like function calls, but are really not.
+  private static final AnalyzeDefpackage ANALYZE_DEFPACKAGE = new AnalyzeDefpackage();
+
+  /**
+   * Names that could look like function calls, but behave effectively like language keywords and should
+   * be highlighted as such.
+   */
   private static final Set<String> KEYWORDS =
       Set.of("declare", "if", "ignore", "return", "setq", "special", "unless", "when");
 
@@ -38,7 +43,6 @@ public class SyntaxAnalyzer {
       "defmacro", new AnalyzeDefun(Type.DEFMACRO),
       "defun", new AnalyzeDefun(Type.DEFUN),
       "defvar", new AnalyzeDefvar(),
-      "defpackage", new AnalyzeDefpackage(),
       "defparameter", new AnalyzeDefparameter(),
       "dolist", new AnalyzeDolist(),
       "ecase", new AnalyzeEcase(),
@@ -66,11 +70,39 @@ public class SyntaxAnalyzer {
   }
 
   public void analyze() {
-    analyzeProject();
+    // We can't parse files without knowing how packages are defined, and we don't want to deal with dependencies and
+    // ordering which needs knowledge of ASDF or whatever system management is used. For a good enough approximation,
+    // we first scan all the files for toplevel DEFPACKAGE usages, assuming that the DEFPACKAGE symbol is always
+    // correct, and we scan everything else in a second pass, using strict symbol packages.
+    analyzePackages();
+    analyzeUsages();
     annotateSymbols();
   }
 
-  private void analyzeProject() {
+  private void analyzePackages() {
+    Collection<VirtualFile> virtualFiles =
+        FileTypeIndex.getFiles(LispFileType.INSTANCE, GlobalSearchScope.allScope(project));
+    for (VirtualFile virtualFile : virtualFiles) {
+      LispFile lispFile = (LispFile) PsiManager.getInstance(project).findFile(virtualFile);
+      if (lispFile != null) {
+        lispFile.getSexpList().forEach(this::checkDefpackage);
+      }
+    }
+  }
+
+  private void checkDefpackage(LispSexp sexp) {
+    LispList form = sexp.getList();
+    if (form == null) return;
+    List<LispSexp> sexpList = form.getSexpList();
+    if (sexpList.size() < 1) return;
+    LispSymbol symbol = sexpList.get(0).getSymbol();
+    if (symbol == null) return;
+    if (symbol.getText().equals("defpackage")) {
+      ANALYZE_DEFPACKAGE.analyze(this, form);
+    }
+  }
+
+  private void analyzeUsages() {
     Collection<VirtualFile> virtualFiles =
         FileTypeIndex.getFiles(LispFileType.INSTANCE, GlobalSearchScope.allScope(project));
     for (VirtualFile virtualFile : virtualFiles) {
@@ -166,7 +198,9 @@ public class SyntaxAnalyzer {
     if (symbol0 != null) {
       String symbolName = symbol0.getText();
       Analyzer analyzer = ANALYZERS.get(symbolName);
-      if (analyzer != null) {
+      if (symbolName.equals("defpackage")) {
+        // Nothing: defpackage is handled in a previous pass.
+      } else if (analyzer != null) {
         analyzer.analyze(this, form);
       } else {
         analyzeFunctionCall(symbol0, form);
