@@ -1,5 +1,7 @@
 package org.ax1.lisp.analysis;
 
+import org.ax1.lisp.analysis.symbol.Package;
+import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -7,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class AnalyzeDestructuringBind implements Analyzer {
 
@@ -30,12 +33,22 @@ public class AnalyzeDestructuringBind implements Analyzer {
   }
 
   private List<LispSymbol> getDestructuringBindVariableSymbols(SyntaxAnalyzer analyzer, @NotNull List<LispSexp> lambdaList) {
+    Package cl = analyzer.symbolManager.getPackage("CL");
+    Set<Symbol> keywords = Set.of(
+        cl.intern("&ALLOW-OTHER-KEYS"),
+        cl.intern("&REST"),
+        cl.intern("&KEY"));
     List<LispSymbol> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
-      LispSymbol symbol = sexp.getSymbol();
+      LispSymbol symbolName = sexp.getSymbol();
       LispList list = sexp.getList();
-      if (symbol != null) {
-        result.add(symbol);
+      if (symbolName != null) {
+        Symbol symbol = analyzer.symbolManager.getSymbol(symbolName.getText());
+        if (keywords.contains(symbol)) {
+          analyzer.highlightConstant(symbolName);
+        } else {
+          result.add(symbolName);
+        }
       } else if (list != null) {
         result.addAll(getDestructuringBindVariableSymbols(analyzer, list.getSexpList()));
       } else {
