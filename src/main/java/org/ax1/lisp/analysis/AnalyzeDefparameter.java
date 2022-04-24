@@ -21,7 +21,7 @@ public class AnalyzeDefparameter implements Analyzer {
       analyzer.highlightError(sexpList.get(1), "Variable name expected");
       return;
     }
-    analyzer.dynamicSymbols.declareVariable(form, symbol);
+    analyzer.symbolManager.getVariable(symbol.getText()).setDefinition(form, symbol);
     analyzer.analyzeForm(sexpList.get(2));
   }
 }

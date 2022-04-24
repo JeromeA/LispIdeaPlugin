@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis;
 
+import org.ax1.lisp.analysis.symbol.Package;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -23,7 +24,7 @@ public class AnalyzeDefpackage implements Analyzer {
     }
     Package newPackage = new Package(packageName);
     formList.stream().skip(2).forEach(sexp -> analyzeOption(analyzer, sexp, newPackage));
-    analyzer.packages.add(newPackage);
+    analyzer.symbolManager.add(newPackage);
   }
 
   private void analyzeOption(SyntaxAnalyzer analyzer, LispSexp sexp, Package newPackage) {
@@ -55,7 +56,7 @@ public class AnalyzeDefpackage implements Analyzer {
       if (packageName == null) {
         analyzer.highlightError(sexp, "package name (string designator) expected");
       } else {
-        Package aPackage = analyzer.packages.get(packageName);
+        Package aPackage = analyzer.symbolManager.getPackage(packageName);
         if (aPackage == null) {
           analyzer.highlightError(sexp, "unknown package");
         } else {

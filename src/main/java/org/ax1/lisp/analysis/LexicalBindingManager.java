@@ -1,25 +1,27 @@
 package org.ax1.lisp.analysis;
 
+import org.ax1.lisp.analysis.symbol.Symbol;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.*;
 
-import static org.ax1.lisp.analysis.SymbolBinding.BindingType.LEXICAL;
-import static org.ax1.lisp.analysis.SymbolBinding.SymbolType.VARIABLE;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.BindingType.LEXICAL;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.VARIABLE;
 
-public class LexicalSymbolManager {
+public class LexicalBindingManager {
 
   private final LexicalDrop lexicalVariableDrop = () -> dropLexicalVariables();
   private final LexicalDrop lexicalFunctionDrop = () -> dropLexicalFunctions();
 
-  private final Stack<Map<String, SymbolBinding>> functions = new Stack<>();
-  private final Stack<Map<String, SymbolBinding>> variables = new Stack<>();
+  private final Stack<Map<Symbol, SymbolBinding>> functions = new Stack<>();
+  private final Stack<Map<Symbol, SymbolBinding>> variables = new Stack<>();
   private final List<SymbolBinding> retired = new ArrayList<>();
-  private final DynamicSymbolManager dynamicSymbolManager;
+  private final SyntaxAnalyzer analyzer;
 
-  public LexicalSymbolManager(DynamicSymbolManager dynamicSymbolManager) {
-    this.dynamicSymbolManager = dynamicSymbolManager;
+  public LexicalBindingManager(SyntaxAnalyzer analyzer) {
+    this.analyzer = analyzer;
   }
 
   public void dropLexicalVariables() {
@@ -32,45 +34,47 @@ public class LexicalSymbolManager {
 
   public void registerFunctionUsage(LispSymbol symbol) {
     String symbolName = symbol.getText();
-    SymbolBinding symbolBinding = getFunctionSymbol(symbolName);
+    SymbolBinding symbolBinding = getFunctionBinding(symbolName);
     symbolBinding.addUsage(symbol);
     symbol.setSymbolBinding(symbolBinding);
   }
 
   public void registerVariableUsage(LispSymbol symbol) {
     String symbolName = symbol.getText();
-    SymbolBinding symbolBinding = getVariableSymbol(symbolName);
+    SymbolBinding symbolBinding = getVariableBinding(symbolName);
     symbolBinding.addUsage(symbol);
     symbol.setSymbolBinding(symbolBinding);
   }
 
   public LexicalDrop defineLexicalVariables(LispList container, List<LispSymbol> variableList) {
-    Map<String, SymbolBinding> newDictionary = new HashMap<>();
+    Map<Symbol, SymbolBinding> newDictionary = new HashMap<>();
     for (LispSymbol symbol : variableList) {
       String symbolName = symbol.getText();
       SymbolBinding symbolBinding = new SymbolBinding(symbolName, VARIABLE, LEXICAL);
       symbolBinding.setDefinition(container, symbol);
-      newDictionary.put(symbolName, symbolBinding);
+      newDictionary.put(analyzer.symbolManager.getSymbol(symbolName), symbolBinding);
       symbol.setSymbolBinding(symbolBinding);
     }
     variables.push(newDictionary);
     return lexicalVariableDrop;
   }
 
-  private SymbolBinding getVariableSymbol(String symbolName) {
+  private SymbolBinding getVariableBinding(String symbolName) {
+    Symbol symbol = analyzer.symbolManager.getSymbol(symbolName);
     for (int i = variables.size() - 1; i >= 0; i--) {
-      SymbolBinding symbol = variables.get(i).get(symbolName);
-      if (symbol != null) return symbol;
+      SymbolBinding binding = variables.get(i).get(symbol);
+      if (binding != null) return binding;
     }
-    return dynamicSymbolManager.getSymbolDescriptor(symbolName).getVariable();
+    return analyzer.symbolManager.getVariable(symbol);
   }
 
-  private SymbolBinding getFunctionSymbol(String symbolName) {
+  private SymbolBinding getFunctionBinding(String symbolName) {
+    Symbol symbol = analyzer.symbolManager.getSymbol(symbolName);
     for (int i = functions.size() - 1; i >= 0; i--) {
-      SymbolBinding symbol = functions.get(i).get(symbolName);
-      if (symbol != null) return symbol;
+      SymbolBinding binding = functions.get(i).get(symbol);
+      if (binding != null) return binding;
     }
-    return dynamicSymbolManager.getSymbolDescriptor(symbolName).getFunction();
+    return analyzer.symbolManager.getFunction(symbol);
   }
 
   public boolean isEmpty() {

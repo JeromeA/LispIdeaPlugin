@@ -26,9 +26,9 @@ public class AnalyzeLet implements Analyzer {
     }
     List<LispSexp> varList = list1.getSexpList();
     analyzer.analyzeForms(getInitForms(varList), 0);
-    analyzer.lexicalSymbols.defineLexicalVariables(form, getLetVariableSymbols(analyzer, varList));
+    analyzer.lexicalBindings.defineLexicalVariables(form, getLetVariableSymbols(analyzer, varList));
     analyzer.analyzeForms(list, 2);
-    analyzer.lexicalSymbols.dropLexicalVariables();
+    analyzer.lexicalBindings.dropLexicalVariables();
   }
 
   private Collection<LispSexp> getInitForms(List<LispSexp> varList) {

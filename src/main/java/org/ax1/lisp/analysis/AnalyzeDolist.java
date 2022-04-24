@@ -27,8 +27,8 @@ public class AnalyzeDolist implements Analyzer {
       return;
     }
     analyzer.analyzeForm(varList.getSexpList().get(1));
-    analyzer.lexicalSymbols.defineLexicalVariables(form, List.of(var));
+    analyzer.lexicalBindings.defineLexicalVariables(form, List.of(var));
     analyzer.analyzeForms(list, 2);
-    analyzer.lexicalSymbols.dropLexicalVariables();
+    analyzer.lexicalBindings.dropLexicalVariables();
   }
 }

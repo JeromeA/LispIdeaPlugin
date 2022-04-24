@@ -1,6 +1,6 @@
 package org.ax1.lisp.analysis;
 
-import org.ax1.lisp.analysis.LexicalSymbolManager.LexicalDrop;
+import org.ax1.lisp.analysis.LexicalBindingManager.LexicalDrop;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -64,7 +64,7 @@ public class AnalyzeLoop implements Analyzer {
       analyzer.highlightError(sexp1, "Variable name expected");
       return;
     }
-    try (LexicalDrop lexicalDrop = analyzer.lexicalSymbols.defineLexicalVariables(form, List.of(sexp1.getSymbol()))) {
+    try (LexicalDrop lexicalDrop = analyzer.lexicalBindings.defineLexicalVariables(form, List.of(sexp1.getSymbol()))) {
       LispSexp sexp2 = list.get(startAt + 2);
       if (sexp2.getSymbol() == null || ! sexp2.getSymbol().getText().equals("=")) {
         analyzer.highlightError(sexp2, "'=' expected");
@@ -84,7 +84,7 @@ public class AnalyzeLoop implements Analyzer {
       analyzer.highlightError(sexp1, "Variable name expected");
       return;
     }
-    try (LexicalDrop lexicalDrop = analyzer.lexicalSymbols.defineLexicalVariables(form, List.of(sexp1.getSymbol()))) {
+    try (LexicalDrop lexicalDrop = analyzer.lexicalBindings.defineLexicalVariables(form, List.of(sexp1.getSymbol()))) {
       LispSexp sexp2 = list.get(startAt + 2);
       if (sexp2.getSymbol() == null || !FOR_SUBCLAUSE_KEYWORDS.contains(sexp2.getSymbol().getText())) {
         analyzer.highlightError(sexp2, "Loop keyword expected");

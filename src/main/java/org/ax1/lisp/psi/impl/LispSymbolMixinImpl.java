@@ -7,7 +7,7 @@ import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
-import org.ax1.lisp.analysis.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.usages.LispSymbolReference;
 import org.ax1.lisp.psi.*;
 import org.jetbrains.annotations.NotNull;
@@ -15,9 +15,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static org.ax1.lisp.analysis.SymbolBinding.BindingType.LEXICAL;
-import static org.ax1.lisp.analysis.SymbolBinding.SymbolType.FUNCTION;
-import static org.ax1.lisp.analysis.SymbolBinding.SymbolType.VARIABLE;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.BindingType.LEXICAL;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.FUNCTION;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.VARIABLE;
 
 public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implements PsiNameIdentifierOwner, LispSymbol {
 

@@ -1,4 +1,4 @@
-package org.ax1.lisp.analysis;
+package org.ax1.lisp.analysis.symbol;
 
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSymbol;
@@ -9,11 +9,14 @@ import java.util.Set;
 
 public class SymbolBinding {
   private final String name;
+  private String description;
+
   private LispList container;
-  private final SymbolType symbolType;
-  private final BindingType bindingType;
   private LispSymbol definition;
   private final Set<LispSymbol> usages = new HashSet<>();
+
+  private final SymbolType symbolType;
+  private final BindingType bindingType;
 
   public SymbolBinding(String name, SymbolType symbolType, BindingType bindingType) {
     this.name = name;
@@ -42,6 +45,10 @@ public class SymbolBinding {
     return definition;
   }
 
+  public boolean isDefined() {
+    return definition != null || description != null;
+  }
+
   public SymbolType getSymbolType() {
     return symbolType;
   }
@@ -52,6 +59,14 @@ public class SymbolBinding {
 
   public String getName() {
     return name;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   public enum SymbolType {

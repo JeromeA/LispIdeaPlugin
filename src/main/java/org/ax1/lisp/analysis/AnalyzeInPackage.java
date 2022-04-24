@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis;
 
+import org.ax1.lisp.analysis.symbol.Package;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 
@@ -17,11 +18,12 @@ public class AnalyzeInPackage implements Analyzer {
       analyzer.highlightError(arg, "Expected name designator");
       return;
     }
-    if (analyzer.packages.get(stringDesignator) == null) {
+    Package newPackage = analyzer.symbolManager.getPackage(stringDesignator);
+    if (newPackage == null) {
       analyzer.highlightUnknown(arg, String.format("Unknown package '%s'", stringDesignator));
       return;
     }
-    analyzer.packageName = stringDesignator;
+    analyzer.symbolManager.setCurrentPackage(newPackage);
   }
 
 }

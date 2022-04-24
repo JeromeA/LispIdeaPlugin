@@ -1,6 +1,6 @@
 package org.ax1.lisp.analysis;
 
-import org.ax1.lisp.analysis.LexicalSymbolManager.LexicalDrop;
+import org.ax1.lisp.analysis.LexicalBindingManager.LexicalDrop;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -30,7 +30,7 @@ public class AnalyzeDefun implements Analyzer {
     LispSexp sexp1 = list.get(1);
     LispSymbol symbol1 = sexp1.getSymbol();
     if (symbol1 != null) {
-      analyzer.dynamicSymbols.declareFunction(form, symbol1);
+      analyzer.symbolManager.getFunction(symbol1.getText()).setDefinition(form, symbol1);
       analyzer.highlight(symbol1, FUNCTION_DECLARATION);
     } else {
       // TODO: check DEFUN SETF case.
@@ -44,7 +44,7 @@ public class AnalyzeDefun implements Analyzer {
         .map(LispSexp::getSymbol)
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
-    try(LexicalDrop lexicalDrop = analyzer.lexicalSymbols.defineLexicalVariables(form, variables)) {
+    try(LexicalDrop lexicalDrop = analyzer.lexicalBindings.defineLexicalVariables(form, variables)) {
       analyzer.analyzeForms(list, 3);
     }
   }

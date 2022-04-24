@@ -1,7 +1,7 @@
 package org.ax1.lisp.psi.impl;
 
 import com.intellij.psi.PsiNameIdentifierOwner;
-import org.ax1.lisp.analysis.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 
 public interface LispSymbolMixin extends PsiNameIdentifierOwner {
