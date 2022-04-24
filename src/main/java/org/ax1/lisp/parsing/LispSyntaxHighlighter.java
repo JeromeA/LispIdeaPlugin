@@ -44,6 +44,9 @@ public class LispSyntaxHighlighter extends SyntaxHighlighterBase {
     if (tokenType.equals(LispTypes.NUMBER)) {
       return NUMBER_KEYS;
     }
+    if (tokenType.equals(LispTypes.CHARACTER)) {
+      return NUMBER_KEYS;
+    }
     if (tokenType.equals(LispTypes.STRING)) {
       return STRING_KEYS;
     }

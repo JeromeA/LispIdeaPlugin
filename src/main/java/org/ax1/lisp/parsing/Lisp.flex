@@ -21,7 +21,8 @@ rparen = ")"
 eol = \r | \n | \r\n
 white_space = [\ \r\n\t]
 comment = ; [^\r\n]* {eol}?
-number = -? [0-9]+
+number = -? [0-9]+ | "#x" [0-9a-fA-F]+
+character = "#\\" [a-zA-Z]
 quote = '
 double_quote = \"
 symbol = [^\ \r\n\t\"';()0-9] [^\ \r\n\t\"';()]*
@@ -35,6 +36,7 @@ symbol = [^\ \r\n\t\"';()0-9] [^\ \r\n\t\"';()]*
   {rparen}                       { return LispTypes.RPAREN; }
   {comment}                      { return LispTypes.COMMENT; }
   {number}                       { return LispTypes.NUMBER; }
+  {character}                    { return LispTypes.CHARACTER; }
   {quote}                        { return LispTypes.QUOTE; }
   {double_quote}                 { yybegin(STRING); }
   {white_space}+                 { return TokenType.WHITE_SPACE; }
