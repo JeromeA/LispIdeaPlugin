@@ -32,7 +32,7 @@ public class SyntaxAnalyzer {
   private static final AnalyzeDefpackage ANALYZE_DEFPACKAGE = new AnalyzeDefpackage();
   private static final AnalyzeFunctionCall ANALYZE_FUNCTION_CALL = new AnalyzeFunctionCall();
 
-  private static final Map<Symbol, Analyzer> analyzers = new HashMap<>();
+  private final Map<Symbol, Analyzer> analyzers = new HashMap<>();
 
   private final Project project;
   private final LispFile lispFile;
@@ -44,7 +44,7 @@ public class SyntaxAnalyzer {
     this.lispFile = lispFile;
     this.holder = holder;
     project = lispFile.getProject();
-    symbolManager = SymbolManager.getInstance(project);
+    symbolManager = new SymbolManager();
     lexicalBindings = new LexicalBindingManager(this);
     analyzers.put(getClSymbol("COND"), new AnalyzeCond());
     analyzers.put(getClSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO));

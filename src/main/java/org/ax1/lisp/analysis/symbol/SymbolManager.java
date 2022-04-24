@@ -1,7 +1,5 @@
 package org.ax1.lisp.analysis.symbol;
 
-import com.intellij.openapi.components.Service;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -13,18 +11,13 @@ import static org.ax1.lisp.analysis.symbol.SymbolBinding.BindingType.DYNAMIC;
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.FUNCTION;
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.VARIABLE;
 
-@Service(Service.Level.PROJECT)
 public final class SymbolManager {
 
   private final Map<String, Package> packages = new HashMap<>();
-  private final KeywordPackage keywordPackage = new KeywordPackage();
-  private Package currentPackage;
   private final Map<Symbol, SymbolBinding> functions = new HashMap<>();
   private final Map<Symbol, SymbolBinding> variables = new HashMap<>();
-
-  public static SymbolManager getInstance(Project project) {
-    return project.getService(SymbolManager.class);
-  }
+  private final KeywordPackage keywordPackage = new KeywordPackage();
+  private Package currentPackage;
 
   public SymbolManager() {
     Package commonLisp = new CommonLispPackage(this);
