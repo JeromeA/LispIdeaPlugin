@@ -11,6 +11,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.ax1.lisp.LispFileType;
+import org.ax1.lisp.LispProject;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.analysis.symbol.SymbolManager;
@@ -69,6 +70,7 @@ public class SyntaxAnalyzer {
     analyzePackages();
     analyzeUsages();
     annotateSymbols();
+    LispProject.getInstance(project).setSymbolManager(symbolManager);
   }
 
   private void analyzePackages() {

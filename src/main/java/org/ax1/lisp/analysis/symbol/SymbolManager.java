@@ -2,10 +2,8 @@ package org.ax1.lisp.analysis.symbol;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.BindingType.DYNAMIC;
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.FUNCTION;
@@ -90,5 +88,17 @@ public final class SymbolManager {
       map.put(symbol, binding);
     }
     return binding;
+  }
+
+  public List<Symbol> getAvailableFunctions() {
+    return getAvailableSymbols().stream().filter(functions::containsKey).collect(Collectors.toList());
+  }
+
+  public List<Symbol> getAvailableVariables() {
+    return getAvailableSymbols().stream().filter(variables::containsKey).collect(Collectors.toList());
+  }
+
+  private Collection<Symbol> getAvailableSymbols() {
+    return currentPackage.getSymbols();
   }
 }

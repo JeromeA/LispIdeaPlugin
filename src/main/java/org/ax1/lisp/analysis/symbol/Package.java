@@ -46,4 +46,8 @@ public class Package {
     // TODO: do the right thing.
     return symbols.containsKey(symbolName);
   }
+
+  public Collection<Symbol> getSymbols() {
+    return symbols.values();
+  }
 }

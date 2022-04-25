@@ -53,6 +53,9 @@
     <runLineMarkerContributor
         language="Lisp"
         implementationClass="org.ax1.lisp.LispRunLineMarkerContributor"/>
+    <completion.contributor
+        language="Lisp"
+        implementationClass="org.ax1.lisp.LispCompletionContributor"/>
   </extensions>
   <actions>
     <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction" use-shortcut-of="RunClass"/>
