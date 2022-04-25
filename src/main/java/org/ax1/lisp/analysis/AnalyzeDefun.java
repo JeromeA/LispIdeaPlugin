@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.ax1.lisp.parsing.LispSyntaxHighlighter.FUNCTION_DECLARATION;
+import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.FUNCTION_DECLARATION;
 
 public class AnalyzeDefun implements Analyzer {
 
