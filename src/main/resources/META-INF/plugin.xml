@@ -56,6 +56,9 @@
     <completion.contributor
         language="Lisp"
         implementationClass="org.ax1.lisp.LispCompletionContributor"/>
+    <lang.findUsagesProvider
+        language="Lisp"
+        implementationClass="org.ax1.lisp.LispFindUsagesProvider"/>
   </extensions>
   <actions>
     <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction" use-shortcut-of="RunClass"/>
