@@ -71,16 +71,9 @@ public class SymbolBinding {
 
   public static SymbolBinding merge(Collection<SymbolBinding> bindings) {
     SymbolBinding firstBinding = getFirstElement(bindings);
-    if (firstBinding.name.equals("*MESSAGE-DEFINITIONS*")) {
-      System.out.println("Merging *message-definitions* " + bindings.size());
-      bindings.forEach(binding -> System.out.println("- usages: " + binding.usages));
-    }
     if (bindings.size() == 1) return firstBinding;
     SymbolBinding result = new SymbolBinding(firstBinding.getName(), firstBinding.getSymbolType(), firstBinding.getBindingType());
     bindings.forEach(binding -> result.add(binding));
-    if (firstBinding.name.equals("*MESSAGE-DEFINITIONS*")) {
-      System.out.println("Result: " + result.usages.size());
-    }
     return result;
   }
 
