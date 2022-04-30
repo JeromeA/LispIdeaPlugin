@@ -4,5 +4,6 @@ public class KeywordPackage extends Package {
 
   public KeywordPackage() {
     super("KEYWORD");
+    setStandardPackage(true);
   }
 }

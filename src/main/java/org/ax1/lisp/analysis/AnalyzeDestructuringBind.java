@@ -15,16 +15,16 @@ public class AnalyzeDestructuringBind implements Analyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.highlightKeyword(form);
+    analyzer.annotations.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
-      analyzer.highlightError(form, "DESTRUCTURING-BIND needs at least 2 arguments.");
+      analyzer.annotations.highlightError(form, "DESTRUCTURING-BIND needs at least 2 arguments.");
       return;
     }
     LispSexp sexp1 = list.get(1);
     LispList list1 = sexp1.getList();
     if (list1 == null) {
-      analyzer.highlightError(sexp1, "Destructuring lambda list expected");
+      analyzer.annotations.highlightError(sexp1, "Destructuring lambda list expected");
       return;
     }
     analyzer.lexicalBindings.defineLexicalVariables(form, getDestructuringBindVariableSymbols(analyzer, list1.getSexpList()));
@@ -35,9 +35,9 @@ public class AnalyzeDestructuringBind implements Analyzer {
   private List<LispSymbol> getDestructuringBindVariableSymbols(SyntaxAnalyzer analyzer, @NotNull List<LispSexp> lambdaList) {
     Package cl = analyzer.symbolManager.getPackage("CL");
     Set<Symbol> keywords = Set.of(
-        cl.intern("&ALLOW-OTHER-KEYS"),
-        cl.intern("&REST"),
-        cl.intern("&KEY"));
+        cl.intern(analyzer.symbolManager, "&ALLOW-OTHER-KEYS"),
+        cl.intern(analyzer.symbolManager, "&REST"),
+        cl.intern(analyzer.symbolManager, "&KEY"));
     List<LispSymbol> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
       LispSymbol symbolName = sexp.getSymbol();
@@ -45,14 +45,14 @@ public class AnalyzeDestructuringBind implements Analyzer {
       if (symbolName != null) {
         Symbol symbol = analyzer.symbolManager.getSymbol(symbolName.getText());
         if (keywords.contains(symbol)) {
-          analyzer.highlightConstant(symbolName);
+          analyzer.annotations.highlightConstant(symbolName);
         } else {
           result.add(symbolName);
         }
       } else if (list != null) {
         result.addAll(getDestructuringBindVariableSymbols(analyzer, list.getSexpList()));
       } else {
-        analyzer.highlightError(sexp, "Destructuring lambda list expected");
+        analyzer.annotations.highlightError(sexp, "Destructuring lambda list expected");
       }
     }
     return result;

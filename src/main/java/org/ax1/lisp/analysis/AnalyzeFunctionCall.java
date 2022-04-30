@@ -17,11 +17,11 @@ public class AnalyzeFunctionCall implements Analyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.highlightKeyword(form);
+    analyzer.annotations.highlightKeyword(form);
     LispSymbol symbolName = form.getSexpList().get(0).getSymbol();
     Symbol symbol = analyzer.symbolManager.getSymbol(symbolName.getText());
     if (KEYWORDS.contains(symbol.getName())) {
-      analyzer.highlightKeyword(symbolName);
+      analyzer.annotations.highlightKeyword(symbolName);
     }
     analyzer.lexicalBindings.registerFunctionUsage(symbolName);
     analyzer.analyzeForms(form.getSexpList(), 1);

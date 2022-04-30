@@ -996,6 +996,7 @@ public class CommonLispPackage extends Package {
   public CommonLispPackage(SymbolManager symbolManager) {
     super("COMMON-LISP");
     this.symbolManager = symbolManager;
+    setStandardPackage(true);
     setNicknames(Set.of("CL"));
     Arrays.stream(COMMON_LISP_FUNCTIONS).forEach(this::addFunction);
     Arrays.stream(COMMON_LISP_VARIABLES).forEach(this::addVariable);
@@ -1003,10 +1004,10 @@ public class CommonLispPackage extends Package {
   }
 
   public void addFunction(String name) {
-    symbolManager.getFunction(intern(name)).setDescription("Standard function");
+    symbolManager.getFunction(intern(symbolManager, name)).setDescription("Standard function");
   }
 
   public void addVariable(String name) {
-    symbolManager.getVariable(intern(name)).setDescription("Standard variable");
+    symbolManager.getVariable(intern(symbolManager, name)).setDescription("Standard variable");
   }
 }

@@ -10,12 +10,12 @@ public class AnalyzeCond implements Analyzer{
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.highlightKeyword(form);
+    analyzer.annotations.highlightKeyword(form);
     List<LispSexp> sexpList = form.getSexpList();
     for (LispSexp sexp : sexpList.stream().skip(1).collect(Collectors.toList())) {
       LispList pair = sexp.getList();
       if (pair == null || pair.getSexpList().size() != 2) {
-        analyzer.highlightError(sexp, "(test-form form) pair expected");
+        analyzer.annotations.highlightError(sexp, "(test-form form) pair expected");
         continue;
       }
       analyzer.analyzeForm(pair.getSexpList().get(0));

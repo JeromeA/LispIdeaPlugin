@@ -10,15 +10,15 @@ public class AnalyzeDefparameter implements Analyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.highlightKeyword(form);
+    analyzer.annotations.highlightKeyword(form);
     List<LispSexp> sexpList = form.getSexpList();
     if (sexpList.size() < 3) {
-      analyzer.highlightError(form, "DEFPARAMETER takes at least 2 arguments");
+      analyzer.annotations.highlightError(form, "DEFPARAMETER takes at least 2 arguments");
       return;
     }
     LispSymbol symbol = sexpList.get(1).getSymbol();
     if (symbol == null) {
-      analyzer.highlightError(sexpList.get(1), "Variable name expected");
+      analyzer.annotations.highlightError(sexpList.get(1), "Variable name expected");
       return;
     }
     analyzer.symbolManager.getVariable(symbol.getText()).setDefinition(form, symbol);

@@ -1,5 +1,7 @@
 package org.ax1.lisp.analysis.symbol;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -11,21 +13,43 @@ import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.VARIABLE;
 
 public final class SymbolManager {
 
-  private final Map<String, Package> packages = new HashMap<>();
+  private static final KeywordPackage keywordPackage = new KeywordPackage();
+
+  public final Map<String, Package> packages = new HashMap<>();
   private final Map<Symbol, SymbolBinding> functions = new HashMap<>();
   private final Map<Symbol, SymbolBinding> variables = new HashMap<>();
-  private final KeywordPackage keywordPackage = new KeywordPackage();
   private Package currentPackage;
 
   public SymbolManager() {
-    Package commonLisp = new CommonLispPackage(this);
-    add(commonLisp);
-    Package commonLispUser = new Package("COMMON-LISP-USER");
-    commonLispUser.addUse(commonLisp);
-    commonLispUser.setNicknames(Set.of("CL-USER"));
+    add(new CommonLispPackage(this));
+    Package commonLispUser = new CommonLispUserPackage();
     add(commonLispUser);
     add(keywordPackage);
     currentPackage = commonLispUser;
+  }
+
+  public SymbolManager(Collection<Package> packages) {
+    this();
+    packages.forEach(this::add);
+  }
+
+  public static SymbolManager mergeBindings(Collection<SymbolManager> symbolManagers) {
+    SymbolManager result = new SymbolManager(symbolManagers.iterator().next().packages.values());
+    Multimap<Symbol, SymbolBinding> functions = ArrayListMultimap.create();
+    symbolManagers.stream().flatMap(symbolManager -> symbolManager.functions.entrySet().stream())
+        .forEach(entry -> functions.put(entry.getKey(), entry.getValue()));
+    functions.keySet().forEach(symbol -> {
+      Collection<SymbolBinding> bindings = functions.get(symbol);
+      result.functions.put(symbol, SymbolBinding.merge(bindings));
+    });
+    Multimap<Symbol, SymbolBinding> variables = ArrayListMultimap.create();
+    symbolManagers.stream().flatMap(symbolManager -> symbolManager.variables.entrySet().stream())
+        .forEach(entry -> variables.put(entry.getKey(), entry.getValue()));
+    variables.keySet().forEach(symbol -> {
+      Collection<SymbolBinding> bindings = variables.get(symbol);
+      result.variables.put(symbol, SymbolBinding.merge(bindings));
+    });
+    return result;
   }
 
   public Package getPackage(String name) {
@@ -41,15 +65,15 @@ public final class SymbolManager {
     name = name.toUpperCase();
     int index = name.indexOf(':');
     if (index == 0) {
-      return keywordPackage.intern(name.substring(1));
+      return keywordPackage.intern(this, name.substring(1));
     }
     if (index > 0) {
       // TODO: handle double colon.
       String packageName = name.substring(0, index);
       String symbolName = name.substring(index + 1);
-      return packages.get(packageName).intern(symbolName);
+      return packages.get(packageName).intern(this, symbolName);
     }
-    return currentPackage.intern(name);
+    return currentPackage.intern(this, name);
   }
 
   public SymbolBinding getFunction(Symbol symbol) {
@@ -100,5 +124,11 @@ public final class SymbolManager {
 
   private Collection<Symbol> getAvailableSymbols() {
     return currentPackage.getSymbols();
+  }
+
+  public Set<Package> getUserDefinedPackages() {
+    return packages.values().stream()
+        .filter(p -> !p.isStandardPackage())
+        .collect(Collectors.toSet());
   }
 }

@@ -69,6 +69,38 @@ public class SymbolBinding {
     this.description = description;
   }
 
+  public static SymbolBinding merge(Collection<SymbolBinding> bindings) {
+    SymbolBinding firstBinding = getFirstElement(bindings);
+    if (firstBinding.name.equals("*MESSAGE-DEFINITIONS*")) {
+      System.out.println("Merging *message-definitions* " + bindings.size());
+      bindings.forEach(binding -> System.out.println("- usages: " + binding.usages));
+    }
+    if (bindings.size() == 1) return firstBinding;
+    SymbolBinding result = new SymbolBinding(firstBinding.getName(), firstBinding.getSymbolType(), firstBinding.getBindingType());
+    bindings.forEach(binding -> result.add(binding));
+    if (firstBinding.name.equals("*MESSAGE-DEFINITIONS*")) {
+      System.out.println("Result: " + result.usages.size());
+    }
+    return result;
+  }
+
+  private void add(SymbolBinding binding) {
+    if (binding.description != null) description = binding.description;
+    if (binding.container != null) container = binding.container;
+    if (binding.definition != null) {
+      definition = binding.definition;
+      binding.definition.setSymbolBinding(this);
+    }
+    binding.usages.forEach(usage -> {
+      usages.add(usage);
+      usage.setSymbolBinding(this);
+    });
+  }
+
+  private static <T> T getFirstElement(Collection<T> collection) {
+    return collection.iterator().next();
+  }
+
   public enum SymbolType {
     FUNCTION,
     VARIABLE

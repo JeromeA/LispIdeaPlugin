@@ -24,5 +24,5 @@ public interface LispSymbolMixin extends PsiNameIdentifierOwner {
 
   void setSymbolBinding(SymbolBinding symbolBinding);
 
-  SymbolBinding getSymbolDescriptor();
+  SymbolBinding getSymbolBinding();
 }

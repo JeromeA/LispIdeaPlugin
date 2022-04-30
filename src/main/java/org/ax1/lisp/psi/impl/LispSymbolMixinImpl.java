@@ -109,7 +109,7 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   public boolean isDestructuringBindVariableName() {
-    LispList destructuringBind = getSymbolDescriptor().getContainer();
+    LispList destructuringBind = getSymbolBinding().getContainer();
     LispSexp lispSexp = destructuringBind.getSexpList().get(0);
     return lispSexp.getSymbol().getText().equals("destructuring-bind");
   }
@@ -131,7 +131,7 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
-  public SymbolBinding getSymbolDescriptor() {
+  public SymbolBinding getSymbolBinding() {
     return symbolBinding;
   }
 

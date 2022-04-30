@@ -5,8 +5,9 @@ import java.util.*;
 public class Package {
   private final String name;
   private Set<String> nicknames = Set.of();
-  private final Set<Package> use = new HashSet<>();
+  private final Set<String> use = new HashSet<>();
   protected final Map<String, Symbol> symbols = new HashMap<>();
+  private boolean isStandard;
 
   public Package(String name) {
     this.name = name;
@@ -24,19 +25,20 @@ public class Package {
     return name;
   }
 
-  public void addUse(Package aPackage) {
-    use.add(aPackage);
+  public void addUse(String packageName) {
+    use.add(packageName);
   }
 
-  public Symbol intern(String symbolName) {
+  public Symbol intern(SymbolManager symbolManager, String symbolName) {
     Symbol symbol = symbols.get(symbolName);
     if (symbol == null) {
-      for (Package aPackage : use) {
+      for (String packageName : use) {
+        Package aPackage = symbolManager.getPackage(packageName);
         if (aPackage.isExporting(symbolName)) {
-          return aPackage.intern(symbolName);
+          return aPackage.intern(symbolManager, symbolName);
         }
       }
-      symbol = new Symbol(symbolName);
+      symbol = new Symbol(name, symbolName);
       symbols.put(symbolName, symbol);
     }
     return symbol;
@@ -49,5 +51,13 @@ public class Package {
 
   public Collection<Symbol> getSymbols() {
     return symbols.values();
+  }
+
+  public boolean isStandardPackage() {
+    return isStandard;
+  }
+
+  public void setStandardPackage(boolean value) {
+    isStandard = value;
   }
 }

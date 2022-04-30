@@ -13,15 +13,15 @@ public class AnalyzeLet implements Analyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.highlightKeyword(form);
+    analyzer.annotations.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
-      analyzer.highlightError(form, "LET needs at least 1 argument");
+      analyzer.annotations.highlightError(form, "LET needs at least 1 argument");
       return;
     }
     LispList list1 = list.get(1).getList();
     if (list1 == null) {
-      analyzer.highlightError(list.get(1), "Variable binding list expected");
+      analyzer.annotations.highlightError(list.get(1), "Variable binding list expected");
       return;
     }
     List<LispSexp> varList = list1.getSexpList();
@@ -55,12 +55,12 @@ public class AnalyzeLet implements Analyzer {
       } else if (list != null) {
         List<LispSexp> sexpList = list.getSexpList();
         if (!isVarInitValid(sexpList)) {
-          analyzer.highlightError(list, "Expected var init form");
+          analyzer.annotations.highlightError(list, "Expected var init form");
           continue;
         }
         result.add(sexpList.get(0).getSymbol());
       } else {
-        analyzer.highlightError(sexp, "Expected var binding");
+        analyzer.annotations.highlightError(sexp, "Expected var binding");
       }
     }
     return result;

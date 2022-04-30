@@ -10,15 +10,15 @@ public class AnalyzeDefvar implements Analyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.highlightKeyword(form);
+    analyzer.annotations.highlightKeyword(form);
     List<LispSexp> sexpList = form.getSexpList();
     if (sexpList.size() < 2) {
-      analyzer.highlightError(form, "DEFVAR takes at least one argument");
+      analyzer.annotations.highlightError(form, "DEFVAR takes at least one argument");
       return;
     }
     LispSymbol symbol = sexpList.get(1).getSymbol();
     if (symbol == null) {
-      analyzer.highlightError(sexpList.get(1), "Variable name expected");
+      analyzer.annotations.highlightError(sexpList.get(1), "Variable name expected");
       return;
     }
     analyzer.symbolManager.getVariable(symbol.getText()).setDefinition(form, symbol);

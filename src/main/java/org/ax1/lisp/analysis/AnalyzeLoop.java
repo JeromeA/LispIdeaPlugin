@@ -14,7 +14,7 @@ public class AnalyzeLoop implements Analyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.highlightKeyword(form.getSexpList().get(0));
+    analyzer.annotations.highlightKeyword(form.getSexpList().get(0));
     analyze(analyzer, form, 1);
   }
 
@@ -23,7 +23,7 @@ public class AnalyzeLoop implements Analyzer {
     if (list.size() <= startAt) return;
     LispSymbol symbol = list.get(startAt).getSymbol();
     if (symbol == null) {
-      analyzer.highlightError(list.get(startAt), "Loop keyword expected");
+      analyzer.annotations.highlightError(list.get(startAt), "Loop keyword expected");
       return;
     }
     switch (symbol.getText()) {
@@ -45,32 +45,32 @@ public class AnalyzeLoop implements Analyzer {
         analyzeDo(analyzer, form, startAt);
         break;
       default:
-        analyzer.highlightError(list.get(startAt), "Loop keyword expected");
+        analyzer.annotations.highlightError(list.get(startAt), "Loop keyword expected");
     }
   }
 
   private void analyzeDo(SyntaxAnalyzer analyzer, LispList form, int startAt) {
     List<LispSexp> list = form.getSexpList();
-    analyzer.highlightKeyword(list.get(startAt));
+    analyzer.annotations.highlightKeyword(list.get(startAt));
     analyzer.analyzeForm(list.get(startAt + 1));
     analyze(analyzer, form, startAt + 2);
   }
 
   private void analyzeWith(SyntaxAnalyzer analyzer, LispList form, int startAt) {
     List<LispSexp> list = form.getSexpList();
-    analyzer.highlightKeyword(list.get(startAt));
+    analyzer.annotations.highlightKeyword(list.get(startAt));
     LispSexp sexp1 = list.get(startAt + 1);
     if (sexp1.getSymbol() == null) {
-      analyzer.highlightError(sexp1, "Variable name expected");
+      analyzer.annotations.highlightError(sexp1, "Variable name expected");
       return;
     }
     try (LexicalDrop lexicalDrop = analyzer.lexicalBindings.defineLexicalVariables(form, List.of(sexp1.getSymbol()))) {
       LispSexp sexp2 = list.get(startAt + 2);
       if (sexp2.getSymbol() == null || ! sexp2.getSymbol().getText().equals("=")) {
-        analyzer.highlightError(sexp2, "'=' expected");
+        analyzer.annotations.highlightError(sexp2, "'=' expected");
         return;
       }
-      analyzer.highlightKeyword(sexp2);
+      analyzer.annotations.highlightKeyword(sexp2);
       analyzer.analyzeForm(list.get(startAt + 3));
       analyze(analyzer, form, startAt + 4);
     }
@@ -78,19 +78,19 @@ public class AnalyzeLoop implements Analyzer {
 
   private void analyzeFor(SyntaxAnalyzer analyzer, LispList form, int startAt) {
     List<LispSexp> list = form.getSexpList();
-    analyzer.highlightKeyword(list.get(startAt));
+    analyzer.annotations.highlightKeyword(list.get(startAt));
     LispSexp sexp1 = list.get(startAt + 1);
     if (sexp1.getSymbol() == null) {
-      analyzer.highlightError(sexp1, "Variable name expected");
+      analyzer.annotations.highlightError(sexp1, "Variable name expected");
       return;
     }
     try (LexicalDrop lexicalDrop = analyzer.lexicalBindings.defineLexicalVariables(form, List.of(sexp1.getSymbol()))) {
       LispSexp sexp2 = list.get(startAt + 2);
       if (sexp2.getSymbol() == null || !FOR_SUBCLAUSE_KEYWORDS.contains(sexp2.getSymbol().getText())) {
-        analyzer.highlightError(sexp2, "Loop keyword expected");
+        analyzer.annotations.highlightError(sexp2, "Loop keyword expected");
         return;
       }
-      analyzer.highlightKeyword(sexp2);
+      analyzer.annotations.highlightKeyword(sexp2);
       analyzer.analyzeForm(list.get(startAt + 3));
       analyze(analyzer, form, startAt + 4);
     }

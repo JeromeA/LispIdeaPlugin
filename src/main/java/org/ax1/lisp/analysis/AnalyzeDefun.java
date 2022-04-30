@@ -21,23 +21,23 @@ public class AnalyzeDefun implements Analyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.highlightKeyword(form);
+    analyzer.annotations.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
-      analyzer.highlightError(form, type.name() + " needs at least 2 arguments.");
+      analyzer.annotations.highlightError(form, type.name() + " needs at least 2 arguments.");
       return;
     }
     LispSexp sexp1 = list.get(1);
     LispSymbol symbol1 = sexp1.getSymbol();
     if (symbol1 != null) {
       analyzer.symbolManager.getFunction(symbol1.getText()).setDefinition(form, symbol1);
-      analyzer.highlight(symbol1, FUNCTION_DECLARATION);
+      analyzer.annotations.highlight(symbol1, FUNCTION_DECLARATION);
     } else {
       // TODO: check DEFUN SETF case.
     }
     LispList lambdaList = list.get(2).getList();
     if (lambdaList == null) {
-      analyzer.highlightError(list.get(2), "Lambda list expected");
+      analyzer.annotations.highlightError(list.get(2), "Lambda list expected");
       return;
     }
     List<LispSymbol> variables = lambdaList.getSexpList().stream()
