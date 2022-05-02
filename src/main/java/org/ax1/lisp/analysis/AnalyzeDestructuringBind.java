@@ -1,6 +1,6 @@
 package org.ax1.lisp.analysis;
 
-import org.ax1.lisp.analysis.symbol.Package;
+import org.ax1.lisp.analysis.symbol.LispPackage;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -33,7 +33,7 @@ public class AnalyzeDestructuringBind implements Analyzer {
   }
 
   private List<LispSymbol> getDestructuringBindVariableSymbols(SyntaxAnalyzer analyzer, @NotNull List<LispSexp> lambdaList) {
-    Package cl = analyzer.symbolManager.getPackage("CL");
+    LispPackage cl = analyzer.symbolManager.getPackage("CL");
     Set<Symbol> keywords = Set.of(
         cl.intern(analyzer.symbolManager, "&ALLOW-OTHER-KEYS"),
         cl.intern(analyzer.symbolManager, "&REST"),

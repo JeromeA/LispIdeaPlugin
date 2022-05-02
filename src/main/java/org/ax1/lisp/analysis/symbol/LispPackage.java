@@ -2,14 +2,14 @@ package org.ax1.lisp.analysis.symbol;
 
 import java.util.*;
 
-public class Package {
+public class LispPackage {
   private final String name;
   private Set<String> nicknames = Set.of();
   private final Set<String> use = new HashSet<>();
   protected final Map<String, Symbol> symbols = new HashMap<>();
   private boolean isStandard;
 
-  public Package(String name) {
+  public LispPackage(String name) {
     this.name = name;
   }
 
@@ -33,9 +33,9 @@ public class Package {
     Symbol symbol = symbols.get(symbolName);
     if (symbol == null) {
       for (String packageName : use) {
-        Package aPackage = symbolManager.getPackage(packageName);
-        if (aPackage.isExporting(symbolName)) {
-          return aPackage.intern(symbolManager, symbolName);
+        LispPackage lispPackage = symbolManager.getPackage(packageName);
+        if (lispPackage.isExporting(symbolName)) {
+          return lispPackage.intern(symbolManager, symbolName);
         }
       }
       symbol = new Symbol(name, symbolName);

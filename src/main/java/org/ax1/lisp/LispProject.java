@@ -8,7 +8,8 @@ import com.intellij.psi.search.GlobalSearchScope;
 import org.ax1.lisp.analysis.Annotate;
 import org.ax1.lisp.analysis.PackageAnalyzer;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.Package;
+import org.ax1.lisp.analysis.symbol.LispPackage;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.analysis.symbol.SymbolManager;
 import org.ax1.lisp.psi.LispFile;
 
@@ -18,13 +19,14 @@ import java.util.stream.Collectors;
 @Service
 public final class LispProject {
 
-  private Annotate EMPTY_ANNOTATE = new Annotate(null, null);
+  public static Annotate EMPTY_ANNOTATE = new Annotate(null, null);
 
   private SymbolManager symbolManager;
-  private Collection<Package> packages;
+  private Collection<LispPackage> packages;
   private final Project project;
-  private final Map<LispFile, Set<Package>> filePackages = new HashMap();
-  private final Map<LispFile, SymbolManager> fileSymbols = new HashMap();
+  private final Map<LispFile, Set<LispPackage>> filePackages = new HashMap();
+  final Map<LispFile, SymbolManager> fileSymbols = new HashMap();
+  final Map<LispFile, Collection<SymbolBinding>> lexicalBindings = new HashMap();
 
   public static LispProject getInstance(Project project) {
     return project.getService(LispProject.class);
@@ -35,13 +37,9 @@ public final class LispProject {
   }
 
   public SymbolManager getSymbolManager() {
-    updateSymbolManager();
-    return symbolManager;
-  }
-
-  private void updateSymbolManager() {
     updatePackages();
     updateSymbols();
+    return symbolManager;
   }
 
   public void updatePackages() {
@@ -66,16 +64,17 @@ public final class LispProject {
     symbolManager = SymbolManager.mergeBindings(fileSymbols.values());
   }
 
-  private void updateSymbolsForFile(LispFile lispFile, Collection<Package> packages) {
+  private void updateSymbolsForFile(LispFile lispFile, Collection<LispPackage> packages) {
     SyntaxAnalyzer analyzer = new SyntaxAnalyzer(lispFile, EMPTY_ANNOTATE, new SymbolManager(packages));
     analyzer.analyze();
-    setSymbols(lispFile, analyzer.symbolManager);
+    fileSymbols.put(lispFile, analyzer.symbolManager);
+    lexicalBindings.put(lispFile, analyzer.lexicalBindings.getRetired());
   }
 
   private void updatePackagesForFile(LispFile lispFile) {
     PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, EMPTY_ANNOTATE);
     packageAnalyzer.analyzePackages();
-    setPackages(lispFile, packageAnalyzer.analyzer.symbolManager.getUserDefinedPackages());
+    filePackages.put(lispFile, packageAnalyzer.analyzer.symbolManager.getUserDefinedPackages());
   }
 
   private Set<LispFile> getLispFiles() {
@@ -87,15 +86,7 @@ public final class LispProject {
         .collect(Collectors.toSet());
   }
 
-  public void setPackages(LispFile lispFile, Set<Package> packages) {
-    filePackages.put(lispFile, packages);
-  }
-
-  public void setSymbols(LispFile lispFile, SymbolManager symbolManager) {
-    fileSymbols.put(lispFile, symbolManager);
-  }
-
-  public Collection<Package> getPackages() {
+  public Collection<LispPackage> getPackages() {
     updatePackages();
     return packages;
   }

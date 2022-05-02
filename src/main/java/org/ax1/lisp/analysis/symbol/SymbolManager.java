@@ -15,20 +15,21 @@ public final class SymbolManager {
 
   private static final KeywordPackage keywordPackage = new KeywordPackage();
 
-  public final Map<String, Package> packages = new HashMap<>();
+  public final Map<String, LispPackage> packages = new HashMap<>();
   private final Map<Symbol, SymbolBinding> functions = new HashMap<>();
   private final Map<Symbol, SymbolBinding> variables = new HashMap<>();
-  private Package currentPackage;
+  private LispPackage currentPackage;
+  private CommonLispUserPackage commonLispUser;
 
   public SymbolManager() {
     add(new CommonLispPackage(this));
-    Package commonLispUser = new CommonLispUserPackage();
+    commonLispUser = new CommonLispUserPackage();
     add(commonLispUser);
     add(keywordPackage);
     currentPackage = commonLispUser;
   }
 
-  public SymbolManager(Collection<Package> packages) {
+  public SymbolManager(Collection<LispPackage> packages) {
     this();
     packages.forEach(this::add);
   }
@@ -52,11 +53,15 @@ public final class SymbolManager {
     return result;
   }
 
-  public Package getPackage(String name) {
+  public LispPackage getPackage(String name) {
     return packages.get(name);
   }
 
-  public void add(Package packageToAdd) {
+  public CommonLispUserPackage getCommonLispUserPackage() {
+    return commonLispUser;
+  }
+
+  public void add(LispPackage packageToAdd) {
     packages.put(packageToAdd.getName(), packageToAdd);
     packageToAdd.getNicknames().forEach(name -> packages.put(name, packageToAdd));
   }
@@ -92,7 +97,7 @@ public final class SymbolManager {
     return getVariable(getSymbol(symbolName));
   }
 
-  public void setCurrentPackage(Package newPackage) {
+  public void setCurrentPackage(LispPackage newPackage) {
     currentPackage = newPackage;
   }
 
@@ -114,21 +119,25 @@ public final class SymbolManager {
     return binding;
   }
 
-  public List<Symbol> getAvailableFunctions() {
-    return getAvailableSymbols().stream().filter(functions::containsKey).collect(Collectors.toList());
+  public List<Symbol> getAvailableFunctions(LispPackage lispPackage) {
+    return getAvailableSymbols(lispPackage).stream().filter(functions::containsKey).collect(Collectors.toList());
   }
 
-  public List<Symbol> getAvailableVariables() {
-    return getAvailableSymbols().stream().filter(variables::containsKey).collect(Collectors.toList());
+  public List<Symbol> getAvailableVariables(LispPackage lispPackage) {
+    return getAvailableSymbols(lispPackage).stream().filter(variables::containsKey).collect(Collectors.toList());
   }
 
-  private Collection<Symbol> getAvailableSymbols() {
-    return currentPackage.getSymbols();
+  private Collection<Symbol> getAvailableSymbols(LispPackage lispPackage) {
+    return lispPackage.getSymbols();
   }
 
-  public Set<Package> getUserDefinedPackages() {
+  public Set<LispPackage> getUserDefinedPackages() {
     return packages.values().stream()
         .filter(p -> !p.isStandardPackage())
         .collect(Collectors.toSet());
+  }
+
+  public LispPackage getCurrentPackage() {
+    return currentPackage;
   }
 }

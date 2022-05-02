@@ -15,21 +15,24 @@ public class LispAnnotator implements Annotator {
 
   @Override
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-    if (element instanceof LispFile){
-      LispFile lispFile = (LispFile) element;
-      Annotate annotate = new Annotate(lispFile, holder);
-      LispProject lispProject = LispProject.getInstance(lispFile.getProject());
-      PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, annotate);
-      packageAnalyzer.analyzePackages();
-      lispProject.setPackages(lispFile, packageAnalyzer.analyzer.symbolManager.getUserDefinedPackages());
-      SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lispFile, new Annotate(lispFile, holder), new SymbolManager(lispProject.getPackages()));
-      syntaxAnalyzer.analyze();
-      if (!syntaxAnalyzer.lexicalBindings.isEmpty()) throw new RuntimeException("Unbalanced lexical stack.");
-      syntaxAnalyzer.lexicalBindings.getRetired().forEach(binding -> checkBinding(syntaxAnalyzer, binding));
-      SymbolManager symbolManager = lispProject.getSymbolManager();
-      symbolManager.getFunctions().forEach(binding -> checkBinding(syntaxAnalyzer, binding));
-      symbolManager.getVariables().forEach(binding -> checkBinding(syntaxAnalyzer, binding));
-    }
+    if (!(element instanceof LispFile)) return;
+    LispFile lispFile = (LispFile) element;
+    LispProject lispProject = LispProject.getInstance(lispFile.getProject());
+
+    // Re-run usage analysis so that we can recover the retired lexical bindings.
+    SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lispFile, new Annotate(lispFile, holder), new SymbolManager(lispProject.getPackages()));
+    syntaxAnalyzer.analyze();
+    if (!syntaxAnalyzer.lexicalBindings.isEmpty()) throw new RuntimeException("Unbalanced lexical stack.");
+
+    // Use the end result to annotate the file.
+    annotate(lispProject, syntaxAnalyzer);
+  }
+
+  private void annotate(LispProject lispProject, SyntaxAnalyzer syntaxAnalyzer) {
+    syntaxAnalyzer.lexicalBindings.getRetired().forEach(binding -> checkBinding(syntaxAnalyzer, binding));
+    SymbolManager symbolManager = lispProject.getSymbolManager();
+    symbolManager.getFunctions().forEach(binding -> checkBinding(syntaxAnalyzer, binding));
+    symbolManager.getVariables().forEach(binding -> checkBinding(syntaxAnalyzer, binding));
   }
 
   private void checkBinding(SyntaxAnalyzer syntaxAnalyzer, SymbolBinding binding) {

@@ -2,7 +2,7 @@ package org.ax1.lisp.analysis.symbol;
 
 import java.util.Set;
 
-public class CommonLispUserPackage extends Package {
+public class CommonLispUserPackage extends LispPackage {
 
   public CommonLispUserPackage() {
     super("COMMON-LISP-USER");

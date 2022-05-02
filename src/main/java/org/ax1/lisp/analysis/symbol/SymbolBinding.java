@@ -73,7 +73,7 @@ public class SymbolBinding {
     SymbolBinding firstBinding = getFirstElement(bindings);
     if (bindings.size() == 1) return firstBinding;
     SymbolBinding result = new SymbolBinding(firstBinding.getName(), firstBinding.getSymbolType(), firstBinding.getBindingType());
-    bindings.forEach(binding -> result.add(binding));
+    bindings.forEach(result::add);
     return result;
   }
 

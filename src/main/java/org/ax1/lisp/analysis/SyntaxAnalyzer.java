@@ -1,10 +1,14 @@
 package org.ax1.lisp.analysis;
 
+import org.ax1.lisp.LispProject;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolManager;
 import org.ax1.lisp.psi.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
 
 public class SyntaxAnalyzer {
 
@@ -12,9 +16,10 @@ public class SyntaxAnalyzer {
 
   private final Map<Symbol, Analyzer> analyzers = new HashMap<>();
 
+  private final LispFile lispFile;
   public final SymbolManager symbolManager;
-  final LexicalBindingManager lexicalBindings;
-  private LispFile lispFile;
+  public final LexicalBindingManager lexicalBindings;
+  public List<String> completions = new ArrayList<>();
   final Annotate annotations;
 
   public SyntaxAnalyzer(LispFile lispFile, Annotate annotations, SymbolManager symbolManager) {
@@ -48,7 +53,10 @@ public class SyntaxAnalyzer {
   void analyzeForm(LispSexp form) {
     LispSymbol symbol = form.getSymbol();
     if (symbol != null) {
-      if (symbol.getText().startsWith(":")) {
+      if (isCompletion(symbol)) {
+        completions.addAll(lexicalBindings.getLexicalVariables());
+        completions.addAll(getGlobalVariables());
+      } else if (symbol.getText().startsWith(":")) {
         annotations.highlightConstant(symbol);
       } else {
         lexicalBindings.registerVariableUsage(symbol);
@@ -70,8 +78,13 @@ public class SyntaxAnalyzer {
     LispSexp sexp0 = list.get(0);
     LispSymbol symbol0 = sexp0.getSymbol();
     if (symbol0 != null) {
-      Symbol symbol = symbolManager.getSymbol(symbol0.getText());
-      getAnalyzer(symbol).analyze(this, form);
+      if (isCompletion(symbol0)) {
+        completions.addAll(lexicalBindings.getLexicalFunctions());
+        completions.addAll(getGlobalFunctions());
+      } else {
+        Symbol symbol = symbolManager.getSymbol(symbol0.getText());
+        getAnalyzer(symbol).analyze(this, form);
+      }
     } else {
       // TODO: handle lambda expression case.
     }
@@ -84,5 +97,23 @@ public class SyntaxAnalyzer {
 
   private Symbol getClSymbol(String name) {
     return symbolManager.getPackage("CL").intern(symbolManager, name);
+  }
+
+  private List<String> getGlobalVariables() {
+    return LispProject.getInstance(lispFile.getProject()).getSymbolManager()
+        .getAvailableVariables(symbolManager.getCurrentPackage()).stream()
+        .map(Symbol::getName)
+        .collect(Collectors.toList());
+  }
+
+  private List<String> getGlobalFunctions() {
+    return LispProject.getInstance(lispFile.getProject()).getSymbolManager()
+        .getAvailableFunctions(symbolManager.getCurrentPackage()).stream()
+        .map(Symbol::getName)
+        .collect(Collectors.toList());
+  }
+
+  private boolean isCompletion(LispSymbol symbol) {
+    return symbol.getText().endsWith(DUMMY_IDENTIFIER_TRIMMED);
   }
 }

@@ -13,4 +13,21 @@ public class Symbol {
   public String getName() {
     return name;
   }
+
+  @Override
+  public int hashCode() {
+    return packageName.hashCode() ^ name.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Symbol)) return false;
+    Symbol that = (Symbol) obj;
+    return this.packageName.equals(that.packageName) && this.name.equals(that.name);
+  }
+
+  @Override
+  public String toString() {
+    return packageName + ":" + name;
+  }
 }

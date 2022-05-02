@@ -1,6 +1,6 @@
 package org.ax1.lisp.analysis;
 
-import org.ax1.lisp.analysis.symbol.Package;
+import org.ax1.lisp.analysis.symbol.LispPackage;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -24,12 +24,12 @@ public class AnalyzeDefpackage implements Analyzer {
       analyzer.annotations.highlightError(formList.get(1), "Package name (as a string designator) expected");
       return;
     }
-    Package newPackage = new Package(packageName);
+    LispPackage newPackage = new LispPackage(packageName);
     formList.stream().skip(2).forEach(sexp -> analyzeOption(analyzer, sexp, newPackage));
     analyzer.symbolManager.add(newPackage);
   }
 
-  private void analyzeOption(SyntaxAnalyzer analyzer, LispSexp sexp, Package newPackage) {
+  private void analyzeOption(SyntaxAnalyzer analyzer, LispSexp sexp, LispPackage newPackage) {
     LispList lispList = sexp.getList();
     if (lispList == null || lispList.getSexpList().size() < 1) {
       analyzer.annotations.highlightError(sexp, "option (as a list) expected");
@@ -51,14 +51,14 @@ public class AnalyzeDefpackage implements Analyzer {
     }
   }
 
-  private void analyzeOptionUses(SyntaxAnalyzer analyzer, Package newPackage, List<LispSexp> list) {
+  private void analyzeOptionUses(SyntaxAnalyzer analyzer, LispPackage newPackage, List<LispSexp> list) {
     for (int i = 1; i < list.size(); i++) {
       LispSexp sexp = list.get(i);
       String packageName = getStringDesignator(sexp, analyzer.annotations, analyzer.symbolManager);
       if (packageName == null) {
         analyzer.annotations.highlightError(sexp, "package name (string designator) expected");
       } else {
-        Package aPackage = analyzer.symbolManager.getPackage(packageName);
+        LispPackage aPackage = analyzer.symbolManager.getPackage(packageName);
         if (aPackage == null) {
           analyzer.annotations.highlightError(sexp, "unknown package");
         } else {

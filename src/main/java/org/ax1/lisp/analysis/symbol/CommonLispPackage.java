@@ -3,7 +3,7 @@ package org.ax1.lisp.analysis.symbol;
 import java.util.Arrays;
 import java.util.Set;
 
-public class CommonLispPackage extends Package {
+public class CommonLispPackage extends LispPackage {
 
   public static final String[] COMMON_LISP_FUNCTIONS = {
       "*",
@@ -1000,14 +1000,18 @@ public class CommonLispPackage extends Package {
     setNicknames(Set.of("CL"));
     Arrays.stream(COMMON_LISP_FUNCTIONS).forEach(this::addFunction);
     Arrays.stream(COMMON_LISP_VARIABLES).forEach(this::addVariable);
-    Arrays.stream(COMMON_LISP_CONSTANTS).forEach(this::addVariable);
+    Arrays.stream(COMMON_LISP_CONSTANTS).forEach(this::intern);
   }
 
   public void addFunction(String name) {
-    symbolManager.getFunction(intern(symbolManager, name)).setDescription("Standard function");
+    symbolManager.getFunction(intern(name)).setDescription("Standard function");
+  }
+
+  private Symbol intern(String name) {
+    return intern(symbolManager, name);
   }
 
   public void addVariable(String name) {
-    symbolManager.getVariable(intern(symbolManager, name)).setDescription("Standard variable");
+    symbolManager.getVariable(intern(name)).setDescription("Standard variable");
   }
 }

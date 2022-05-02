@@ -6,6 +6,7 @@ import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.BindingType.LEXICAL;
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.VARIABLE;
@@ -81,8 +82,20 @@ public class LexicalBindingManager {
     return functions.empty() && variables.empty();
   }
 
-  public Iterable<SymbolBinding> getRetired() {
+  public Collection<SymbolBinding> getRetired() {
     return retired;
+  }
+
+  public List<String> getLexicalVariables() {
+    return variables.stream().flatMap(map -> map.keySet().stream())
+        .map(Symbol::getName)
+        .collect(Collectors.toList());
+  }
+
+  public Collection<String> getLexicalFunctions() {
+    return functions.stream().flatMap(map -> map.keySet().stream())
+        .map(Symbol::getName)
+        .collect(Collectors.toList());
   }
 
   public interface LexicalDrop extends AutoCloseable {
