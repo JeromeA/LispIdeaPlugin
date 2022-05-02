@@ -6,4 +6,11 @@ public class KeywordPackage extends LispPackage {
     super("KEYWORD");
     setStandardPackage(true);
   }
+
+  @Override
+  public Symbol intern(SymbolManager symbolManager, String symbolName) {
+    Symbol symbol = super.intern(symbolManager, symbolName);
+    symbolManager.getVariable(symbol).setKeyword(true);
+    return symbol;
+  }
 }
