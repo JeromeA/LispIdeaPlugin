@@ -17,6 +17,7 @@ public class SymbolBinding {
 
   private final SymbolType symbolType;
   private final BindingType bindingType;
+  private boolean isKeyword;
 
   public SymbolBinding(String name, SymbolType symbolType, BindingType bindingType) {
     this.name = name;
@@ -67,6 +68,14 @@ public class SymbolBinding {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public boolean isKeyword() {
+    return isKeyword;
+  }
+
+  public void setKeyword(boolean isKeyword) {
+    this.isKeyword = isKeyword;
   }
 
   public static SymbolBinding merge(Collection<SymbolBinding> bindings) {

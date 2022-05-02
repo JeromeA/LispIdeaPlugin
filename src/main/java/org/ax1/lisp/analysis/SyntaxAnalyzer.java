@@ -2,6 +2,7 @@ package org.ax1.lisp.analysis;
 
 import org.ax1.lisp.LispProject;
 import org.ax1.lisp.analysis.symbol.Symbol;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.analysis.symbol.SymbolManager;
 import org.ax1.lisp.psi.*;
 
@@ -56,10 +57,13 @@ public class SyntaxAnalyzer {
       if (isCompletion(symbol)) {
         completions.addAll(lexicalBindings.getLexicalVariables());
         completions.addAll(getGlobalVariables());
-      } else if (symbol.getText().startsWith(":")) {
-        annotations.highlightConstant(symbol);
       } else {
-        lexicalBindings.registerVariableUsage(symbol);
+        SymbolBinding binding = lexicalBindings.getVariableBinding(symbol.getText());
+        if (binding.isKeyword()) {
+          annotations.highlightConstant(symbol);
+        } else {
+          lexicalBindings.registerVariableUsage(symbol);
+        }
       }
     }
     LispList list = form.getList();

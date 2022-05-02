@@ -60,7 +60,7 @@ public class LexicalBindingManager {
     return lexicalVariableDrop;
   }
 
-  private SymbolBinding getVariableBinding(String symbolName) {
+  public SymbolBinding getVariableBinding(String symbolName) {
     Symbol symbol = analyzer.symbolManager.getSymbol(symbolName);
     for (int i = variables.size() - 1; i >= 0; i--) {
       SymbolBinding binding = variables.get(i).get(symbol);
