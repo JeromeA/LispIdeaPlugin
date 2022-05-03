@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis;
 
+import com.intellij.psi.PsiElement;
 import org.ax1.lisp.LispProject;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolBinding;
@@ -72,7 +73,16 @@ public class SyntaxAnalyzer {
     }
     LispQuoted quoted = form.getQuoted();
     if (quoted != null) {
-      annotations.highlightConstant(quoted);
+      PsiElement quote = quoted.getFirstChild();
+      annotations.highlightKeyword(quote);
+      String quoteType = quote.getText();
+      // Quoted expressions are data, backquoted expressions are code. These are arbitrary, it's just the most
+      // common case.
+      if (quoteType.equals("'")) {
+        annotations.highlightConstant(quoted);
+      } else {
+        analyzeForm(quoted.getSexp());
+      }
     }
   }
 
