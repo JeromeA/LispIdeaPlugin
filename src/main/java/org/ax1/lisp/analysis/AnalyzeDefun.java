@@ -1,13 +1,16 @@
 package org.ax1.lisp.analysis;
 
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalDrop;
+import org.ax1.lisp.analysis.symbol.LispPackage;
+import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.FUNCTION_DECLARATION;
 
@@ -40,13 +43,32 @@ public class AnalyzeDefun implements Analyzer {
       analyzer.annotations.highlightError(list.get(2), "Lambda list expected");
       return;
     }
-    List<LispSymbol> variables = lambdaList.getSexpList().stream()
-        .map(LispSexp::getSymbol)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+    List<LispSymbol> variables = getVariables(analyzer, lambdaList);
     try(LexicalDrop lexicalDrop = analyzer.lexicalBindings.defineLexicalVariables(form, variables)) {
       analyzer.analyzeForms(list, 3);
     }
+  }
+
+  @NotNull
+  private List<LispSymbol> getVariables(SyntaxAnalyzer analyzer, LispList lambdaList) {
+    LispPackage cl = analyzer.symbolManager.getPackage("CL");
+    Set<Symbol> keywords = Set.of(
+        cl.intern(analyzer.symbolManager, "&BODY"),
+        cl.intern(analyzer.symbolManager, "&REST"),
+        cl.intern(analyzer.symbolManager, "&KEY"));
+    List<LispSymbol> result = new ArrayList<>();
+    for (LispSexp lispSexp : lambdaList.getSexpList()) {
+      LispSymbol lispSymbol = lispSexp.getSymbol();
+      if (lispSymbol != null) {
+        Symbol symbol = analyzer.symbolManager.getSymbol(lispSymbol.getText());
+        if (keywords.contains(symbol)) {
+          analyzer.annotations.highlightConstant(lispSymbol);
+        } else {
+          result.add(lispSymbol);
+        }
+      }
+    }
+    return result;
   }
 
   public enum Type {
