@@ -54,7 +54,7 @@ public class AnalyzeLet implements Analyzer {
         result.add(symbol);
       } else if (list != null) {
         List<LispSexp> sexpList = list.getSexpList();
-        if (!isVarInitValid(sexpList)) {
+        if (sexpList.size() < 1 || sexpList.get(0).getSymbol() == null) {
           analyzer.annotations.highlightError(list, "Expected var init form");
           continue;
         }
@@ -64,12 +64,6 @@ public class AnalyzeLet implements Analyzer {
       }
     }
     return result;
-  }
-
-  private static boolean isVarInitValid(List<LispSexp> sexpList) {
-    if (sexpList.size() != 2) return false;
-    if (sexpList.get(0).getSymbol() == null) return false;
-    return true;
   }
 
 }
