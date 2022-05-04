@@ -51,7 +51,7 @@ public class AnalyzeLabels implements Analyzer {
         continue;
       }
       LispSexp functionName = function.getList().getSexpList().get(0);
-      if (functionName == null) {
+      if (functionName.getSymbol() == null) {
         analyzer.annotations.highlightError(function, "Function name expected");
         continue;
       }
