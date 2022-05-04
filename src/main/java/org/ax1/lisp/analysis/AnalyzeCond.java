@@ -14,12 +14,11 @@ public class AnalyzeCond implements Analyzer{
     List<LispSexp> sexpList = form.getSexpList();
     for (LispSexp sexp : sexpList.stream().skip(1).collect(Collectors.toList())) {
       LispList pair = sexp.getList();
-      if (pair == null || pair.getSexpList().size() != 2) {
-        analyzer.annotations.highlightError(sexp, "(test-form form) pair expected");
+      if (pair == null || pair.getSexpList().size() < 2) {
+        analyzer.annotations.highlightError(sexp, "(test form*) expected");
         continue;
       }
-      analyzer.analyzeForm(pair.getSexpList().get(0));
-      analyzer.analyzeForm(pair.getSexpList().get(1));
+      analyzer.analyzeForms(pair.getSexpList(), 0);
     }
   }
 }
