@@ -39,6 +39,7 @@ public class SyntaxAnalyzer {
     analyzers.put(getClSymbol("ECASE"), new AnalyzeEcase());
     analyzers.put(getClSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind());
     analyzers.put(getClSymbol("IN-PACKAGE"), new AnalyzeInPackage());
+    analyzers.put(getClSymbol("LABELS"), new AnalyzeLabels());
     analyzers.put(getClSymbol("LET"), new AnalyzeLet());
     analyzers.put(getClSymbol("LET*"), new AnalyzeLetStar());
     analyzers.put(getClSymbol("LOOP"), new AnalyzeLoop());
