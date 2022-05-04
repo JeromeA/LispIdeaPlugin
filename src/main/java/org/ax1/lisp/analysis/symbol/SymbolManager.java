@@ -14,6 +14,7 @@ import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.VARIABLE;
 public final class SymbolManager {
 
   private static final KeywordPackage keywordPackage = new KeywordPackage();
+  public static final String INVALID_PACKAGE = "INVALID-PACKAGE";
 
   public final Map<String, LispPackage> packages = new HashMap<>();
   private final Map<Symbol, SymbolBinding> functions = new HashMap<>();
@@ -68,6 +69,9 @@ public final class SymbolManager {
 
   public Symbol getSymbol(String name) {
     name = name.toUpperCase();
+    if (name.startsWith("#:")) {
+      return new Symbol("", name);
+    }
     int index = name.indexOf(':');
     if (index == 0) {
       return keywordPackage.intern(this, name.substring(1));
@@ -76,7 +80,11 @@ public final class SymbolManager {
       // TODO: handle double colon.
       String packageName = name.substring(0, index);
       String symbolName = name.substring(index + 1);
-      return packages.get(packageName).intern(this, symbolName);
+      LispPackage lispPackage = packages.get(packageName);
+      if (lispPackage == null) {
+        return new Symbol(INVALID_PACKAGE, name);
+      }
+      return lispPackage.intern(this, symbolName);
     }
     return currentPackage.intern(this, name);
   }
