@@ -22,7 +22,7 @@ public class AnalyzeDefun implements Analyzer {
     analyzer.annotations.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
-      analyzer.annotations.highlightError(form, type.name() + " needs at least 2 arguments.");
+      analyzer.annotations.highlightError(form, type.name() + " needs at least 2 arguments");
       return;
     }
     LispSexp sexp1 = list.get(1);

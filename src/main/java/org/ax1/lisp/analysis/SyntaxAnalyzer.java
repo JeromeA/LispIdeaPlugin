@@ -35,6 +35,7 @@ public class SyntaxAnalyzer {
     analyzers.put(getClSymbol("DEFMETHOD"), new AnalyzeDefmethod());
     analyzers.put(getClSymbol("DEFPACKAGE"), (analyzer, form) -> {});
     analyzers.put(getClSymbol("DEFPARAMETER"), new AnalyzeDefparameter());
+    analyzers.put(getClSymbol("DEFSTRUCT"), new AnalyzeDefstruct());
     analyzers.put(getClSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN));
     analyzers.put(getClSymbol("DEFVAR"), new AnalyzeDefvar());
     analyzers.put(getClSymbol("DOLIST"), new AnalyzeDolist());
