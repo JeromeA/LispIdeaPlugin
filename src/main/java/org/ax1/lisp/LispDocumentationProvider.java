@@ -36,7 +36,7 @@ public class LispDocumentationProvider extends AbstractDocumentationProvider {
     sb.append(DEFINITION_ELEMENT.addText(symbol.getText()));
     sb.append(SECTIONS_START);
     if (symbol.isLetVariableName()) {
-      sb.append(SECTION_HEADER_CELL.addText("Binding by:"));
+      sb.append(SECTION_HEADER_CELL.addText("Binding site:"));
       sb.append(SECTION_CONTENT_CELL.addText("LET"));
       sb.append("</tr>");
       sb.append(SECTION_HEADER_CELL.addText("Initial value:"));
@@ -46,12 +46,12 @@ public class LispDocumentationProvider extends AbstractDocumentationProvider {
       LispList defun = symbol.getDefunFromParameter();
       String name = getFunctionName(defun);
       if (name != null) {
-        sb.append(SECTION_HEADER_CELL.addText("Binding by:"));
-        sb.append(SECTION_CONTENT_CELL.addText("parameter of function " + name));
+        sb.append(SECTION_HEADER_CELL.addText("Binding site:"));
+        sb.append(SECTION_CONTENT_CELL.addText("lambda list of function " + name));
       }
     }
     if (symbol.isDestructuringBindVariableName()) {
-      sb.append(SECTION_HEADER_CELL.addText("Binding by:"));
+      sb.append(SECTION_HEADER_CELL.addText("Binding site:"));
       sb.append(SECTION_CONTENT_CELL.addText("DESTRUCTURING-BIND"));
     }
     sb.append(SECTIONS_END);
