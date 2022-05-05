@@ -47,6 +47,11 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
+  public @Nullable PsiElement getNameIdentifier() {
+    return this;
+  }
+
+  @Override
   public boolean isFunctionCall() {
     return symbolBinding != null && symbolBinding.getSymbolType() == FUNCTION && symbolBinding.getDefinition() != this;
   }
@@ -112,11 +117,6 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
     LispList destructuringBind = getSymbolBinding().getContainer();
     LispSexp lispSexp = destructuringBind.getSexpList().get(0);
     return lispSexp.getSymbol().getText().equals("destructuring-bind");
-  }
-
-  @Override
-  public @Nullable PsiElement getNameIdentifier() {
-    return this;
   }
 
   @Override
