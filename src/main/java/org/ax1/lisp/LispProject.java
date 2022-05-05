@@ -9,7 +9,6 @@ import org.ax1.lisp.analysis.Annotate;
 import org.ax1.lisp.analysis.PackageAnalyzer;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LispPackage;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.analysis.symbol.SymbolManager;
 import org.ax1.lisp.psi.LispFile;
 
@@ -26,7 +25,6 @@ public final class LispProject {
   private final Project project;
   private final Map<LispFile, Set<LispPackage>> filePackages = new HashMap();
   final Map<LispFile, SymbolManager> fileSymbols = new HashMap();
-  final Map<LispFile, Collection<SymbolBinding>> lexicalBindings = new HashMap();
 
   public static LispProject getInstance(Project project) {
     return project.getService(LispProject.class);
@@ -37,7 +35,6 @@ public final class LispProject {
   }
 
   public SymbolManager getSymbolManager() {
-    updatePackages();
     updateSymbols();
     return symbolManager;
   }
@@ -47,9 +44,10 @@ public final class LispProject {
         .filter(lispFile -> !lispFile.isValid())
         .collect(Collectors.toList());
     invalidFiles.forEach(filePackages::remove);
-    getLispFiles().stream()
-        .filter(lispFile -> !filePackages.containsKey(lispFile))
-        .forEach(this::updatePackagesForFile);
+    List<LispFile> filesToUpdate = getLispFiles().stream()
+        .filter(lispFile -> !filePackages.containsKey(lispFile)).collect(Collectors.toList());
+    if (filesToUpdate.isEmpty()) return;
+    filesToUpdate.forEach(this::updatePackagesForFile);
     packages = filePackages.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
   }
 
@@ -60,15 +58,19 @@ public final class LispProject {
     invalidFiles.forEach(fileSymbols::remove);
     getLispFiles().stream()
         .filter(lispFile -> !fileSymbols.containsKey(lispFile))
-        .forEach(lispFile -> updateSymbolsForFile(lispFile, packages));
+        .forEach(this::updateSymbolsForFile);
     symbolManager = SymbolManager.mergeBindings(fileSymbols.values());
   }
 
-  private void updateSymbolsForFile(LispFile lispFile, Collection<LispPackage> packages) {
-    SyntaxAnalyzer analyzer = new SyntaxAnalyzer(lispFile, EMPTY_ANNOTATE, new SymbolManager(packages));
+  private void updateSymbolsForFile(LispFile lispFile) {
+    updateSymbolsForFile(lispFile, EMPTY_ANNOTATE);
+  }
+
+  public SyntaxAnalyzer updateSymbolsForFile(LispFile lispFile, Annotate annotate) {
+    SyntaxAnalyzer analyzer = new SyntaxAnalyzer(lispFile, annotate, new SymbolManager(getPackages()));
     analyzer.analyze();
     fileSymbols.put(lispFile, analyzer.symbolManager);
-    lexicalBindings.put(lispFile, analyzer.lexicalBindings.getRetired());
+    return analyzer;
   }
 
   private void updatePackagesForFile(LispFile lispFile) {

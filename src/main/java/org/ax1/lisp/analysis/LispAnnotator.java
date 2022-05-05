@@ -19,9 +19,8 @@ public class LispAnnotator implements Annotator {
     LispFile lispFile = (LispFile) element;
     LispProject lispProject = LispProject.getInstance(lispFile.getProject());
 
-    // Re-run usage analysis so that we can recover the retired lexical bindings.
-    SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lispFile, new Annotate(lispFile, holder), new SymbolManager(lispProject.getPackages()));
-    syntaxAnalyzer.analyze();
+    // Re-run usage analysis for this file, so that we can annotate syntax, and recover lexical bindings.
+    SyntaxAnalyzer syntaxAnalyzer = lispProject.updateSymbolsForFile(lispFile, new Annotate(lispFile, holder));
     if (!syntaxAnalyzer.lexicalBindings.isEmpty()) throw new RuntimeException("Unbalanced lexical stack.");
 
     // Use the end result to annotate the file.
