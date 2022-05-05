@@ -30,11 +30,12 @@ public class SyntaxAnalyzer {
     this.symbolManager = symbolManager;
     lexicalBindings = new LexicalBindingManager(this);
     analyzers.put(getClSymbol("COND"), new AnalyzeCond());
+    analyzers.put(getClSymbol("DEFGENERIC"), new AnalyzeDefgeneric());
     analyzers.put(getClSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO));
-    analyzers.put(getClSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN));
-    analyzers.put(getClSymbol("DEFVAR"), new AnalyzeDefvar());
     analyzers.put(getClSymbol("DEFPACKAGE"), (analyzer, form) -> {});
     analyzers.put(getClSymbol("DEFPARAMETER"), new AnalyzeDefparameter());
+    analyzers.put(getClSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN));
+    analyzers.put(getClSymbol("DEFVAR"), new AnalyzeDefvar());
     analyzers.put(getClSymbol("DOLIST"), new AnalyzeDolist());
     analyzers.put(getClSymbol("ECASE"), new AnalyzeEcase());
     analyzers.put(getClSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind());
