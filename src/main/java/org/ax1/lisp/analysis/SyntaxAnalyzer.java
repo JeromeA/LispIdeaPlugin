@@ -32,6 +32,7 @@ public class SyntaxAnalyzer {
     analyzers.put(getClSymbol("COND"), new AnalyzeCond());
     analyzers.put(getClSymbol("DEFGENERIC"), new AnalyzeDefgeneric());
     analyzers.put(getClSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO));
+    analyzers.put(getClSymbol("DEFMETHOD"), new AnalyzeDefmethod());
     analyzers.put(getClSymbol("DEFPACKAGE"), (analyzer, form) -> {});
     analyzers.put(getClSymbol("DEFPARAMETER"), new AnalyzeDefparameter());
     analyzers.put(getClSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN));
