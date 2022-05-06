@@ -11,6 +11,10 @@ public class SymbolBinding {
   private final String name;
   private String description;
 
+  /**
+   * Structure defining the symbol. This is for documentation purpose, as in: "Slot 'volume' is declared
+   * in 'defstruct bottle'".
+   */
   private LispList container;
   private LispSymbol definition;
   private final Set<LispSymbol> usages = new HashSet<>();
