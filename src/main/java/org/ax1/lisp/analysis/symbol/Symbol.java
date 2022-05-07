@@ -2,7 +2,7 @@ package org.ax1.lisp.analysis.symbol;
 
 public class Symbol {
 
-  private String packageName;
+  private final String packageName;
   private final String name;
 
   public Symbol(String packageName, String name) {
@@ -12,6 +12,10 @@ public class Symbol {
 
   public String getName() {
     return name;
+  }
+
+  public String getPackageName() {
+    return packageName;
   }
 
   @Override

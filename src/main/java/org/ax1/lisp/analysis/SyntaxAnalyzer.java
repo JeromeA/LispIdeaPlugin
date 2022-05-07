@@ -16,7 +16,7 @@ public class SyntaxAnalyzer {
 
   private static final AnalyzeFunctionCall ANALYZE_FUNCTION_CALL = new AnalyzeFunctionCall();
 
-  private final Map<Symbol, Analyzer> analyzers = new HashMap<>();
+  private static Map<Symbol, Analyzer> analyzers;
 
   private final LispFile lispFile;
   public final SymbolManager symbolManager;
@@ -29,23 +29,6 @@ public class SyntaxAnalyzer {
     this.annotations = annotations;
     this.symbolManager = symbolManager;
     lexicalBindings = new LexicalBindingManager(this);
-    analyzers.put(getClSymbol("COND"), new AnalyzeCond());
-    analyzers.put(getClSymbol("DEFGENERIC"), new AnalyzeDefgeneric());
-    analyzers.put(getClSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO));
-    analyzers.put(getClSymbol("DEFMETHOD"), new AnalyzeDefmethod());
-    analyzers.put(getClSymbol("DEFPACKAGE"), (analyzer, form) -> {});
-    analyzers.put(getClSymbol("DEFPARAMETER"), new AnalyzeDefparameter());
-    analyzers.put(getClSymbol("DEFSTRUCT"), new AnalyzeDefstruct());
-    analyzers.put(getClSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN));
-    analyzers.put(getClSymbol("DEFVAR"), new AnalyzeDefvar());
-    analyzers.put(getClSymbol("DOLIST"), new AnalyzeDolist());
-    analyzers.put(getClSymbol("ECASE"), new AnalyzeEcase());
-    analyzers.put(getClSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind());
-    analyzers.put(getClSymbol("IN-PACKAGE"), new AnalyzeInPackage());
-    analyzers.put(getClSymbol("LABELS"), new AnalyzeLabels());
-    analyzers.put(getClSymbol("LET"), new AnalyzeLet());
-    analyzers.put(getClSymbol("LET*"), new AnalyzeLetStar());
-    analyzers.put(getClSymbol("LOOP"), new AnalyzeLoop());
   }
 
   public void analyze() {
@@ -108,25 +91,49 @@ public class SyntaxAnalyzer {
     }
   }
 
-  private Analyzer getAnalyzer(Symbol symbol) {
+  private static synchronized Analyzer getAnalyzer(Symbol symbol) {
+    if (analyzers == null) {
+      analyzers = new HashMap<>();
+      analyzers.put(getClSymbol("COND"), new AnalyzeCond());
+      analyzers.put(getClSymbol("DEFGENERIC"), new AnalyzeDefgeneric());
+      analyzers.put(getClSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO));
+      analyzers.put(getClSymbol("DEFMETHOD"), new AnalyzeDefmethod());
+      analyzers.put(getClSymbol("DEFPACKAGE"), (analyzer, form) -> {});
+      analyzers.put(getClSymbol("DEFPARAMETER"), new AnalyzeDefparameter());
+      analyzers.put(getClSymbol("DEFSTRUCT"), new AnalyzeDefstruct());
+      analyzers.put(getClSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN));
+      analyzers.put(getClSymbol("DEFVAR"), new AnalyzeDefvar());
+      analyzers.put(getClSymbol("DOLIST"), new AnalyzeDolist());
+      analyzers.put(getClSymbol("ECASE"), new AnalyzeEcase());
+      analyzers.put(getClSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind());
+      analyzers.put(getClSymbol("IN-PACKAGE"), new AnalyzeInPackage());
+      analyzers.put(getClSymbol("LABELS"), new AnalyzeLabels());
+      analyzers.put(getClSymbol("LET"), new AnalyzeLet());
+      analyzers.put(getClSymbol("LET*"), new AnalyzeLetStar());
+      analyzers.put(getClSymbol("LOOP"), new AnalyzeLoop());
+    }
     Analyzer analyzer = analyzers.get(symbol);
     return analyzer == null ? ANALYZE_FUNCTION_CALL : analyzer;
   }
 
-  private Symbol getClSymbol(String name) {
-    return symbolManager.getPackage("CL").intern(symbolManager, name);
+  private static Symbol getClSymbol(String name) {
+    return SymbolManager.commonLispPackage.intern(name);
   }
 
+  /** These are really the global variables, not just the ones found by this analysis so far. */
   private List<String> getGlobalVariables() {
     return LispProject.getInstance(lispFile.getProject()).getSymbolManager()
-        .getAvailableVariables(symbolManager.getCurrentPackage()).stream()
+        .getPackage(symbolManager.getCurrentPackage().getName()).getVariables().stream()
+        .map(SymbolBinding::getSymbol)
         .map(Symbol::getName)
         .collect(Collectors.toList());
   }
 
+  /** These are really the global functions, not just the ones found by this analysis so far. */
   private List<String> getGlobalFunctions() {
     return LispProject.getInstance(lispFile.getProject()).getSymbolManager()
-        .getAvailableFunctions(symbolManager.getCurrentPackage()).stream()
+        .getPackage(symbolManager.getCurrentPackage().getName()).getFunctions().stream()
+        .map(SymbolBinding::getSymbol)
         .map(Symbol::getName)
         .collect(Collectors.toList());
   }

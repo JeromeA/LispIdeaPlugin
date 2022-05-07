@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.BindingType.LEXICAL;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.FUNCTION;
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.VARIABLE;
 
 public class LexicalBindingManager {
@@ -46,12 +47,12 @@ public class LexicalBindingManager {
 
   public LexicalScope defineLexicalVariables(LispList container, List<LispSymbol> variableList) {
     Map<Symbol, SymbolBinding> newDictionary = new HashMap<>();
-    for (LispSymbol symbol : variableList) {
-      String symbolName = symbol.getText();
-      SymbolBinding symbolBinding = new SymbolBinding(symbolName, VARIABLE, LEXICAL);
-      symbolBinding.setDefinition(container, symbol);
-      newDictionary.put(analyzer.symbolManager.getSymbol(symbolName), symbolBinding);
-      symbol.setSymbolBinding(symbolBinding);
+    for (LispSymbol symbolExpression : variableList) {
+      Symbol symbol = analyzer.symbolManager.getSymbol(symbolExpression.getText());
+      SymbolBinding symbolBinding = new SymbolBinding(symbol, VARIABLE, LEXICAL);
+      symbolBinding.setDefinition(container, symbolExpression);
+      newDictionary.put(symbol, symbolBinding);
+      symbolExpression.setSymbolBinding(symbolBinding);
     }
     variables.push(newDictionary);
     return this::dropLexicalVariables;
@@ -59,12 +60,12 @@ public class LexicalBindingManager {
 
   public LexicalScope defineLexicalFunctions(LispList container, List<LispSymbol> functionList) {
     Map<Symbol, SymbolBinding> newDictionary = new HashMap<>();
-    for (LispSymbol symbol : functionList) {
-      String symbolName = symbol.getText();
-      SymbolBinding symbolBinding = new SymbolBinding(symbolName, VARIABLE, LEXICAL);
-      symbolBinding.setDefinition(container, symbol);
-      newDictionary.put(analyzer.symbolManager.getSymbol(symbolName), symbolBinding);
-      symbol.setSymbolBinding(symbolBinding);
+    for (LispSymbol symbolExpression : functionList) {
+      Symbol symbol = analyzer.symbolManager.getSymbol(symbolExpression.getText());
+      SymbolBinding symbolBinding = new SymbolBinding(symbol, FUNCTION, LEXICAL);
+      symbolBinding.setDefinition(container, symbolExpression);
+      newDictionary.put(symbol, symbolBinding);
+      symbolExpression.setSymbolBinding(symbolBinding);
     }
     functions.push(newDictionary);
     return this::dropLexicalFunctions;

@@ -4,13 +4,13 @@ public class KeywordPackage extends LispPackage {
 
   public KeywordPackage() {
     super("KEYWORD");
-    setStandardPackage(true);
+    setReadOnly();
   }
 
   @Override
-  public Symbol intern(SymbolManager symbolManager, String symbolName) {
-    Symbol symbol = super.intern(symbolManager, symbolName);
-    symbolManager.getVariable(symbol).setKeyword(true);
+  public Symbol intern(String symbolName) {
+    Symbol symbol = super.intern(symbolName);
+    getVariable(symbol).setKeyword(true);
     return symbol;
   }
 }

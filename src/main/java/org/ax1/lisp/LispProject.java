@@ -59,7 +59,7 @@ public final class LispProject {
     getLispFiles().stream()
         .filter(lispFile -> !fileSymbols.containsKey(lispFile))
         .forEach(this::updateSymbolsForFile);
-    symbolManager = SymbolManager.mergeBindings(fileSymbols.values());
+    symbolManager = SymbolManager.merge(fileSymbols.values());
   }
 
   private void updateSymbolsForFile(LispFile lispFile) {
@@ -74,9 +74,13 @@ public final class LispProject {
   }
 
   private void updatePackagesForFile(LispFile lispFile) {
-    PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, EMPTY_ANNOTATE);
+    updatePackagesForFile(lispFile, EMPTY_ANNOTATE);
+  }
+
+  public void updatePackagesForFile(LispFile lispFile, Annotate annotate) {
+    PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, annotate);
     packageAnalyzer.analyzePackages();
-    filePackages.put(lispFile, packageAnalyzer.analyzer.symbolManager.getUserDefinedPackages());
+    filePackages.put(lispFile, packageAnalyzer.analyzer.symbolManager.getWriteablePackages());
   }
 
   private Set<LispFile> getLispFiles() {

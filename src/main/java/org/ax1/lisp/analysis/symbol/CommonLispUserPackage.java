@@ -8,6 +8,5 @@ public class CommonLispUserPackage extends LispPackage {
     super("COMMON-LISP-USER");
     setNicknames(Set.of("CL-USER"));
     addUse("COMMON-LISP");
-    setStandardPackage(true);
   }
 }

@@ -8,11 +8,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SymbolBinding {
-  private final String name;
+  private final Symbol symbol;
   private String description;
 
   /**
-   * Structure defining the symbol. This is for documentation purpose, as in: "Slot 'volume' is declared
+   * Structure defining the binding. This is for documentation purpose, as in: "Slot 'volume' is declared
    * in 'defstruct bottle'".
    */
   private LispList container;
@@ -23,10 +23,14 @@ public class SymbolBinding {
   private final BindingType bindingType;
   private boolean isKeyword;
 
-  public SymbolBinding(String name, SymbolType symbolType, BindingType bindingType) {
-    this.name = name;
+  public SymbolBinding(Symbol symbol, SymbolType symbolType, BindingType bindingType) {
+    this.symbol = symbol;
     this.symbolType = symbolType;
     this.bindingType = bindingType;
+  }
+
+  public Symbol getSymbol() {
+    return symbol;
   }
 
   public void addUsage(LispSymbol symbol) {
@@ -62,10 +66,6 @@ public class SymbolBinding {
     return bindingType;
   }
 
-  public String getName() {
-    return name;
-  }
-
   public String getDescription() {
     return description;
   }
@@ -82,15 +82,7 @@ public class SymbolBinding {
     this.isKeyword = isKeyword;
   }
 
-  public static SymbolBinding merge(Collection<SymbolBinding> bindings) {
-    SymbolBinding firstBinding = getFirstElement(bindings);
-    if (bindings.size() == 1) return firstBinding;
-    SymbolBinding result = new SymbolBinding(firstBinding.getName(), firstBinding.getSymbolType(), firstBinding.getBindingType());
-    bindings.forEach(result::add);
-    return result;
-  }
-
-  private void add(SymbolBinding binding) {
+  public void add(SymbolBinding binding) {
     if (binding.description != null) description = binding.description;
     if (binding.container != null) container = binding.container;
     if (binding.definition != null) {

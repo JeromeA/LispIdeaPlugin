@@ -991,31 +991,25 @@ public class CommonLispPackage extends LispPackage {
       "NIL",
       "T"
   };
-  private SymbolManager symbolManager;
 
-  public CommonLispPackage(SymbolManager symbolManager) {
+  public CommonLispPackage() {
     super("COMMON-LISP");
-    this.symbolManager = symbolManager;
-    setStandardPackage(true);
     setNicknames(Set.of("CL"));
     Arrays.stream(COMMON_LISP_FUNCTIONS).forEach(this::addFunction);
     Arrays.stream(COMMON_LISP_VARIABLES).forEach(this::addVariable);
     Arrays.stream(COMMON_LISP_CONSTANTS).forEach(this::addKeyword);
+    setReadOnly();
   }
 
   public void addFunction(String name) {
-    symbolManager.getFunction(intern(name)).setDescription("Standard function");
-  }
-
-  private Symbol intern(String name) {
-    return intern(symbolManager, name);
+    getFunction(intern(name)).setDescription("Standard function");
   }
 
   public void addVariable(String name) {
-    symbolManager.getVariable(intern(name)).setDescription("Standard variable");
+    getVariable(intern(name)).setDescription("Standard variable");
   }
 
   public void addKeyword(String name) {
-    symbolManager.getVariable(intern(name)).setKeyword(true);
+    getVariable(intern(name)).setKeyword(true);
   }
 }

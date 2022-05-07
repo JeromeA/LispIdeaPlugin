@@ -1,32 +1,24 @@
 package org.ax1.lisp.analysis.symbol;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.BindingType.DYNAMIC;
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.FUNCTION;
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.VARIABLE;
-
 public final class SymbolManager {
 
-  private static final KeywordPackage keywordPackage = new KeywordPackage();
+  public static final KeywordPackage keywordPackage = new KeywordPackage();
+  public static final CommonLispPackage commonLispPackage = new CommonLispPackage();
   public static final String INVALID_PACKAGE = "INVALID-PACKAGE";
 
   public final Map<String, LispPackage> packages = new HashMap<>();
-  private final Map<Symbol, SymbolBinding> functions = new HashMap<>();
-  private final Map<Symbol, SymbolBinding> variables = new HashMap<>();
   private LispPackage currentPackage;
-  private CommonLispUserPackage commonLispUser;
 
   public SymbolManager() {
-    add(new CommonLispPackage(this));
-    commonLispUser = new CommonLispUserPackage();
-    add(commonLispUser);
     add(keywordPackage);
+    add(commonLispPackage);
+    CommonLispUserPackage commonLispUser = new CommonLispUserPackage();
+    add(commonLispUser);
     currentPackage = commonLispUser;
   }
 
@@ -35,22 +27,11 @@ public final class SymbolManager {
     packages.forEach(this::add);
   }
 
-  public static SymbolManager mergeBindings(Collection<SymbolManager> symbolManagers) {
-    SymbolManager result = new SymbolManager(symbolManagers.iterator().next().packages.values());
-    Multimap<Symbol, SymbolBinding> functions = ArrayListMultimap.create();
-    symbolManagers.stream().flatMap(symbolManager -> symbolManager.functions.entrySet().stream())
-        .forEach(entry -> functions.put(entry.getKey(), entry.getValue()));
-    functions.keySet().forEach(symbol -> {
-      Collection<SymbolBinding> bindings = functions.get(symbol);
-      result.functions.put(symbol, SymbolBinding.merge(bindings));
-    });
-    Multimap<Symbol, SymbolBinding> variables = ArrayListMultimap.create();
-    symbolManagers.stream().flatMap(symbolManager -> symbolManager.variables.entrySet().stream())
-        .forEach(entry -> variables.put(entry.getKey(), entry.getValue()));
-    variables.keySet().forEach(symbol -> {
-      Collection<SymbolBinding> bindings = variables.get(symbol);
-      result.variables.put(symbol, SymbolBinding.merge(bindings));
-    });
+  public static SymbolManager merge(Collection<SymbolManager> symbolManagers) {
+    SymbolManager result = new SymbolManager();
+    symbolManagers.stream().flatMap(s -> s.packages.values().stream())
+        .filter(LispPackage::isWriteable)
+        .forEach(result::add);
     return result;
   }
 
@@ -58,13 +39,13 @@ public final class SymbolManager {
     return packages.get(name);
   }
 
-  public CommonLispUserPackage getCommonLispUserPackage() {
-    return commonLispUser;
-  }
-
   public void add(LispPackage packageToAdd) {
-    packages.put(packageToAdd.getName(), packageToAdd);
-    packageToAdd.getNicknames().forEach(name -> packages.put(name, packageToAdd));
+    if (!packages.containsKey(packageToAdd.getName())) {
+      packages.put(packageToAdd.getName(), packageToAdd);
+      packageToAdd.getNicknames().forEach(name -> packages.put(name, packageToAdd));
+      return;
+    }
+    packages.get(packageToAdd.getName()).add(packageToAdd);
   }
 
   public Symbol getSymbol(String name) {
@@ -89,63 +70,38 @@ public final class SymbolManager {
     return currentPackage.intern(this, name);
   }
 
-  public SymbolBinding getFunction(Symbol symbol) {
-    return getBinding(functions, symbol, FUNCTION);
+  public void setCurrentPackage(LispPackage newPackage) {
+    currentPackage = newPackage;
+  }
+
+  public Set<LispPackage> getWriteablePackages() {
+    return packages.values().stream()
+        .filter(LispPackage::isWriteable)
+        .collect(Collectors.toSet());
+  }
+
+  public LispPackage getCurrentPackage() {
+    return currentPackage;
   }
 
   public SymbolBinding getFunction(String symbolName) {
     return getFunction(getSymbol(symbolName));
   }
 
-  public SymbolBinding getVariable(Symbol symbol) {
-    return getBinding(variables, symbol, VARIABLE);
+  public SymbolBinding getFunction(Symbol symbol) {
+    return getPackage(symbol.getPackageName()).getFunction(symbol);
   }
 
   public SymbolBinding getVariable(String symbolName) {
     return getVariable(getSymbol(symbolName));
   }
 
-  public void setCurrentPackage(LispPackage newPackage) {
-    currentPackage = newPackage;
-  }
-
-  public Collection<SymbolBinding> getFunctions() {
-    return functions.values();
-  }
-
-  public Collection<SymbolBinding> getVariables() {
-    return variables.values();
+  public SymbolBinding getVariable(Symbol symbol) {
+    return getPackage(symbol.getPackageName()).getVariable(symbol);
   }
 
   @NotNull
-  private SymbolBinding getBinding(Map<Symbol, SymbolBinding> map, Symbol symbol, SymbolBinding.SymbolType symbolType) {
-    SymbolBinding binding = map.get(symbol);
-    if (binding == null) {
-      binding = new SymbolBinding(symbol.getName(), symbolType, DYNAMIC);
-      map.put(symbol, binding);
-    }
-    return binding;
-  }
-
-  public List<Symbol> getAvailableFunctions(LispPackage lispPackage) {
-    return getAvailableSymbols(lispPackage).stream().filter(functions::containsKey).collect(Collectors.toList());
-  }
-
-  public List<Symbol> getAvailableVariables(LispPackage lispPackage) {
-    return getAvailableSymbols(lispPackage).stream().filter(variables::containsKey).collect(Collectors.toList());
-  }
-
-  private Collection<Symbol> getAvailableSymbols(LispPackage lispPackage) {
-    return lispPackage.getSymbols();
-  }
-
-  public Set<LispPackage> getUserDefinedPackages() {
-    return packages.values().stream()
-        .filter(p -> !p.isStandardPackage())
-        .collect(Collectors.toSet());
-  }
-
-  public LispPackage getCurrentPackage() {
-    return currentPackage;
+  public Collection<SymbolBinding> getBindings() {
+    return packages.values().stream().flatMap(p -> p.getBindings().stream()).collect(Collectors.toList());
   }
 }
