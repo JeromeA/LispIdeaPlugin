@@ -1,6 +1,7 @@
 package org.ax1.lisp.analysis;
 
 import org.ax1.lisp.analysis.symbol.LispPackage;
+import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -24,12 +25,12 @@ public class AnalyzeDefpackage implements Analyzer {
       analyzer.annotations.highlightError(formList.get(1), "Package name (as a string designator) expected");
       return;
     }
-    LispPackage newPackage = new LispPackage(packageName);
-    formList.stream().skip(2).forEach(sexp -> analyzeOption(analyzer, sexp, newPackage));
-    analyzer.symbolManager.add(newPackage);
+    PackageDefinition definition = new PackageDefinition(packageName);
+    formList.stream().skip(2).forEach(sexp -> analyzeOption(analyzer, sexp, definition));
+    analyzer.packages.add(definition);
   }
 
-  private void analyzeOption(SyntaxAnalyzer analyzer, LispSexp sexp, LispPackage newPackage) {
+  private void analyzeOption(SyntaxAnalyzer analyzer, LispSexp sexp, PackageDefinition definition) {
     LispList lispList = sexp.getList();
     if (lispList == null || lispList.getSexpList().size() < 1) {
       analyzer.annotations.highlightError(sexp, "option (as a list) expected");
@@ -44,14 +45,14 @@ public class AnalyzeDefpackage implements Analyzer {
     analyzer.annotations.highlightKeyword(optionSymbol);
     switch(optionSymbol.getText()) {
       case ":use":
-        analyzeOptionUses(analyzer, newPackage, list);
+        analyzeOptionUses(analyzer, definition, list);
         break;
       default:
         analyzer.annotations.highlightError(optionSymbol, "option name expected");
     }
   }
 
-  private void analyzeOptionUses(SyntaxAnalyzer analyzer, LispPackage newPackage, List<LispSexp> list) {
+  private void analyzeOptionUses(SyntaxAnalyzer analyzer, PackageDefinition definition, List<LispSexp> list) {
     for (int i = 1; i < list.size(); i++) {
       LispSexp sexp = list.get(i);
       String packageName = getStringDesignator(sexp, analyzer.annotations, analyzer.symbolManager);
@@ -62,7 +63,7 @@ public class AnalyzeDefpackage implements Analyzer {
         if (aPackage == null) {
           analyzer.annotations.highlightError(sexp, "unknown package");
         } else {
-          newPackage.addUse(packageName);
+          definition.addUse(packageName);
         }
       }
     }

@@ -8,7 +8,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import org.ax1.lisp.analysis.Annotate;
 import org.ax1.lisp.analysis.PackageAnalyzer;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.LispPackage;
+import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.SymbolManager;
 import org.ax1.lisp.psi.LispFile;
 
@@ -21,10 +21,10 @@ public final class LispProject {
   public static Annotate EMPTY_ANNOTATE = new Annotate(null, null);
 
   private SymbolManager symbolManager;
-  private Collection<LispPackage> packages;
+  private Collection<PackageDefinition> packages;
   private final Project project;
-  private final Map<LispFile, Set<LispPackage>> filePackages = new HashMap();
-  final Map<LispFile, SymbolManager> fileSymbols = new HashMap();
+  private final Map<LispFile, Set<PackageDefinition>> filePackages = new HashMap<>();
+  final Map<LispFile, SymbolManager> fileSymbols = new HashMap<>();
 
   public static LispProject getInstance(Project project) {
     return project.getService(LispProject.class);
@@ -40,15 +40,19 @@ public final class LispProject {
   }
 
   public void updatePackages() {
-    List<LispFile> invalidFiles = filePackages.keySet().stream()
-        .filter(lispFile -> !lispFile.isValid())
-        .collect(Collectors.toList());
-    invalidFiles.forEach(filePackages::remove);
+    removeInvalidPackages();
     List<LispFile> filesToUpdate = getLispFiles().stream()
         .filter(lispFile -> !filePackages.containsKey(lispFile)).collect(Collectors.toList());
     if (filesToUpdate.isEmpty()) return;
     filesToUpdate.forEach(this::updatePackagesForFile);
     packages = filePackages.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+  }
+
+  private void removeInvalidPackages() {
+    List<LispFile> invalidFiles = filePackages.keySet().stream()
+        .filter(lispFile -> !lispFile.isValid())
+        .collect(Collectors.toList());
+    invalidFiles.forEach(filePackages::remove);
   }
 
   private void updateSymbols() {
@@ -80,7 +84,7 @@ public final class LispProject {
   public void updatePackagesForFile(LispFile lispFile, Annotate annotate) {
     PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, annotate);
     packageAnalyzer.analyzePackages();
-    filePackages.put(lispFile, packageAnalyzer.analyzer.symbolManager.getWriteablePackages());
+    filePackages.put(lispFile, packageAnalyzer.analyzer.packages);
   }
 
   private Set<LispFile> getLispFiles() {
@@ -92,7 +96,7 @@ public final class LispProject {
         .collect(Collectors.toSet());
   }
 
-  public Collection<LispPackage> getPackages() {
+  public Collection<PackageDefinition> getPackages() {
     updatePackages();
     return packages;
   }

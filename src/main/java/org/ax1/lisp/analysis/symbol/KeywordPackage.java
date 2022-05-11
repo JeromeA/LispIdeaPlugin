@@ -3,8 +3,14 @@ package org.ax1.lisp.analysis.symbol;
 public class KeywordPackage extends LispPackage {
 
   public KeywordPackage() {
-    super("KEYWORD");
-    setReadOnly();
+    super(createDefinition());
+  }
+
+  private static PackageDefinition createDefinition() {
+    PackageDefinition definition = new PackageDefinition("KEYWORD");
+    definition.setReadOnly();
+    definition.setStandard();
+    return definition;
   }
 
   @Override

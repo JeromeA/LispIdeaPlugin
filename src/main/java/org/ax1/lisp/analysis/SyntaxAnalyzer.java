@@ -2,6 +2,7 @@ package org.ax1.lisp.analysis;
 
 import com.intellij.psi.PsiElement;
 import org.ax1.lisp.LispProject;
+import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.analysis.symbol.SymbolManager;
@@ -20,6 +21,7 @@ public class SyntaxAnalyzer {
 
   private final LispFile lispFile;
   public final SymbolManager symbolManager;
+  public final Set<PackageDefinition> packages = new HashSet<>();
   public final LexicalBindingManager lexicalBindings;
   public List<String> completions = new ArrayList<>();
   final Annotate annotations;

@@ -1,7 +1,6 @@
 package org.ax1.lisp.analysis.symbol;
 
 import java.util.Arrays;
-import java.util.Set;
 
 public class CommonLispPackage extends LispPackage {
 
@@ -993,12 +992,18 @@ public class CommonLispPackage extends LispPackage {
   };
 
   public CommonLispPackage() {
-    super("COMMON-LISP");
-    setNicknames(Set.of("CL"));
+    super(createDefinition());
     Arrays.stream(COMMON_LISP_FUNCTIONS).forEach(this::addFunction);
     Arrays.stream(COMMON_LISP_VARIABLES).forEach(this::addVariable);
     Arrays.stream(COMMON_LISP_CONSTANTS).forEach(this::addKeyword);
-    setReadOnly();
+  }
+
+  private static PackageDefinition createDefinition() {
+    PackageDefinition definition = new PackageDefinition("COMMON-LISP");
+    definition.addNickname("CL");
+    definition.setReadOnly();
+    definition.setStandard();
+    return definition;
   }
 
   public void addFunction(String name) {

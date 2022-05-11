@@ -22,16 +22,16 @@ public final class SymbolManager {
     currentPackage = commonLispUser;
   }
 
-  public SymbolManager(Collection<LispPackage> packages) {
+  public SymbolManager(Collection<PackageDefinition> packages) {
     this();
-    packages.forEach(this::add);
+    packages.stream().map(LispPackage::new).forEach(this::add);
   }
 
   public static SymbolManager merge(Collection<SymbolManager> symbolManagers) {
     SymbolManager result = new SymbolManager();
     symbolManagers.stream().flatMap(s -> s.packages.values().stream())
-        .filter(LispPackage::isWriteable)
-        .forEach(result::add);
+        .filter(p -> p.getDefinition().isWriteable())
+        .forEach(result::merge);
     return result;
   }
 
@@ -40,12 +40,26 @@ public final class SymbolManager {
   }
 
   public void add(LispPackage packageToAdd) {
-    if (!packages.containsKey(packageToAdd.getName())) {
-      packages.put(packageToAdd.getName(), packageToAdd);
-      packageToAdd.getNicknames().forEach(name -> packages.put(name, packageToAdd));
-      return;
+    if (packages.containsKey(packageToAdd.getName())) {
+      throw new RuntimeException("Package already exists.");
     }
-    packages.get(packageToAdd.getName()).add(packageToAdd);
+    addImpl(packageToAdd);
+  }
+
+  public void merge(LispPackage packageToAdd) {
+    LispPackage localPackage = packages.get(packageToAdd.getName());
+    if (localPackage == null) {
+      localPackage = packageToAdd.clone();
+      addImpl(localPackage);
+    }
+    localPackage.merge(packageToAdd);
+  }
+
+  private void addImpl(LispPackage packageToAdd) {
+    packages.put(packageToAdd.getName(), packageToAdd);
+    for (String name : packageToAdd.getDefinition().getNicknames()) {
+      packages.put(name, packageToAdd);
+    }
   }
 
   public Symbol getSymbol(String name) {
@@ -72,12 +86,6 @@ public final class SymbolManager {
 
   public void setCurrentPackage(LispPackage newPackage) {
     currentPackage = newPackage;
-  }
-
-  public Set<LispPackage> getWriteablePackages() {
-    return packages.values().stream()
-        .filter(LispPackage::isWriteable)
-        .collect(Collectors.toSet());
   }
 
   public LispPackage getCurrentPackage() {

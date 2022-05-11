@@ -10,39 +10,20 @@ import static org.ax1.lisp.analysis.symbol.SymbolBinding.BindingType.DYNAMIC;
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.FUNCTION;
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.VARIABLE;
 
-public class LispPackage {
-  private final String name;
-  private Set<String> nicknames = Set.of();
-  private final Set<String> use = new HashSet<>();
-  protected final Map<String, Symbol> symbols = new HashMap<>();
-  private final Map<Symbol, SymbolBinding> functions = new HashMap<>();
-  private final Map<Symbol, SymbolBinding> variables = new HashMap<>();
-  private boolean isWriteable = true;
+public class LispPackage implements Cloneable {
+  private final PackageDefinition definition;
+  private Map<String, Symbol> symbols = new HashMap<>();
+  private Map<Symbol, SymbolBinding> functions = new HashMap<>();
+  private Map<Symbol, SymbolBinding> variables = new HashMap<>();
 
-  public LispPackage(String name) {
-    this.name = name;
-  }
-
-  public void setNicknames(Set<String> nicknames) {
-    this.nicknames = nicknames;
-  }
-
-  public Set<String> getNicknames() {
-    return nicknames;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void addUse(String packageName) {
-    use.add(packageName);
+  public LispPackage(PackageDefinition definition) {
+    this.definition = definition;
   }
 
   public Symbol intern(SymbolManager symbolManager, String symbolName) {
     Symbol symbol = symbols.get(symbolName);
     if (symbol == null) {
-      for (String packageName : use) {
+      for (String packageName : definition.use) {
         LispPackage lispPackage = symbolManager.getPackage(packageName);
         if (lispPackage.isExporting(symbolName)) {
           return lispPackage.intern(symbolManager, symbolName);
@@ -56,7 +37,7 @@ public class LispPackage {
   public Symbol intern(String symbolName) {
     Symbol symbol = symbols.get(symbolName);
     if (symbol == null ) {
-      symbol = new Symbol(name, symbolName);
+      symbol = new Symbol(definition.name, symbolName);
       symbols.put(symbolName, symbol);
     }
     return symbol;
@@ -69,14 +50,6 @@ public class LispPackage {
 
   public Collection<Symbol> getSymbols() {
     return symbols.values();
-  }
-
-  public boolean isWriteable() {
-    return isWriteable;
-  }
-
-  public void setReadOnly() {
-    isWriteable = false;
   }
 
   public Collection<SymbolBinding> getFunctions() {
@@ -106,7 +79,7 @@ public class LispPackage {
     return getBinding(variables, symbol, VARIABLE);
   }
 
-  public void add(LispPackage packageToAdd) {
+  public void merge(LispPackage packageToAdd) {
     symbols.putAll(packageToAdd.symbols);
     addBindings(functions, packageToAdd.functions.values());
     addBindings(variables, packageToAdd.variables.values());
@@ -116,15 +89,37 @@ public class LispPackage {
     bindings.forEach(symbolBinding -> addBinding(map, symbolBinding));
   }
 
-  private static void addBinding(Map<Symbol, SymbolBinding> map, SymbolBinding binding) {
-    if (map.containsKey(binding.getSymbol())) {
-      map.get(binding.getSymbol()).add(binding);
-    } else {
+  private static void addBinding(Map<Symbol, SymbolBinding> map, SymbolBinding bindingToAdd) {
+    SymbolBinding binding = map.get(bindingToAdd.getSymbol());
+    if (binding == null) {
+      binding = new SymbolBinding(bindingToAdd.getSymbol(), bindingToAdd.getSymbolType(), bindingToAdd.getBindingType());
       map.put(binding.getSymbol(), binding);
     }
+    binding.add(bindingToAdd);
   }
 
   public Collection<SymbolBinding> getBindings() {
     return Stream.concat(functions.values().stream(), variables.values().stream()).collect(Collectors.toList());
+  }
+
+  @Override
+  protected LispPackage clone() {
+    try {
+      LispPackage copy = (LispPackage) super.clone();
+      copy.symbols = new HashMap<>(symbols);
+      copy.functions = new HashMap<>(functions);
+      copy.variables = new HashMap<>(variables);
+      return copy;
+    } catch (CloneNotSupportedException e) {
+      throw new RuntimeException("This can't happen", e);
+    }
+  }
+
+  public PackageDefinition getDefinition() {
+    return definition;
+  }
+
+  public String getName() {
+    return definition.name;
   }
 }
