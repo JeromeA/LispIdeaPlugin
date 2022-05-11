@@ -72,6 +72,11 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
+  public boolean isLexicalDefinition() {
+    return symbolBinding != null && symbolBinding.getBindingType() == LEXICAL && symbolBinding.getDefinition() == this;
+  }
+
+  @Override
   public boolean isLetVariableName() {
     PsiElement container1 = getParent().getParent();
     if (!(container1 instanceof LispList)) return false;

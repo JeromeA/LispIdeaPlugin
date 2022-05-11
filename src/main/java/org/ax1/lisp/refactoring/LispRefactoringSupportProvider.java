@@ -10,18 +10,26 @@ public class LispRefactoringSupportProvider extends RefactoringSupportProvider {
 
   @Override
   public boolean isInplaceRenameAvailable(@NotNull PsiElement element, PsiElement context) {
-    return isLispDefinition(element);
+    return isLexicalDefinition(element);
   }
 
   @Override
   public boolean isMemberInplaceRenameAvailable(@NotNull PsiElement element, @Nullable PsiElement context) {
-    return isLispDefinition(element);
+    return isDefinition(element);
   }
 
-  private boolean isLispDefinition(@NotNull PsiElement element) {
+  private boolean isDefinition(@NotNull PsiElement element) {
     if (element instanceof LispSymbol) {
       LispSymbol symbol = (LispSymbol) element;
       return symbol.isFunctionDefinition() || symbol.isVariableDefinition();
+    }
+    return false;
+  }
+
+  private boolean isLexicalDefinition(@NotNull PsiElement element) {
+    if (element instanceof LispSymbol) {
+      LispSymbol symbol = (LispSymbol) element;
+      return symbol.isLexicalDefinition();
     }
     return false;
   }

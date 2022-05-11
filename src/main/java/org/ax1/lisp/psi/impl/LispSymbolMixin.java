@@ -16,6 +16,8 @@ public interface LispSymbolMixin extends PsiNameIdentifierOwner {
 
   boolean isLetVariableName();
 
+  boolean isLexicalDefinition();
+
   boolean isParameterName();
 
   boolean isDestructuringBindVariableName();

@@ -51,7 +51,7 @@ public class LispAnnotator implements Annotator {
   private void checkNoUsages(SyntaxAnalyzer syntaxAnalyzer, SymbolBinding symbolBinding) {
     if (symbolBinding.getUsages().isEmpty() && symbolBinding.getDefinition() != null) {
       String message = symbolBinding.getSymbolType() == FUNCTION ? "Function '%s' is never called" : "Variable '%s' is never used";
-      syntaxAnalyzer.annotations.highlightUnused(symbolBinding.getDefinition(), String.format(message, symbolBinding));
+      syntaxAnalyzer.annotations.highlightUnused(symbolBinding.getDefinition(), String.format(message, symbolBinding.getSymbol()));
     }
   }
 }
