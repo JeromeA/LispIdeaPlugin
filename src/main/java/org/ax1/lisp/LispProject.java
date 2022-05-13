@@ -6,6 +6,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.ax1.lisp.analysis.Annotate;
+import org.ax1.lisp.analysis.LexicalBindingManager;
 import org.ax1.lisp.analysis.PackageAnalyzer;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
@@ -34,17 +35,22 @@ public final class LispProject {
     this.project = project;
   }
 
+  public Collection<PackageDefinition> getPackages() {
+    analyzePackages();
+    return packages;
+  }
+
   public SymbolManager getSymbolManager() {
-    updateSymbols();
+    analyzeSymbols();
     return symbolManager;
   }
 
-  public void updatePackages() {
+  private void analyzePackages() {
     removeInvalidPackages();
     List<LispFile> filesToUpdate = getLispFiles().stream()
         .filter(lispFile -> !filePackages.containsKey(lispFile)).collect(Collectors.toList());
     if (filesToUpdate.isEmpty()) return;
-    filesToUpdate.forEach(this::updatePackagesForFile);
+    filesToUpdate.forEach(this::analyzePackagesForFile);
     packages = filePackages.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
   }
 
@@ -55,33 +61,34 @@ public final class LispProject {
     invalidFiles.forEach(filePackages::remove);
   }
 
-  private void updateSymbols() {
+  private void analyzeSymbols() {
     List<LispFile> invalidFiles = fileSymbols.keySet().stream()
         .filter(lispFile -> !lispFile.isValid())
         .collect(Collectors.toList());
     invalidFiles.forEach(fileSymbols::remove);
     getLispFiles().stream()
         .filter(lispFile -> !fileSymbols.containsKey(lispFile))
-        .forEach(this::updateSymbolsForFile);
+        .forEach(this::analyzeSymbolsForFile);
     symbolManager = SymbolManager.merge(fileSymbols.values());
   }
 
-  private void updateSymbolsForFile(LispFile lispFile) {
-    updateSymbolsForFile(lispFile, EMPTY_ANNOTATE);
+  private void analyzeSymbolsForFile(LispFile lispFile) {
+    analyzeSymbolsForFile(lispFile, EMPTY_ANNOTATE);
   }
 
-  public SyntaxAnalyzer updateSymbolsForFile(LispFile lispFile, Annotate annotate) {
+  public LexicalBindingManager analyzeSymbolsForFile(LispFile lispFile, Annotate annotate) {
     SyntaxAnalyzer analyzer = new SyntaxAnalyzer(lispFile, annotate, new SymbolManager(getPackages()));
     analyzer.analyze();
     fileSymbols.put(lispFile, analyzer.symbolManager);
-    return analyzer;
+    if (!analyzer.lexicalBindings.isEmpty()) throw new RuntimeException("Unbalanced lexical stack.");
+    return analyzer.lexicalBindings;
   }
 
-  private void updatePackagesForFile(LispFile lispFile) {
-    updatePackagesForFile(lispFile, EMPTY_ANNOTATE);
+  private void analyzePackagesForFile(LispFile lispFile) {
+    analyzePackagesForFile(lispFile, EMPTY_ANNOTATE);
   }
 
-  public void updatePackagesForFile(LispFile lispFile, Annotate annotate) {
+  public void analyzePackagesForFile(LispFile lispFile, Annotate annotate) {
     PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, annotate);
     packageAnalyzer.analyzePackages();
     filePackages.put(lispFile, packageAnalyzer.analyzer.packages);
@@ -94,10 +101,5 @@ public final class LispProject {
         .filter(Objects::nonNull)
         .map(LispFile.class::cast)
         .collect(Collectors.toSet());
-  }
-
-  public Collection<PackageDefinition> getPackages() {
-    updatePackages();
-    return packages;
   }
 }
