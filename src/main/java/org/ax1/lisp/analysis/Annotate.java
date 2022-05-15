@@ -23,19 +23,19 @@ public class Annotate {
     this.holder = holder;
   }
 
-  void highlightKeyword(LispList form) {
+  public void highlightKeyword(LispList form) {
     highlightKeyword(form.getSexpList().get(0));
   }
 
-  void highlightKeyword(PsiElement psiElement) {
+  public void highlightKeyword(PsiElement psiElement) {
     highlight(psiElement, KEYWORD);
   }
 
-  void highlightConstant(PsiElement psiElement) {
+  public void highlightConstant(PsiElement psiElement) {
     highlight(psiElement, CONSTANT);
   }
 
-  void highlightUnknown(PsiElement psiElement, String message) {
+  public void highlightUnknown(PsiElement psiElement, String message) {
     annotate(psiElement, HighlightSeverity.ERROR, message, WRONG_REFERENCES_ATTRIBUTES);
   }
 
@@ -43,11 +43,11 @@ public class Annotate {
     annotate(psiElement, HighlightSeverity.WARNING, message, NOT_USED_ELEMENT_ATTRIBUTES);
   }
 
-  void highlight(PsiElement psiElement, TextAttributesKey constant) {
+  public void highlight(PsiElement psiElement, TextAttributesKey constant) {
     silentlyAnnotate(psiElement, INFORMATION, constant);
   }
 
-  void highlightError(PsiElement psiElement, String message) {
+  public void highlightError(PsiElement psiElement, String message) {
     if (holder == null || psiElement.getContainingFile() != lispFile) return;
     holder.newAnnotation(HighlightSeverity.ERROR, message)
         .range(psiElement)

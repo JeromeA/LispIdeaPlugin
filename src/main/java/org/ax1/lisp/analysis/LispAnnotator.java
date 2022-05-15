@@ -3,8 +3,8 @@ package org.ax1.lisp.analysis;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
-import org.ax1.lisp.LispProject;
 import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolManager;
 import org.ax1.lisp.psi.LispFile;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,18 +12,23 @@ import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.FUNCTION;
 
 public class LispAnnotator implements Annotator {
 
+  public static Annotate EMPTY_ANNOTATE = new Annotate(null, null);
+
   @Override
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
     if (!(element instanceof LispFile)) return;
     LispFile lispFile = (LispFile) element;
-    LispProject lispProject = LispProject.getInstance(lispFile.getProject());
+    ProjectAnalyser projectAnalyser = ProjectAnalyser.getInstance(lispFile.getProject());
 
     Annotate annotate = new Annotate(lispFile, holder);
-    lispProject.analyzePackagesForFile(lispFile, annotate);
-    lispProject.analyzeSymbolsForFile(lispFile, annotate)
-        .getRetired()
+    PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, annotate);
+    packageAnalyzer.analyzePackages();
+    SyntaxAnalyzer analyzer = new SyntaxAnalyzer(lispFile, annotate, new SymbolManager(projectAnalyser.getPackages()));
+    analyzer.analyze();
+
+    analyzer.lexicalBindings.getRetired()
         .forEach(binding -> checkBinding(binding, annotate));
-    lispProject.getSymbolManager().getBindings().forEach(binding -> checkBinding(binding, annotate));
+    projectAnalyser.getSymbolManager().getBindings().forEach(binding -> checkBinding(binding, annotate));
   }
 
   private void checkBinding(SymbolBinding binding, Annotate annotations) {

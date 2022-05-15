@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis;
 
 import com.intellij.psi.PsiElement;
-import org.ax1.lisp.LispProject;
+import org.ax1.lisp.analysis.form.*;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolBinding;
@@ -17,14 +17,14 @@ public class SyntaxAnalyzer {
 
   private static final AnalyzeFunctionCall ANALYZE_FUNCTION_CALL = new AnalyzeFunctionCall();
 
-  private static Map<Symbol, Analyzer> analyzers;
+  private static Map<Symbol, FormAnalyzer> analyzers;
 
   private final LispFile lispFile;
   public final SymbolManager symbolManager;
   public final Set<PackageDefinition> packages = new HashSet<>();
   public final LexicalBindingManager lexicalBindings;
   public List<String> completions = new ArrayList<>();
-  final Annotate annotations;
+  public final Annotate annotations;
 
   public SyntaxAnalyzer(LispFile lispFile, Annotate annotations, SymbolManager symbolManager) {
     this.lispFile = lispFile;
@@ -37,11 +37,11 @@ public class SyntaxAnalyzer {
     analyzeForms(lispFile.getSexpList(), 0);
   }
 
-  void analyzeForms(Collection<LispSexp> forms, int skip) {
+  public void analyzeForms(Collection<LispSexp> forms, int skip) {
     forms.stream().skip(skip).forEach(this::analyzeForm);
   }
 
-  void analyzeForm(LispSexp form) {
+  public void analyzeForm(LispSexp form) {
     LispSymbol symbol = form.getSymbol();
     if (symbol != null) {
       if (isCompletion(symbol)) {
@@ -93,7 +93,7 @@ public class SyntaxAnalyzer {
     }
   }
 
-  private static synchronized Analyzer getAnalyzer(Symbol symbol) {
+  private static synchronized FormAnalyzer getAnalyzer(Symbol symbol) {
     if (analyzers == null) {
       analyzers = new HashMap<>();
       analyzers.put(getClSymbol("COND"), new AnalyzeCond());
@@ -114,8 +114,8 @@ public class SyntaxAnalyzer {
       analyzers.put(getClSymbol("LET*"), new AnalyzeLetStar());
       analyzers.put(getClSymbol("LOOP"), new AnalyzeLoop());
     }
-    Analyzer analyzer = analyzers.get(symbol);
-    return analyzer == null ? ANALYZE_FUNCTION_CALL : analyzer;
+    FormAnalyzer formAnalyzer = analyzers.get(symbol);
+    return formAnalyzer == null ? ANALYZE_FUNCTION_CALL : formAnalyzer;
   }
 
   private static Symbol getClSymbol(String name) {
@@ -124,7 +124,7 @@ public class SyntaxAnalyzer {
 
   /** These are really the global variables, not just the ones found by this analysis so far. */
   private List<String> getGlobalVariables() {
-    return LispProject.getInstance(lispFile.getProject()).getSymbolManager()
+    return ProjectAnalyser.getInstance(lispFile.getProject()).getSymbolManager()
         .getPackage(symbolManager.getCurrentPackage().getName()).getVariables().stream()
         .map(SymbolBinding::getSymbol)
         .map(Symbol::getName)
@@ -133,7 +133,7 @@ public class SyntaxAnalyzer {
 
   /** These are really the global functions, not just the ones found by this analysis so far. */
   private List<String> getGlobalFunctions() {
-    return LispProject.getInstance(lispFile.getProject()).getSymbolManager()
+    return ProjectAnalyser.getInstance(lispFile.getProject()).getSymbolManager()
         .getPackage(symbolManager.getCurrentPackage().getName()).getFunctions().stream()
         .map(SymbolBinding::getSymbol)
         .map(Symbol::getName)

@@ -1,19 +1,20 @@
-package org.ax1.lisp.analysis;
+package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 
-public class AnalyzeDefparameter implements Analyzer {
+public class AnalyzeDefvar implements FormAnalyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
     analyzer.annotations.highlightKeyword(form);
     List<LispSexp> sexpList = form.getSexpList();
-    if (sexpList.size() < 3) {
-      analyzer.annotations.highlightError(form, "DEFPARAMETER takes at least 2 arguments");
+    if (sexpList.size() < 2) {
+      analyzer.annotations.highlightError(form, "DEFVAR takes at least one argument");
       return;
     }
     LispSymbol symbol = sexpList.get(1).getSymbol();
@@ -22,6 +23,7 @@ public class AnalyzeDefparameter implements Analyzer {
       return;
     }
     analyzer.symbolManager.getVariable(symbol.getText()).setDefinition(form, symbol);
+    if (sexpList.size() < 3) return;
     analyzer.analyzeForm(sexpList.get(2));
   }
 }

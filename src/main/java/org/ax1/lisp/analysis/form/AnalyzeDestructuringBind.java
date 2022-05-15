@@ -1,5 +1,6 @@
-package org.ax1.lisp.analysis;
+package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LispPackage;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class AnalyzeDestructuringBind implements Analyzer {
+public class AnalyzeDestructuringBind implements FormAnalyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {

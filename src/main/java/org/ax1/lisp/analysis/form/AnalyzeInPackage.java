@@ -1,12 +1,13 @@
-package org.ax1.lisp.analysis;
+package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LispPackage;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 
 import static org.ax1.lisp.analysis.StringDesignator.getStringDesignator;
 
-public class AnalyzeInPackage implements Analyzer {
+public class AnalyzeInPackage implements FormAnalyzer {
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
     analyzer.annotations.highlightKeyword(form);

@@ -1,12 +1,13 @@
-package org.ax1.lisp.analysis;
+package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AnalyzeCond implements Analyzer{
+public class AnalyzeCond implements FormAnalyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {

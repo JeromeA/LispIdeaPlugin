@@ -1,5 +1,6 @@
-package org.ax1.lisp.analysis;
+package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -8,7 +9,7 @@ import java.util.List;
 
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.FUNCTION_DECLARATION;
 
-public class AnalyzeDefgeneric implements Analyzer {
+public class AnalyzeDefgeneric implements FormAnalyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {

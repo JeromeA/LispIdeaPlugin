@@ -1,6 +1,7 @@
-package org.ax1.lisp.analysis;
+package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -9,9 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ax1.lisp.analysis.LambdaAnalyzer.analyzeLambda;
+import static org.ax1.lisp.analysis.form.LambdaAnalyzer.analyzeLambda;
 
-public class AnalyzeLabels implements Analyzer {
+public class AnalyzeLabels implements FormAnalyzer {
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {

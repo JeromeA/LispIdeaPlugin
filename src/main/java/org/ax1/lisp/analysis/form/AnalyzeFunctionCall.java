@@ -1,12 +1,13 @@
-package org.ax1.lisp.analysis;
+package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.Set;
 
-public class AnalyzeFunctionCall implements Analyzer {
+public class AnalyzeFunctionCall implements FormAnalyzer {
 
   /**
    * Names that could look like function calls, but behave effectively like language keywords and should

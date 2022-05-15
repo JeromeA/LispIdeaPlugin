@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis;
 
+import org.ax1.lisp.analysis.form.AnalyzeDefpackage;
 import org.ax1.lisp.analysis.symbol.SymbolManager;
 import org.ax1.lisp.psi.*;
 

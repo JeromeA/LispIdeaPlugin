@@ -1,5 +1,6 @@
-package org.ax1.lisp.analysis;
+package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -7,9 +8,9 @@ import org.ax1.lisp.psi.LispSymbol;
 import java.util.List;
 
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.FUNCTION_DECLARATION;
-import static org.ax1.lisp.analysis.LambdaAnalyzer.analyzeLambda;
+import static org.ax1.lisp.analysis.form.LambdaAnalyzer.analyzeLambda;
 
-public class AnalyzeDefun implements Analyzer {
+public class AnalyzeDefun implements FormAnalyzer {
 
   private final Type type;
 

@@ -16,6 +16,7 @@ public class SymbolBinding {
    * in 'defstruct bottle'".
    */
   private LispList container;
+
   private LispSymbol definition;
   private final Set<LispSymbol> usages = new HashSet<>();
 
