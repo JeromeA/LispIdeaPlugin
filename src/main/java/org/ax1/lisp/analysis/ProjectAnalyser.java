@@ -6,7 +6,6 @@ import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
-import org.ax1.lisp.analysis.symbol.SymbolManager;
 import org.ax1.lisp.psi.LispFile;
 
 import java.util.*;
@@ -34,11 +33,11 @@ public final class ProjectAnalyser {
     return getCachedValue(lispFile, new FilePackageAnalyzer(lispFile));
   }
 
-  public SymbolManager getSymbolManager() {
+  public ProjectSymbolAnalysis getProjectSymbolAnalysis() {
     return getCachedValue(project, new ProjectSymbolAnalyzer(project));
   }
 
-  public SymbolManager getSymbolManager(LispFile lispFile) {
+  public FileSymbolAnalysis getFileSymbolAnalysis(LispFile lispFile) {
     return getCachedValue(lispFile, new FileSymbolAnalyzer(lispFile));
   }
 

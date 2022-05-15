@@ -25,7 +25,7 @@ public class AnalyzeDefgeneric implements FormAnalyzer {
       analyzer.annotations.highlightError(sexp1, "Function name expected");
       return;
     }
-    analyzer.symbolManager.getFunction(symbol1.getText()).setDefinition(form, symbol1);
+    analyzer.packageManager.getFunction(symbol1.getText()).setDefinition(form, symbol1);
     analyzer.annotations.highlight(symbol1, FUNCTION_DECLARATION);
   }
 }

@@ -4,7 +4,7 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
 import org.ax1.lisp.analysis.symbol.SymbolBinding;
-import org.ax1.lisp.analysis.symbol.SymbolManager;
+import org.ax1.lisp.analysis.symbol.PackageManager;
 import org.ax1.lisp.psi.LispFile;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,12 +23,11 @@ public class LispAnnotator implements Annotator {
     Annotate annotate = new Annotate(lispFile, holder);
     PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, annotate);
     packageAnalyzer.analyzePackages();
-    SyntaxAnalyzer analyzer = new SyntaxAnalyzer(lispFile, annotate, new SymbolManager(projectAnalyser.getPackages()));
+    SyntaxAnalyzer analyzer = new SyntaxAnalyzer(lispFile, annotate, new PackageManager(projectAnalyser.getPackages()));
     analyzer.analyze();
 
-    analyzer.lexicalBindings.getRetired()
-        .forEach(binding -> checkBinding(binding, annotate));
-    projectAnalyser.getSymbolManager().getBindings().forEach(binding -> checkBinding(binding, annotate));
+    analyzer.lexicalBindings.getRetired().forEach(binding -> checkBinding(binding, annotate));
+    projectAnalyser.getProjectSymbolAnalysis().bindings.values().forEach(binding -> checkBinding(binding, annotate));
   }
 
   private void checkBinding(SymbolBinding binding, Annotate annotations) {

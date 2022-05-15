@@ -7,14 +7,10 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.PsiModificationTracker;
 import org.ax1.lisp.LispFileType;
-import org.ax1.lisp.analysis.symbol.SymbolManager;
 import org.ax1.lisp.psi.LispFile;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
-class ProjectSymbolAnalyzer implements CachedValueProvider<SymbolManager> {
+class ProjectSymbolAnalyzer implements CachedValueProvider<ProjectSymbolAnalysis> {
 
   private final Project project;
   private final ProjectAnalyser projectAnalyser;
@@ -27,13 +23,13 @@ class ProjectSymbolAnalyzer implements CachedValueProvider<SymbolManager> {
   }
 
   @Override
-  public @Nullable Result<SymbolManager> compute() {
-    Set<SymbolManager> symbolManagers =
-        FileTypeIndex.getFiles(LispFileType.INSTANCE, GlobalSearchScope.allScope(project)).stream()
-            .map(psiManager::findFile)
-            .map(f -> (LispFile) f)
-            .map(projectAnalyser::getSymbolManager)
-            .collect(Collectors.toSet());
-    return new Result<>(SymbolManager.merge(symbolManagers), PsiModificationTracker.MODIFICATION_COUNT);
+  public @Nullable Result<ProjectSymbolAnalysis> compute() {
+    ProjectSymbolAnalysis.Builder result = ProjectSymbolAnalysis.newBuilder();
+    FileTypeIndex.getFiles(LispFileType.INSTANCE, GlobalSearchScope.allScope(project)).stream()
+        .map(psiManager::findFile)
+        .map(f -> (LispFile) f)
+        .map(projectAnalyser::getFileSymbolAnalysis)
+        .forEach(result::addFileAnalysis);
+    return new Result<>(result.build(), PsiModificationTracker.MODIFICATION_COUNT);
   }
 }

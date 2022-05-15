@@ -21,6 +21,6 @@ public class FilePackageAnalyzer implements CachedValueProvider<Collection<Packa
   public @Nullable Result<Collection<PackageDefinition>> compute() {
     PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, EMPTY_ANNOTATE);
     packageAnalyzer.analyzePackages();
-    return new Result<>(packageAnalyzer.analyzer.packages, lispFile);
+    return new Result<>(packageAnalyzer.analyzer.scannedPackages, lispFile);
   }
 }

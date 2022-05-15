@@ -34,17 +34,17 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
   }
 
   private List<LispSymbol> getDestructuringBindVariableSymbols(SyntaxAnalyzer analyzer, @NotNull List<LispSexp> lambdaList) {
-    LispPackage cl = analyzer.symbolManager.getPackage("CL");
+    LispPackage cl = analyzer.packageManager.getPackage("CL");
     Set<Symbol> keywords = Set.of(
-        cl.intern(analyzer.symbolManager, "&ALLOW-OTHER-KEYS"),
-        cl.intern(analyzer.symbolManager, "&REST"),
-        cl.intern(analyzer.symbolManager, "&KEY"));
+        cl.intern(analyzer.packageManager, "&ALLOW-OTHER-KEYS"),
+        cl.intern(analyzer.packageManager, "&REST"),
+        cl.intern(analyzer.packageManager, "&KEY"));
     List<LispSymbol> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
       LispSymbol symbolName = sexp.getSymbol();
       LispList list = sexp.getList();
       if (symbolName != null) {
-        Symbol symbol = analyzer.symbolManager.getSymbol(symbolName.getText());
+        Symbol symbol = analyzer.packageManager.getSymbol(symbolName.getText());
         if (keywords.contains(symbol)) {
           analyzer.annotations.highlightConstant(symbolName);
         } else {

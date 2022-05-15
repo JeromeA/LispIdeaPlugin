@@ -1,11 +1,9 @@
 package org.ax1.lisp.analysis.symbol;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
-public final class SymbolManager {
+public final class PackageManager {
 
   public static final KeywordPackage keywordPackage = new KeywordPackage();
   public static final CommonLispPackage commonLispPackage = new CommonLispPackage();
@@ -14,7 +12,7 @@ public final class SymbolManager {
   public final Map<String, LispPackage> packages = new HashMap<>();
   private LispPackage currentPackage;
 
-  public SymbolManager() {
+  public PackageManager() {
     add(keywordPackage);
     add(commonLispPackage);
     CommonLispUserPackage commonLispUser = new CommonLispUserPackage();
@@ -22,17 +20,9 @@ public final class SymbolManager {
     currentPackage = commonLispUser;
   }
 
-  public SymbolManager(Collection<PackageDefinition> packages) {
+  public PackageManager(Collection<PackageDefinition> packages) {
     this();
     packages.stream().map(LispPackage::new).forEach(this::add);
-  }
-
-  public static SymbolManager merge(Collection<SymbolManager> symbolManagers) {
-    SymbolManager result = new SymbolManager();
-    symbolManagers.stream().flatMap(s -> s.packages.values().stream())
-        .filter(p -> p.getDefinition().isWriteable())
-        .forEach(result::merge);
-    return result;
   }
 
   public LispPackage getPackage(String name) {
@@ -44,15 +34,6 @@ public final class SymbolManager {
       throw new RuntimeException("Package already exists.");
     }
     addImpl(packageToAdd);
-  }
-
-  public void merge(LispPackage packageToAdd) {
-    LispPackage localPackage = packages.get(packageToAdd.getName());
-    if (localPackage == null) {
-      localPackage = packageToAdd.clone();
-      addImpl(localPackage);
-    }
-    localPackage.merge(packageToAdd);
   }
 
   private void addImpl(LispPackage packageToAdd) {
@@ -88,10 +69,6 @@ public final class SymbolManager {
     currentPackage = newPackage;
   }
 
-  public LispPackage getCurrentPackage() {
-    return currentPackage;
-  }
-
   public SymbolBinding getFunction(String symbolName) {
     return getFunction(getSymbol(symbolName));
   }
@@ -108,8 +85,17 @@ public final class SymbolManager {
     return getPackage(symbol.getPackageName()).getVariable(symbol);
   }
 
-  @NotNull
-  public Collection<SymbolBinding> getBindings() {
-    return packages.values().stream().flatMap(p -> p.getBindings().stream()).collect(Collectors.toList());
+  public Map<Symbol, SymbolBinding> getFunctions() {
+    return packages.values().stream()
+        .filter(p -> p.getDefinition().isWriteable())
+        .flatMap(p -> p.getFunctions().stream())
+        .collect(Collectors.toMap(SymbolBinding::getSymbol, b -> b));
+  }
+
+  public Map<Symbol, SymbolBinding> getVariables() {
+    return packages.values().stream()
+        .filter(p -> p.getDefinition().isWriteable())
+        .flatMap(p -> p.getVariables().stream())
+        .collect(Collectors.toMap(SymbolBinding::getSymbol, b -> b));
   }
 }

@@ -29,7 +29,7 @@ public class AnalyzeDefun implements FormAnalyzer {
     LispSexp sexp1 = list.get(1);
     LispSymbol symbol1 = sexp1.getSymbol();
     if (symbol1 != null) {
-      analyzer.symbolManager.getFunction(symbol1.getText()).setDefinition(form, symbol1);
+      analyzer.packageManager.getFunction(symbol1.getText()).setDefinition(form, symbol1);
       analyzer.annotations.highlight(symbol1, FUNCTION_DECLARATION);
     } else {
       // TODO: check DEFUN SETF case.

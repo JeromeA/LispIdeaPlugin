@@ -5,7 +5,7 @@ import org.ax1.lisp.analysis.form.*;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolBinding;
-import org.ax1.lisp.analysis.symbol.SymbolManager;
+import org.ax1.lisp.analysis.symbol.PackageManager;
 import org.ax1.lisp.psi.*;
 
 import java.util.*;
@@ -20,16 +20,16 @@ public class SyntaxAnalyzer {
   private static Map<Symbol, FormAnalyzer> analyzers;
 
   private final LispFile lispFile;
-  public final SymbolManager symbolManager;
-  public final Set<PackageDefinition> packages = new HashSet<>();
+  public final PackageManager packageManager;
+  public final Set<PackageDefinition> scannedPackages = new HashSet<>();
   public final LexicalBindingManager lexicalBindings;
   public List<String> completions = new ArrayList<>();
   public final Annotate annotations;
 
-  public SyntaxAnalyzer(LispFile lispFile, Annotate annotations, SymbolManager symbolManager) {
+  public SyntaxAnalyzer(LispFile lispFile, Annotate annotations, PackageManager packageManager) {
     this.lispFile = lispFile;
     this.annotations = annotations;
-    this.symbolManager = symbolManager;
+    this.packageManager = packageManager;
     lexicalBindings = new LexicalBindingManager(this);
   }
 
@@ -85,7 +85,7 @@ public class SyntaxAnalyzer {
         completions.addAll(lexicalBindings.getLexicalFunctions());
         completions.addAll(getGlobalFunctions());
       } else {
-        Symbol symbol = symbolManager.getSymbol(symbol0.getText());
+        Symbol symbol = packageManager.getSymbol(symbol0.getText());
         getAnalyzer(symbol).analyze(this, form);
       }
     } else {
@@ -119,13 +119,13 @@ public class SyntaxAnalyzer {
   }
 
   private static Symbol getClSymbol(String name) {
-    return SymbolManager.commonLispPackage.intern(name);
+    return PackageManager.commonLispPackage.intern(name);
   }
 
   /** These are really the global variables, not just the ones found by this analysis so far. */
   private List<String> getGlobalVariables() {
-    return ProjectAnalyser.getInstance(lispFile.getProject()).getSymbolManager()
-        .getPackage(symbolManager.getCurrentPackage().getName()).getVariables().stream()
+    return ProjectAnalyser.getInstance(lispFile.getProject()).getProjectSymbolAnalysis()
+        .variables.values().stream()
         .map(SymbolBinding::getSymbol)
         .map(Symbol::getName)
         .collect(Collectors.toList());
@@ -133,8 +133,8 @@ public class SyntaxAnalyzer {
 
   /** These are really the global functions, not just the ones found by this analysis so far. */
   private List<String> getGlobalFunctions() {
-    return ProjectAnalyser.getInstance(lispFile.getProject()).getSymbolManager()
-        .getPackage(symbolManager.getCurrentPackage().getName()).getFunctions().stream()
+    return ProjectAnalyser.getInstance(lispFile.getProject()).getProjectSymbolAnalysis()
+        .functions.values().stream()
         .map(SymbolBinding::getSymbol)
         .map(Symbol::getName)
         .collect(Collectors.toList());

@@ -28,7 +28,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
     }
     analyzer.annotations.highlight(symbol, FUNCTION_DECLARATION);
     String structName = symbol.getText();
-    analyzer.symbolManager.getFunction("make-" + structName).setDefinition(form, symbol);
+    analyzer.packageManager.getFunction("make-" + structName).setDefinition(form, symbol);
 
     // Skip documentation.
     int arg = 2;
@@ -43,14 +43,14 @@ public class AnalyzeDefstruct implements FormAnalyzer {
   private void analyzeSlot(SyntaxAnalyzer analyzer, LispList container, String structName, LispSexp slot) {
     LispSymbol simpleSymbol = slot.getSymbol();
     if (simpleSymbol != null) {
-      analyzer.symbolManager.getFunction(structName + "-" + simpleSymbol.getText()).setDefinition(container, simpleSymbol);
+      analyzer.packageManager.getFunction(structName + "-" + simpleSymbol.getText()).setDefinition(container, simpleSymbol);
       analyzer.annotations.highlight(simpleSymbol, FUNCTION_DECLARATION);
       return;
     }
     LispList list = slot.getList();
     if (list != null && list.getSexpList().size() >= 1 && list.getSexpList().get(0).getSymbol() != null) {
       LispSymbol symbol = list.getSexpList().get(0).getSymbol();
-      analyzer.symbolManager.getFunction(structName + "-" + symbol.getText()).setDefinition(container, symbol);
+      analyzer.packageManager.getFunction(structName + "-" + symbol.getText()).setDefinition(container, symbol);
       analyzer.annotations.highlight(symbol, FUNCTION_DECLARATION);
       // TODO: analyze slot options.
       return;

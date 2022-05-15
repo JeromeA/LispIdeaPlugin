@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis;
 
 import org.ax1.lisp.analysis.form.AnalyzeDefpackage;
-import org.ax1.lisp.analysis.symbol.SymbolManager;
+import org.ax1.lisp.analysis.symbol.PackageManager;
 import org.ax1.lisp.psi.*;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public class PackageAnalyzer {
   public PackageAnalyzer(LispFile lispFile, Annotate annotate) {
     this.lispFile = lispFile;
     this.analyzeDefpackage = new AnalyzeDefpackage();
-    this.analyzer = new SyntaxAnalyzer(lispFile, annotate, new SymbolManager());
+    this.analyzer = new SyntaxAnalyzer(lispFile, annotate, new PackageManager());
   }
 
   public void analyzePackages() {

@@ -7,6 +7,7 @@ import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
+import org.ax1.lisp.analysis.ProjectAnalyser;
 import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.usages.LispSymbolReference;
 import org.ax1.lisp.psi.*;
@@ -20,8 +21,6 @@ import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.FUNCTION;
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.VARIABLE;
 
 public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implements PsiNameIdentifierOwner, LispSymbol {
-
-  private SymbolBinding symbolBinding;
 
   public LispSymbolMixinImpl(@NotNull ASTNode node) {
     super(node);
@@ -53,26 +52,31 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
 
   @Override
   public boolean isFunctionCall() {
+    SymbolBinding symbolBinding = getSymbolBinding();
     return symbolBinding != null && symbolBinding.getSymbolType() == FUNCTION && symbolBinding.getDefinition() != this;
   }
 
   @Override
   public boolean isFunctionDefinition() {
+    SymbolBinding symbolBinding = getSymbolBinding();
     return symbolBinding != null && symbolBinding.getSymbolType() == FUNCTION && symbolBinding.getDefinition() == this;
   }
 
   @Override
   public boolean isVariableReference() {
+    SymbolBinding symbolBinding = getSymbolBinding();
     return symbolBinding != null && symbolBinding.getSymbolType() == VARIABLE && symbolBinding.getDefinition() != this;
   }
 
   @Override
   public boolean isVariableDefinition() {
+    SymbolBinding symbolBinding = getSymbolBinding();
     return symbolBinding != null && symbolBinding.getSymbolType() == VARIABLE && symbolBinding.getDefinition() == this;
   }
 
   @Override
   public boolean isLexicalDefinition() {
+    SymbolBinding symbolBinding = getSymbolBinding();
     return symbolBinding != null && symbolBinding.getBindingType() == LEXICAL && symbolBinding.getDefinition() == this;
   }
 
@@ -131,17 +135,13 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
-  public void setSymbolBinding(SymbolBinding symbolBinding) {
-    this.symbolBinding = symbolBinding;
-  }
-
-  @Override
   public SymbolBinding getSymbolBinding() {
-    return symbolBinding;
+    return ProjectAnalyser.getInstance(getProject()).getProjectSymbolAnalysis().bindings.get(this);
   }
 
   @Override
   public @NotNull SearchScope getUseScope() {
+    SymbolBinding symbolBinding = getSymbolBinding();
     if (symbolBinding != null && symbolBinding.getBindingType() == LEXICAL && symbolBinding.getContainer() != null) {
       return new LocalSearchScope(symbolBinding.getContainer());
     }

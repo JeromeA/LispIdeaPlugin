@@ -16,17 +16,17 @@ public class AnalyzeInPackage implements FormAnalyzer {
       return;
     }
     LispSexp arg = form.getSexpList().get(1);
-    String stringDesignator = getStringDesignator(arg, analyzer.annotations, analyzer.symbolManager);
+    String stringDesignator = getStringDesignator(arg, analyzer.annotations, analyzer.packageManager);
     if (stringDesignator == null) {
       analyzer.annotations.highlightError(arg, "Expected name designator");
       return;
     }
-    LispPackage newPackage = analyzer.symbolManager.getPackage(stringDesignator);
+    LispPackage newPackage = analyzer.packageManager.getPackage(stringDesignator);
     if (newPackage == null) {
       analyzer.annotations.highlightUnknown(arg, String.format("Unknown package '%s'", stringDesignator));
       return;
     }
-    analyzer.symbolManager.setCurrentPackage(newPackage);
+    analyzer.packageManager.setCurrentPackage(newPackage);
   }
 
 }

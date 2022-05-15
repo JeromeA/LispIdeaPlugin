@@ -22,7 +22,7 @@ public class AnalyzeDefparameter implements FormAnalyzer {
       analyzer.annotations.highlightError(sexpList.get(1), "Variable name expected");
       return;
     }
-    analyzer.symbolManager.getVariable(symbol.getText()).setDefinition(form, symbol);
+    analyzer.packageManager.getVariable(symbol.getText()).setDefinition(form, symbol);
     analyzer.analyzeForm(sexpList.get(2));
   }
 }

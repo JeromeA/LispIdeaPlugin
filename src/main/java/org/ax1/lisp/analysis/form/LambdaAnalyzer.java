@@ -33,16 +33,16 @@ public class LambdaAnalyzer {
 
   @NotNull
   private static List<LispSymbol> getVariables(SyntaxAnalyzer analyzer, LispList lambdaList) {
-    LispPackage cl = analyzer.symbolManager.getPackage("CL");
+    LispPackage cl = analyzer.packageManager.getPackage("CL");
     Set<Symbol> keywords = Set.of(
-        cl.intern(analyzer.symbolManager, "&BODY"),
-        cl.intern(analyzer.symbolManager, "&REST"),
-        cl.intern(analyzer.symbolManager, "&KEY"));
+        cl.intern(analyzer.packageManager, "&BODY"),
+        cl.intern(analyzer.packageManager, "&REST"),
+        cl.intern(analyzer.packageManager, "&KEY"));
     List<LispSymbol> result = new ArrayList<>();
     for (LispSexp lispSexp : lambdaList.getSexpList()) {
       LispSymbol lispSymbol = lispSexp.getSymbol();
       if (lispSymbol != null) {
-        Symbol symbol = analyzer.symbolManager.getSymbol(lispSymbol.getText());
+        Symbol symbol = analyzer.packageManager.getSymbol(lispSymbol.getText());
         if (keywords.contains(symbol)) {
           analyzer.annotations.highlightConstant(lispSymbol);
         } else {

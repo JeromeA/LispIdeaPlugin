@@ -3,8 +3,6 @@ package org.ax1.lisp.analysis.symbol;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.BindingType.DYNAMIC;
 import static org.ax1.lisp.analysis.symbol.SymbolBinding.SymbolType.FUNCTION;
@@ -20,13 +18,13 @@ public class LispPackage implements Cloneable {
     this.definition = definition;
   }
 
-  public Symbol intern(SymbolManager symbolManager, String symbolName) {
+  public Symbol intern(PackageManager packageManager, String symbolName) {
     Symbol symbol = symbols.get(symbolName);
     if (symbol == null) {
       for (String packageName : definition.use) {
-        LispPackage lispPackage = symbolManager.getPackage(packageName);
+        LispPackage lispPackage = packageManager.getPackage(packageName);
         if (lispPackage.isExporting(symbolName)) {
-          return lispPackage.intern(symbolManager, symbolName);
+          return lispPackage.intern(packageManager, symbolName);
         }
       }
       symbol = intern(symbolName);
@@ -46,10 +44,6 @@ public class LispPackage implements Cloneable {
   private boolean isExporting(String symbolName) {
     // TODO: do the right thing.
     return symbols.containsKey(symbolName);
-  }
-
-  public Collection<Symbol> getSymbols() {
-    return symbols.values();
   }
 
   public Collection<SymbolBinding> getFunctions() {
@@ -77,29 +71,6 @@ public class LispPackage implements Cloneable {
 
   public SymbolBinding getVariable(Symbol symbol) {
     return getBinding(variables, symbol, VARIABLE);
-  }
-
-  public void merge(LispPackage packageToAdd) {
-    symbols.putAll(packageToAdd.symbols);
-    addBindings(functions, packageToAdd.functions.values());
-    addBindings(variables, packageToAdd.variables.values());
-  }
-
-  private static void addBindings(Map<Symbol, SymbolBinding> map, Collection<SymbolBinding> bindings) {
-    bindings.forEach(symbolBinding -> addBinding(map, symbolBinding));
-  }
-
-  private static void addBinding(Map<Symbol, SymbolBinding> map, SymbolBinding bindingToAdd) {
-    SymbolBinding binding = map.get(bindingToAdd.getSymbol());
-    if (binding == null) {
-      binding = new SymbolBinding(bindingToAdd.getSymbol(), bindingToAdd.getSymbolType(), bindingToAdd.getBindingType());
-      map.put(binding.getSymbol(), binding);
-    }
-    binding.add(bindingToAdd);
-  }
-
-  public Collection<SymbolBinding> getBindings() {
-    return Stream.concat(functions.values().stream(), variables.values().stream()).collect(Collectors.toList());
   }
 
   @Override

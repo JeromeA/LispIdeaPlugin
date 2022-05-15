@@ -88,16 +88,17 @@ public class SymbolBinding {
     if (binding.container != null) container = binding.container;
     if (binding.definition != null) {
       definition = binding.definition;
-      binding.definition.setSymbolBinding(this);
     }
     binding.usages.forEach(usage -> {
       usages.add(usage);
-      usage.setSymbolBinding(this);
     });
   }
 
-  private static <T> T getFirstElement(Collection<T> collection) {
-    return collection.iterator().next();
+  public static SymbolBinding merge(Collection<SymbolBinding> symbolBindings) {
+    SymbolBinding first = symbolBindings.iterator().next();
+    SymbolBinding symbolBinding = new SymbolBinding(first.symbol, first.symbolType, first.bindingType);
+    symbolBindings.forEach(symbolBinding::add);
+    return symbolBinding;
   }
 
   public enum SymbolType {

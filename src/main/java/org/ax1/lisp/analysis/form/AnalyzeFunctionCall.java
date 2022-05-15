@@ -20,7 +20,7 @@ public class AnalyzeFunctionCall implements FormAnalyzer {
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
     analyzer.annotations.highlightKeyword(form);
     LispSymbol symbolName = form.getSexpList().get(0).getSymbol();
-    Symbol symbol = analyzer.symbolManager.getSymbol(symbolName.getText());
+    Symbol symbol = analyzer.packageManager.getSymbol(symbolName.getText());
     if (KEYWORDS.contains(symbol.getName())) {
       analyzer.annotations.highlightKeyword(symbolName);
     }

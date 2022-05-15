@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
 import org.ax1.lisp.analysis.ProjectAnalyser;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.SymbolManager;
+import org.ax1.lisp.analysis.symbol.PackageManager;
 import org.ax1.lisp.psi.LispFile;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +25,7 @@ public class LispCompletionContributor extends CompletionContributor {
         Project project = symbolToken.getProject();
         ProjectAnalyser projectAnalyser = ProjectAnalyser.getInstance(project);
         LispFile lispFile = (LispFile) symbolToken.getContainingFile();
-        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lispFile, EMPTY_ANNOTATE, new SymbolManager(projectAnalyser.getPackages()));
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lispFile, EMPTY_ANNOTATE, new PackageManager(projectAnalyser.getPackages()));
         syntaxAnalyzer.analyze();
         syntaxAnalyzer.completions.stream()
             .map(String::toLowerCase)

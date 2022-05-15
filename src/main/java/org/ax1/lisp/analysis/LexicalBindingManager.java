@@ -35,24 +35,21 @@ public class LexicalBindingManager {
     String symbolName = symbol.getText();
     SymbolBinding symbolBinding = getFunctionBinding(symbolName);
     symbolBinding.addUsage(symbol);
-    symbol.setSymbolBinding(symbolBinding);
   }
 
   public void registerVariableUsage(LispSymbol symbol) {
     String symbolName = symbol.getText();
     SymbolBinding symbolBinding = getVariableBinding(symbolName);
     symbolBinding.addUsage(symbol);
-    symbol.setSymbolBinding(symbolBinding);
   }
 
   public LexicalScope defineLexicalVariables(LispList container, List<LispSymbol> variableList) {
     Map<Symbol, SymbolBinding> newDictionary = new HashMap<>();
     for (LispSymbol symbolExpression : variableList) {
-      Symbol symbol = analyzer.symbolManager.getSymbol(symbolExpression.getText());
+      Symbol symbol = analyzer.packageManager.getSymbol(symbolExpression.getText());
       SymbolBinding symbolBinding = new SymbolBinding(symbol, VARIABLE, LEXICAL);
       symbolBinding.setDefinition(container, symbolExpression);
       newDictionary.put(symbol, symbolBinding);
-      symbolExpression.setSymbolBinding(symbolBinding);
     }
     variables.push(newDictionary);
     return this::dropLexicalVariables;
@@ -61,32 +58,31 @@ public class LexicalBindingManager {
   public LexicalScope defineLexicalFunctions(LispList container, List<LispSymbol> functionList) {
     Map<Symbol, SymbolBinding> newDictionary = new HashMap<>();
     for (LispSymbol symbolExpression : functionList) {
-      Symbol symbol = analyzer.symbolManager.getSymbol(symbolExpression.getText());
+      Symbol symbol = analyzer.packageManager.getSymbol(symbolExpression.getText());
       SymbolBinding symbolBinding = new SymbolBinding(symbol, FUNCTION, LEXICAL);
       symbolBinding.setDefinition(container, symbolExpression);
       newDictionary.put(symbol, symbolBinding);
-      symbolExpression.setSymbolBinding(symbolBinding);
     }
     functions.push(newDictionary);
     return this::dropLexicalFunctions;
   }
 
   public SymbolBinding getVariableBinding(String symbolName) {
-    Symbol symbol = analyzer.symbolManager.getSymbol(symbolName);
+    Symbol symbol = analyzer.packageManager.getSymbol(symbolName);
     for (int i = variables.size() - 1; i >= 0; i--) {
       SymbolBinding binding = variables.get(i).get(symbol);
       if (binding != null) return binding;
     }
-    return analyzer.symbolManager.getVariable(symbol);
+    return analyzer.packageManager.getVariable(symbol);
   }
 
   private SymbolBinding getFunctionBinding(String symbolName) {
-    Symbol symbol = analyzer.symbolManager.getSymbol(symbolName);
+    Symbol symbol = analyzer.packageManager.getSymbol(symbolName);
     for (int i = functions.size() - 1; i >= 0; i--) {
       SymbolBinding binding = functions.get(i).get(symbol);
       if (binding != null) return binding;
     }
-    return analyzer.symbolManager.getFunction(symbol);
+    return analyzer.packageManager.getFunction(symbol);
   }
 
   public boolean isEmpty() {
