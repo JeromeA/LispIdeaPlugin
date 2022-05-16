@@ -42,35 +42,54 @@ public class SyntaxAnalyzer {
   }
 
   public void analyzeForm(LispSexp form) {
-    LispSymbol symbol = form.getSymbol();
-    if (symbol != null) {
-      if (isCompletion(symbol)) {
-        completions.addAll(lexicalBindings.getLexicalVariables());
-        completions.addAll(getGlobalVariables());
-      } else {
-        SymbolBinding binding = lexicalBindings.getVariableBinding(symbol.getText());
-        if (binding.isKeyword()) {
-          annotations.highlightConstant(symbol);
-        } else {
-          lexicalBindings.registerVariableUsage(symbol);
-        }
-      }
+    if (form.getSymbol() != null) {
+      analyseSymbolForm(form.getSymbol());
     }
-    LispList list = form.getList();
-    if (list != null) {
-      analyzeCompoundForm(list);
+    if (form.getList() != null) {
+      analyzeCompoundForm(form.getList());
     }
-    LispQuoted quoted = form.getQuoted();
-    if (quoted != null) {
-      PsiElement quote = quoted.getFirstChild();
-      annotations.highlightKeyword(quote);
-      String quoteType = quote.getText();
-      // Quoted expressions are data, backquoted expressions are code. These are arbitrary, it's just the most
-      // common case.
-      if (quoteType.equals("'")) {
+    if (form.getQuoted() != null) {
+      analyseQuotedForm(form.getQuoted());
+    }
+  }
+
+  private void analyseQuotedForm(LispQuoted quoted) {
+    PsiElement quote = quoted.getFirstChild();
+    LispSexp quotedSexp = quoted.getSexp();
+    annotations.highlightKeyword(quote);
+    String quoteType = quote.getText();
+    switch (quoteType) {
+      case "'":
+        // We arbitrarily decide to highlight quoted expressions as data.
         annotations.highlightConstant(quoted);
+        break;
+      case "#'":
+        LispSymbol symbol = quotedSexp.getSymbol();
+        if (symbol == null) {
+          annotations.highlightError(quotedSexp, "Function name expected");
+        } else {
+          lexicalBindings.registerFunctionUsage(symbol);
+        }
+        break;
+      case "`":
+      case ",":
+      case ",@":
+        // We arbitrarily decide to highlight backquoted expressions as code.
+        analyzeForm(quotedSexp);
+        break;
+    }
+  }
+
+  private void analyseSymbolForm(LispSymbol symbol) {
+    if (isCompletion(symbol)) {
+      completions.addAll(lexicalBindings.getLexicalVariables());
+      completions.addAll(getGlobalVariables());
+    } else {
+      SymbolBinding binding = lexicalBindings.getVariableBinding(symbol.getText());
+      if (binding.isKeyword()) {
+        annotations.highlightConstant(symbol);
       } else {
-        analyzeForm(quoted.getSexp());
+        lexicalBindings.registerVariableUsage(symbol);
       }
     }
   }
