@@ -36,6 +36,7 @@ public class LambdaAnalyzer {
     LispPackage cl = analyzer.packageManager.getPackage("CL");
     Set<Symbol> keywords = Set.of(
         cl.intern(analyzer.packageManager, "&BODY"),
+        cl.intern(analyzer.packageManager, "&OPTIONAL"),
         cl.intern(analyzer.packageManager, "&REST"),
         cl.intern(analyzer.packageManager, "&KEY"));
     List<LispSymbol> result = new ArrayList<>();
