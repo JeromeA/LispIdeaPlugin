@@ -25,7 +25,7 @@ number = -? [0-9]+ | "#x" [0-9a-fA-F]+
 character = "#\\" [^\ \r\n\t]
 quote = ['`] | "," "@"? | "#'"
 double_quote = \"
-symbol = [^\ \r\n\t\"'`,;()0-9] [^\ \r\n\t\"';()]*
+symbol = [^\ \r\n\t\"'`,;()] [^\ \r\n\t\"';()]*
 
 %state STRING
 
