@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class AnalyzeLoop implements FormAnalyzer {
 
-  private static final Set<String> FOR_SUBCLAUSE_KEYWORDS = Set.of("=", "across", "in", "on");
+  private static final Set<String> FOR_SUBCLAUSE_KEYWORDS = Set.of("=", "across", "below", "in", "on");
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
