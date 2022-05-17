@@ -96,6 +96,7 @@ public final class PackageManager {
 
   public Map<Symbol, SymbolBinding> getFunctions() {
     return packages.values().stream()
+        .distinct()
         .filter(p -> p.getDefinition().isWriteable())
         .flatMap(p -> p.getFunctions().stream())
         .collect(Collectors.toMap(SymbolBinding::getSymbol, b -> b));
@@ -103,6 +104,7 @@ public final class PackageManager {
 
   public Map<Symbol, SymbolBinding> getVariables() {
     return packages.values().stream()
+        .distinct()
         .filter(p -> p.getDefinition().isWriteable())
         .flatMap(p -> p.getVariables().stream())
         .collect(Collectors.toMap(SymbolBinding::getSymbol, b -> b));
