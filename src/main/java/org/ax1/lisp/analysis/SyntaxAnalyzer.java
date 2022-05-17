@@ -15,6 +15,7 @@ import static org.ax1.lisp.analysis.symbol.Symbol.commonLispSymbol;
 public class SyntaxAnalyzer {
 
   private static final AnalyzeFunctionCall ANALYZE_FUNCTION_CALL = new AnalyzeFunctionCall();
+  private static final AnalyzeLambda ANALYZE_LAMBDA = new AnalyzeLambda();
 
   private static final Map<Symbol, FormAnalyzer> ANALYSERS = Maps.of(
       commonLispSymbol("COND"), new AnalyzeCond(),
@@ -31,6 +32,7 @@ public class SyntaxAnalyzer {
       commonLispSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind(),
       commonLispSymbol("IN-PACKAGE"), new AnalyzeInPackage(),
       commonLispSymbol("LABELS"), new AnalyzeLabels(),
+      commonLispSymbol("LAMBDA"), ANALYZE_LAMBDA,
       commonLispSymbol("LET"), new AnalyzeLet(),
       commonLispSymbol("LET*"), new AnalyzeLetStar(),
       commonLispSymbol("LOOP"), new AnalyzeLoop());
@@ -81,11 +83,21 @@ public class SyntaxAnalyzer {
         break;
       case "#'":
         LispSymbol parsedSymbol = quotedSexp.getSymbol();
-        if (parsedSymbol == null) {
-          annotations.highlightError(quotedSexp, "Function name expected");
-        } else {
+        if (parsedSymbol != null) {
           Symbol symbol = packageManager.getSymbol(parsedSymbol);
           lexicalBindings.registerFunctionUsage(symbol, parsedSymbol);
+          return;
+        }
+        LispList list = quotedSexp.getList();
+        if (list != null) {
+          List<LispSexp> sexpList = list.getSexpList();
+          if (sexpList.size() < 2
+              || sexpList.get(0).getSymbol() == null
+              || !sexpList.get(0).getSymbol().getText().equals("lambda")) {
+            annotations.highlightError(quotedSexp, "Expected lambda form");
+            return;
+          }
+          ANALYZE_LAMBDA.analyze(this, list);
         }
         break;
       case "`":
