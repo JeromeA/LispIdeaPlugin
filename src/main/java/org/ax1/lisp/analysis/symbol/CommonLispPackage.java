@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 public class CommonLispPackage extends LispPackage {
 
+  public static final String COMMON_LISP = "COMMON-LISP";
+
   public static final String[] COMMON_LISP_FUNCTIONS = {
       "*",
       "**",
@@ -991,7 +993,9 @@ public class CommonLispPackage extends LispPackage {
       "T"
   };
 
-  public CommonLispPackage() {
+  public static CommonLispPackage INSTANCE = new CommonLispPackage();
+
+  private CommonLispPackage() {
     super(createDefinition());
     Arrays.stream(COMMON_LISP_FUNCTIONS).forEach(this::addFunction);
     Arrays.stream(COMMON_LISP_VARIABLES).forEach(this::addVariable);
@@ -999,7 +1003,7 @@ public class CommonLispPackage extends LispPackage {
   }
 
   private static PackageDefinition createDefinition() {
-    PackageDefinition definition = new PackageDefinition("COMMON-LISP");
+    PackageDefinition definition = new PackageDefinition(COMMON_LISP);
     definition.addNickname("CL");
     definition.setReadOnly();
     definition.setStandard();

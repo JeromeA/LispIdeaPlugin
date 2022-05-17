@@ -15,7 +15,7 @@ public class StringDesignator {
     LispSymbol symbolName = nameDesignator.getSymbol();
     if (symbolName != null) {
       annotate.highlightConstant(symbolName);
-      Symbol symbol = packageManager.getSymbol(symbolName.getText());
+      Symbol symbol = packageManager.getSymbol(symbolName);
       return symbol.getName();
     }
     ASTNode token = nameDesignator.getFirstChild().getNode();

@@ -1,6 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
+import org.ax1.lisp.analysis.symbol.CommonLispPackage;
 import org.ax1.lisp.analysis.symbol.LispPackage;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
@@ -11,8 +12,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AnalyzeDestructuringBind implements FormAnalyzer {
+
+  private static final Set<Symbol> KEYWORDS =
+      Stream.of("&ALLOW-OTHER-KEYS", "&KEY", "&REST")
+          .map(Symbol::commonLispSymbol)
+          .collect(Collectors.toSet());
 
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
@@ -34,18 +42,13 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
   }
 
   private List<LispSymbol> getDestructuringBindVariableSymbols(SyntaxAnalyzer analyzer, @NotNull List<LispSexp> lambdaList) {
-    LispPackage cl = analyzer.packageManager.getPackage("CL");
-    Set<Symbol> keywords = Set.of(
-        cl.intern(analyzer.packageManager, "&ALLOW-OTHER-KEYS"),
-        cl.intern(analyzer.packageManager, "&REST"),
-        cl.intern(analyzer.packageManager, "&KEY"));
     List<LispSymbol> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
       LispSymbol symbolName = sexp.getSymbol();
       LispList list = sexp.getList();
       if (symbolName != null) {
-        Symbol symbol = analyzer.packageManager.getSymbol(symbolName.getText());
-        if (keywords.contains(symbol)) {
+        Symbol symbol = analyzer.packageManager.getSymbol(symbolName);
+        if (KEYWORDS.contains(symbol)) {
           analyzer.annotations.highlightConstant(symbolName);
         } else {
           result.add(symbolName);

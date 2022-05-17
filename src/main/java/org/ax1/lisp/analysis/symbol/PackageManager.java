@@ -1,20 +1,20 @@
 package org.ax1.lisp.analysis.symbol;
 
+import org.ax1.lisp.psi.LispSymbol;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 public final class PackageManager {
 
-  public static final KeywordPackage keywordPackage = new KeywordPackage();
-  public static final CommonLispPackage commonLispPackage = new CommonLispPackage();
-  public static final String INVALID_PACKAGE = "INVALID-PACKAGE";
-
   public final Map<String, LispPackage> packages = new HashMap<>();
+  private LispPackage invalidPackage = new LispPackage(new PackageDefinition("INVALID"));
   private LispPackage currentPackage;
 
   public PackageManager() {
-    add(keywordPackage);
-    add(commonLispPackage);
+    add(KeywordPackage.INSTANCE);
+    add(CommonLispPackage.INSTANCE);
+    add(invalidPackage);
     CommonLispUserPackage commonLispUser = new CommonLispUserPackage();
     add(commonLispUser);
     currentPackage = commonLispUser;
@@ -27,6 +27,11 @@ public final class PackageManager {
 
   public LispPackage getPackage(String name) {
     return packages.get(name);
+  }
+
+  private LispPackage getPackageOrInvalid(String name) {
+    LispPackage result = packages.get(name);
+    return result != null ? result : invalidPackage;
   }
 
   public void add(LispPackage packageToAdd) {
@@ -43,6 +48,10 @@ public final class PackageManager {
     }
   }
 
+  public Symbol getSymbol(LispSymbol parsedSymbol) {
+    return getSymbol(parsedSymbol.getText());
+  }
+
   public Symbol getSymbol(String name) {
     name = name.toUpperCase();
     if (name.startsWith("#:")) {
@@ -50,7 +59,7 @@ public final class PackageManager {
     }
     int index = name.indexOf(':');
     if (index == 0) {
-      return keywordPackage.intern(this, name.substring(1));
+      return KeywordPackage.INSTANCE.intern(this, name.substring(1));
     }
     if (index > 0) {
       // TODO: handle double colon.
@@ -58,7 +67,7 @@ public final class PackageManager {
       String symbolName = name.substring(index + 1);
       LispPackage lispPackage = packages.get(packageName);
       if (lispPackage == null) {
-        return new Symbol(INVALID_PACKAGE, name);
+        return new Symbol(packageName, symbolName);
       }
       return lispPackage.intern(this, symbolName);
     }
@@ -74,7 +83,7 @@ public final class PackageManager {
   }
 
   public SymbolBinding getFunction(Symbol symbol) {
-    return getPackage(symbol.getPackageName()).getFunction(symbol);
+    return getPackageOrInvalid(symbol.getPackageName()).getFunction(symbol);
   }
 
   public SymbolBinding getVariable(String symbolName) {
@@ -82,7 +91,7 @@ public final class PackageManager {
   }
 
   public SymbolBinding getVariable(Symbol symbol) {
-    return getPackage(symbol.getPackageName()).getVariable(symbol);
+    return getPackageOrInvalid(symbol.getPackageName()).getVariable(symbol);
   }
 
   public Map<Symbol, SymbolBinding> getFunctions() {

@@ -31,22 +31,20 @@ public class LexicalBindingManager {
     retired.addAll(functions.pop().values());
   }
 
-  public void registerFunctionUsage(LispSymbol symbol) {
-    String symbolName = symbol.getText();
-    SymbolBinding symbolBinding = getFunctionBinding(symbolName);
-    symbolBinding.addUsage(symbol);
+  public void registerFunctionUsage(Symbol symbol, LispSymbol parsedSymbol) {
+    getFunctionBinding(symbol).addUsage(parsedSymbol);
   }
 
-  public void registerVariableUsage(LispSymbol symbol) {
-    String symbolName = symbol.getText();
-    SymbolBinding symbolBinding = getVariableBinding(symbolName);
-    symbolBinding.addUsage(symbol);
+  public SymbolBinding registerVariableUsage(Symbol symbol, LispSymbol parsedSymbol) {
+    SymbolBinding symbolBinding = getVariableBinding(symbol);
+    symbolBinding.addUsage(parsedSymbol);
+    return symbolBinding;
   }
 
   public LexicalScope defineLexicalVariables(LispList container, List<LispSymbol> variableList) {
     Map<Symbol, SymbolBinding> newDictionary = new HashMap<>();
     for (LispSymbol symbolExpression : variableList) {
-      Symbol symbol = analyzer.packageManager.getSymbol(symbolExpression.getText());
+      Symbol symbol = analyzer.packageManager.getSymbol(symbolExpression);
       SymbolBinding symbolBinding = new SymbolBinding(symbol, VARIABLE, LEXICAL);
       symbolBinding.setDefinition(container, symbolExpression);
       newDictionary.put(symbol, symbolBinding);
@@ -58,7 +56,7 @@ public class LexicalBindingManager {
   public LexicalScope defineLexicalFunctions(LispList container, List<LispSymbol> functionList) {
     Map<Symbol, SymbolBinding> newDictionary = new HashMap<>();
     for (LispSymbol symbolExpression : functionList) {
-      Symbol symbol = analyzer.packageManager.getSymbol(symbolExpression.getText());
+      Symbol symbol = analyzer.packageManager.getSymbol(symbolExpression);
       SymbolBinding symbolBinding = new SymbolBinding(symbol, FUNCTION, LEXICAL);
       symbolBinding.setDefinition(container, symbolExpression);
       newDictionary.put(symbol, symbolBinding);
@@ -67,8 +65,7 @@ public class LexicalBindingManager {
     return this::dropLexicalFunctions;
   }
 
-  public SymbolBinding getVariableBinding(String symbolName) {
-    Symbol symbol = analyzer.packageManager.getSymbol(symbolName);
+  public SymbolBinding getVariableBinding(Symbol symbol) {
     for (int i = variables.size() - 1; i >= 0; i--) {
       SymbolBinding binding = variables.get(i).get(symbol);
       if (binding != null) return binding;
@@ -76,8 +73,7 @@ public class LexicalBindingManager {
     return analyzer.packageManager.getVariable(symbol);
   }
 
-  private SymbolBinding getFunctionBinding(String symbolName) {
-    Symbol symbol = analyzer.packageManager.getSymbol(symbolName);
+  private SymbolBinding getFunctionBinding(Symbol symbol) {
     for (int i = functions.size() - 1; i >= 0; i--) {
       SymbolBinding binding = functions.get(i).get(symbol);
       if (binding != null) return binding;

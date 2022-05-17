@@ -1,5 +1,7 @@
 package org.ax1.lisp.analysis.symbol;
 
+import static org.ax1.lisp.analysis.symbol.CommonLispPackage.COMMON_LISP;
+
 public class Symbol {
 
   private final String packageName;
@@ -8,6 +10,10 @@ public class Symbol {
   public Symbol(String packageName, String name) {
     this.packageName = packageName;
     this.name = name;
+  }
+
+  public static Symbol commonLispSymbol(String name) {
+    return new Symbol(COMMON_LISP, name);
   }
 
   public String getName() {

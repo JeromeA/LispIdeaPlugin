@@ -1,23 +1,39 @@
 package org.ax1.lisp.analysis;
 
 import com.intellij.psi.PsiElement;
+import org.apache.groovy.util.Maps;
 import org.ax1.lisp.analysis.form.*;
-import org.ax1.lisp.analysis.symbol.PackageDefinition;
-import org.ax1.lisp.analysis.symbol.Symbol;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
-import org.ax1.lisp.analysis.symbol.PackageManager;
+import org.ax1.lisp.analysis.symbol.*;
 import org.ax1.lisp.psi.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
+import static org.ax1.lisp.analysis.symbol.Symbol.commonLispSymbol;
 
 public class SyntaxAnalyzer {
 
   private static final AnalyzeFunctionCall ANALYZE_FUNCTION_CALL = new AnalyzeFunctionCall();
 
-  private static Map<Symbol, FormAnalyzer> analyzers;
+  private static final Map<Symbol, FormAnalyzer> ANALYSERS = Maps.of(
+      commonLispSymbol("COND"), new AnalyzeCond(),
+      commonLispSymbol("DEFGENERIC"), new AnalyzeDefgeneric(),
+      commonLispSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO),
+      commonLispSymbol("DEFMETHOD"), new AnalyzeDefmethod(),
+      commonLispSymbol("DEFPACKAGE"), (analyzer, form) -> {},
+      commonLispSymbol("DEFPARAMETER"), new AnalyzeDefparameter(),
+      commonLispSymbol("DEFSTRUCT"), new AnalyzeDefstruct(),
+      commonLispSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN),
+      commonLispSymbol("DEFVAR"), new AnalyzeDefvar(),
+      commonLispSymbol("DOLIST"), new AnalyzeDolist(),
+      commonLispSymbol("ECASE"), new AnalyzeEcase(),
+      commonLispSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind(),
+      commonLispSymbol("IN-PACKAGE"), new AnalyzeInPackage(),
+      commonLispSymbol("LABELS"), new AnalyzeLabels(),
+      commonLispSymbol("LET"), new AnalyzeLet(),
+      commonLispSymbol("LET*"), new AnalyzeLetStar(),
+      commonLispSymbol("LOOP"), new AnalyzeLoop());
 
   private final LispFile lispFile;
   public final PackageManager packageManager;
@@ -64,11 +80,12 @@ public class SyntaxAnalyzer {
         annotations.highlightConstant(quoted);
         break;
       case "#'":
-        LispSymbol symbol = quotedSexp.getSymbol();
-        if (symbol == null) {
+        LispSymbol parsedSymbol = quotedSexp.getSymbol();
+        if (parsedSymbol == null) {
           annotations.highlightError(quotedSexp, "Function name expected");
         } else {
-          lexicalBindings.registerFunctionUsage(symbol);
+          Symbol symbol = packageManager.getSymbol(parsedSymbol);
+          lexicalBindings.registerFunctionUsage(symbol, parsedSymbol);
         }
         break;
       case "`":
@@ -80,16 +97,15 @@ public class SyntaxAnalyzer {
     }
   }
 
-  private void analyseSymbolForm(LispSymbol symbol) {
-    if (isCompletion(symbol)) {
+  private void analyseSymbolForm(LispSymbol parsedSymbol) {
+    if (isCompletion(parsedSymbol)) {
       completions.addAll(lexicalBindings.getLexicalVariables());
       completions.addAll(getGlobalVariables());
     } else {
-      SymbolBinding binding = lexicalBindings.getVariableBinding(symbol.getText());
+      Symbol symbol = packageManager.getSymbol(parsedSymbol);
+      SymbolBinding binding = lexicalBindings.registerVariableUsage(symbol, parsedSymbol);
       if (binding.isKeyword()) {
-        annotations.highlightConstant(symbol);
-      } else {
-        lexicalBindings.registerVariableUsage(symbol);
+        annotations.highlightConstant(parsedSymbol);
       }
     }
   }
@@ -98,13 +114,13 @@ public class SyntaxAnalyzer {
     List<LispSexp> list = form.getSexpList();
     if (list.isEmpty()) return;
     LispSexp sexp0 = list.get(0);
-    LispSymbol symbol0 = sexp0.getSymbol();
-    if (symbol0 != null) {
-      if (isCompletion(symbol0)) {
+    LispSymbol parsedSymbol = sexp0.getSymbol();
+    if (parsedSymbol != null) {
+      if (isCompletion(parsedSymbol)) {
         completions.addAll(lexicalBindings.getLexicalFunctions());
         completions.addAll(getGlobalFunctions());
       } else {
-        Symbol symbol = packageManager.getSymbol(symbol0.getText());
+        Symbol symbol = packageManager.getSymbol(parsedSymbol);
         getAnalyzer(symbol).analyze(this, form);
       }
     } else {
@@ -113,32 +129,8 @@ public class SyntaxAnalyzer {
   }
 
   private static synchronized FormAnalyzer getAnalyzer(Symbol symbol) {
-    if (analyzers == null) {
-      analyzers = new HashMap<>();
-      analyzers.put(getClSymbol("COND"), new AnalyzeCond());
-      analyzers.put(getClSymbol("DEFGENERIC"), new AnalyzeDefgeneric());
-      analyzers.put(getClSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO));
-      analyzers.put(getClSymbol("DEFMETHOD"), new AnalyzeDefmethod());
-      analyzers.put(getClSymbol("DEFPACKAGE"), (analyzer, form) -> {});
-      analyzers.put(getClSymbol("DEFPARAMETER"), new AnalyzeDefparameter());
-      analyzers.put(getClSymbol("DEFSTRUCT"), new AnalyzeDefstruct());
-      analyzers.put(getClSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN));
-      analyzers.put(getClSymbol("DEFVAR"), new AnalyzeDefvar());
-      analyzers.put(getClSymbol("DOLIST"), new AnalyzeDolist());
-      analyzers.put(getClSymbol("ECASE"), new AnalyzeEcase());
-      analyzers.put(getClSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind());
-      analyzers.put(getClSymbol("IN-PACKAGE"), new AnalyzeInPackage());
-      analyzers.put(getClSymbol("LABELS"), new AnalyzeLabels());
-      analyzers.put(getClSymbol("LET"), new AnalyzeLet());
-      analyzers.put(getClSymbol("LET*"), new AnalyzeLetStar());
-      analyzers.put(getClSymbol("LOOP"), new AnalyzeLoop());
-    }
-    FormAnalyzer formAnalyzer = analyzers.get(symbol);
+    FormAnalyzer formAnalyzer = ANALYSERS.get(symbol);
     return formAnalyzer == null ? ANALYZE_FUNCTION_CALL : formAnalyzer;
-  }
-
-  private static Symbol getClSymbol(String name) {
-    return PackageManager.commonLispPackage.intern(name);
   }
 
   /** These are really the global variables, not just the ones found by this analysis so far. */

@@ -23,7 +23,7 @@ public class LispPackage implements Cloneable {
     if (symbol == null) {
       for (String packageName : definition.use) {
         LispPackage lispPackage = packageManager.getPackage(packageName);
-        if (lispPackage.isExporting(symbolName)) {
+        if (lispPackage != null && lispPackage.isExporting(symbolName)) {
           return lispPackage.intern(packageManager, symbolName);
         }
       }

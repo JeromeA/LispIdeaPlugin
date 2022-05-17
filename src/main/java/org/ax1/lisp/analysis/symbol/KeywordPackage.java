@@ -2,7 +2,9 @@ package org.ax1.lisp.analysis.symbol;
 
 public class KeywordPackage extends LispPackage {
 
-  public KeywordPackage() {
+  public static KeywordPackage INSTANCE = new KeywordPackage();
+
+  private KeywordPackage() {
     super(createDefinition());
   }
 
