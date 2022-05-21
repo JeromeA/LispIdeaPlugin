@@ -21,13 +21,17 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       analyzer.annotations.highlightError(form, "DEFPACKAGE needs at least 1 argument");
       return;
     }
-    String packageName = getStringDesignator(formList.get(1), analyzer.annotations, analyzer.packageManager);
+    LispSexp sexp1 = formList.get(1);
+    String packageName = getStringDesignator(sexp1, analyzer.annotations, analyzer.packageManager);
     if (packageName == null) {
-      analyzer.annotations.highlightError(formList.get(1), "Package name (as a string designator) expected");
+      analyzer.annotations.highlightError(sexp1, "Package name (as a string designator) expected");
       return;
     }
     PackageDefinition definition = new PackageDefinition(packageName);
     formList.stream().skip(2).forEach(sexp -> analyzeOption(analyzer, sexp, definition));
+    if (sexp1.getSymbol() != null) {
+      definition.setDefinition(sexp1.getSymbol());
+    }
     analyzer.scannedPackages.add(definition);
   }
 
@@ -56,15 +60,19 @@ public class AnalyzeDefpackage implements FormAnalyzer {
   private void analyzeOptionUses(SyntaxAnalyzer analyzer, PackageDefinition definition, List<LispSexp> list) {
     for (int i = 1; i < list.size(); i++) {
       LispSexp sexp = list.get(i);
-      String packageName = getStringDesignator(sexp, analyzer.annotations, analyzer.packageManager);
-      if (packageName == null) {
+      String usedPackageName = getStringDesignator(sexp, analyzer.annotations, analyzer.packageManager);
+      if (usedPackageName == null) {
         analyzer.annotations.highlightError(sexp, "package name (string designator) expected");
       } else {
-        LispPackage aPackage = analyzer.packageManager.getPackage(packageName);
-        if (aPackage == null) {
+        LispPackage usedPackage = analyzer.packageManager.getPackage(usedPackageName);
+        if (usedPackage == null) {
           analyzer.annotations.highlightError(sexp, "unknown package");
         } else {
-          definition.addUse(packageName);
+          definition.addUse(usedPackageName);
+          LispSymbol symbol = sexp.getSymbol();
+          if (symbol != null) {
+            usedPackage.getDefinition().addUsage(symbol);
+          }
         }
       }
     }

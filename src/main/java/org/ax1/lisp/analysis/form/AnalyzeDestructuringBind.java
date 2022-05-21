@@ -1,8 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.CommonLispPackage;
-import org.ax1.lisp.analysis.symbol.LispPackage;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -19,7 +17,7 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
 
   private static final Set<Symbol> KEYWORDS =
       Stream.of("&ALLOW-OTHER-KEYS", "&KEY", "&REST")
-          .map(Symbol::commonLispSymbol)
+          .map(Symbol::clSymbol)
           .collect(Collectors.toSet());
 
   @Override

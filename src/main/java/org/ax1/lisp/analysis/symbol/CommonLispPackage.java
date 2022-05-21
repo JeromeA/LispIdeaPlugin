@@ -1006,7 +1006,6 @@ public class CommonLispPackage extends LispPackage {
     PackageDefinition definition = new PackageDefinition(COMMON_LISP);
     definition.addNickname("CL");
     definition.setReadOnly();
-    definition.setStandard();
     return definition;
   }
 

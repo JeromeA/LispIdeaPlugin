@@ -1,5 +1,7 @@
 package org.ax1.lisp.analysis.symbol;
 
+import org.ax1.lisp.psi.LispSymbol;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,7 +10,8 @@ public class PackageDefinition {
   private final Set<String> nicknames = new HashSet<>();
   final Set<String> use = new HashSet<>();
   private boolean isWriteable = true;
-  private boolean isStandard;
+  private LispSymbol definition;
+  private final Set<LispSymbol> usages = new HashSet<>();
 
   public PackageDefinition(String name) {
     this.name = name;
@@ -34,12 +37,19 @@ public class PackageDefinition {
     isWriteable = false;
   }
 
-  public boolean isStandard() {
-    return isStandard;
+  public void setDefinition(LispSymbol symbol) {
+    definition = symbol;
   }
 
-  public void setStandard() {
-    isStandard = true;
+  public void addUsage(LispSymbol symbol) {
+    usages.add(symbol);
   }
 
+  public LispSymbol getDefinition() {
+    return definition;
+  }
+
+  public Set<LispSymbol> getUsages() {
+    return usages;
+  }
 }

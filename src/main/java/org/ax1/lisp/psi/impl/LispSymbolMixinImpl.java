@@ -8,6 +8,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
 import org.ax1.lisp.analysis.ProjectAnalyser;
+import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.usages.LispSymbolReference;
 import org.ax1.lisp.psi.*;
@@ -27,10 +28,23 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   public PsiReference getReference() {
-    if (isFunctionCall() || isVariableReference()) {
-      return new LispSymbolReference(this);
+    if (isVariableReference() || isFunctionCall()) {
+      return new LispSymbolReference(this, getSymbolBinding().getDefinition());
+    }
+    if (isPackageReference()) {
+      return new LispSymbolReference(this, getPackageDefinition().getDefinition());
     }
     return null;
+  }
+
+  private boolean isPackageReference() {
+    PackageDefinition packageDefinition = getPackageDefinition();
+    return packageDefinition != null && packageDefinition.getUsages().contains(this);
+  }
+
+  private boolean isPackageDefinition() {
+    PackageDefinition packageDefinition = getPackageDefinition();
+    return packageDefinition != null && packageDefinition.getDefinition() == this;
   }
 
   @Override
@@ -47,7 +61,14 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
 
   @Override
   public @Nullable PsiElement getNameIdentifier() {
-    return this;
+    if (isVariableDefinition() || isFunctionDefinition() || isPackageDefinition()) {
+      return this;
+    }
+    return null;
+  }
+
+  public PackageDefinition getPackageDefinition() {
+    return ProjectAnalyser.getInstance(getProject()).getProjectSymbolAnalysis().packages.get(this);
   }
 
   @Override

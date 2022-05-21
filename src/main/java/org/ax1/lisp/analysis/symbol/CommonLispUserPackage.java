@@ -10,7 +10,6 @@ public class CommonLispUserPackage extends LispPackage {
     PackageDefinition definition = new PackageDefinition("COMMON-LISP-USER");
     definition.addNickname("CL-USER");
     definition.addUse("COMMON-LISP");
-    definition.setStandard();
     return definition;
   }
 }

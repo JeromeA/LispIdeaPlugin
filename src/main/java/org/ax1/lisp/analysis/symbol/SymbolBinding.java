@@ -83,21 +83,19 @@ public class SymbolBinding {
     this.isKeyword = isKeyword;
   }
 
-  public void add(SymbolBinding binding) {
+  private void merge(SymbolBinding binding) {
     if (binding.description != null) description = binding.description;
     if (binding.container != null) container = binding.container;
     if (binding.definition != null) {
       definition = binding.definition;
     }
-    binding.usages.forEach(usage -> {
-      usages.add(usage);
-    });
+    usages.addAll(binding.usages);
   }
 
   public static SymbolBinding merge(Collection<SymbolBinding> symbolBindings) {
     SymbolBinding first = symbolBindings.iterator().next();
     SymbolBinding symbolBinding = new SymbolBinding(first.symbol, first.symbolType, first.bindingType);
-    symbolBindings.forEach(symbolBinding::add);
+    symbolBindings.forEach(symbolBinding::merge);
     return symbolBinding;
   }
 

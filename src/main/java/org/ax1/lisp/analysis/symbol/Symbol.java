@@ -12,8 +12,12 @@ public class Symbol {
     this.name = name;
   }
 
-  public static Symbol commonLispSymbol(String name) {
+  public static Symbol clSymbol(String name) {
     return new Symbol(COMMON_LISP, name);
+  }
+
+  public static Symbol keywordSymbol(String name) {
+    return new Symbol("", name);
   }
 
   public String getName() {

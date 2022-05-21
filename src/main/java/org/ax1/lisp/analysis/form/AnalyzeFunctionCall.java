@@ -1,7 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.CommonLispPackage;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSymbol;
@@ -18,7 +17,7 @@ public class AnalyzeFunctionCall implements FormAnalyzer {
    */
   private static final Set<Symbol> KEYWORDS =
       Stream.of("DECLARE", "IF", "IGNORE", "RETURN", "SETQ", "SPECIAL", "UNLESS", "WHEN")
-          .map(Symbol::commonLispSymbol)
+          .map(Symbol::clSymbol)
           .collect(Collectors.toSet());
 
   @Override

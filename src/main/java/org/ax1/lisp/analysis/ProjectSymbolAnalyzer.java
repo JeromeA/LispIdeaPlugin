@@ -30,6 +30,7 @@ class ProjectSymbolAnalyzer implements CachedValueProvider<ProjectSymbolAnalysis
         .map(f -> (LispFile) f)
         .map(projectAnalyser::getFileSymbolAnalysis)
         .forEach(result::addFileAnalysis);
+    projectAnalyser.getPackages().forEach(result::addPackage);
     return new Result<>(result.build(), PsiModificationTracker.MODIFICATION_COUNT);
   }
 }

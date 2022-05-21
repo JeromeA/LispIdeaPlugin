@@ -11,13 +11,16 @@ import org.jetbrains.annotations.Nullable;
 
 public class LispSymbolReference extends PsiReferenceBase<LispSymbol> {
 
-  public LispSymbolReference(@NotNull LispSymbol symbol) {
+  private final PsiElement definition;
+
+  public LispSymbolReference(@NotNull LispSymbol symbol, @NotNull PsiElement definition) {
     super(symbol);
+    this.definition = definition;
   }
 
   @Override
   public @Nullable PsiElement resolve() {
-    return myElement.getSymbolBinding().getDefinition();
+    return definition;
   }
 
   @Override

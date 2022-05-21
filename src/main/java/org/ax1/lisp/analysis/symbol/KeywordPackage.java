@@ -11,7 +11,6 @@ public class KeywordPackage extends LispPackage {
   private static PackageDefinition createDefinition() {
     PackageDefinition definition = new PackageDefinition("KEYWORD");
     definition.setReadOnly();
-    definition.setStandard();
     return definition;
   }
 

@@ -21,8 +21,6 @@ public class LispAnnotator implements Annotator {
     ProjectAnalyser projectAnalyser = ProjectAnalyser.getInstance(lispFile.getProject());
 
     Annotate annotate = new Annotate(lispFile, holder);
-    PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, annotate);
-    packageAnalyzer.analyzePackages();
     SyntaxAnalyzer analyzer = new SyntaxAnalyzer(lispFile, annotate, new PackageManager(projectAnalyser.getPackages()));
     analyzer.analyze();
 

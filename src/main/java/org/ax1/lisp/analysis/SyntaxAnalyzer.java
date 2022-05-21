@@ -10,32 +10,33 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
-import static org.ax1.lisp.analysis.symbol.Symbol.commonLispSymbol;
+import static org.ax1.lisp.analysis.symbol.Symbol.clSymbol;
 
 public class SyntaxAnalyzer {
 
   private static final AnalyzeFunctionCall ANALYZE_FUNCTION_CALL = new AnalyzeFunctionCall();
   private static final AnalyzeLambda ANALYZE_LAMBDA = new AnalyzeLambda();
+  public static final FormAnalyzer EMPTY_ANALYZER = (analyzer, form) -> {};
 
   private static final Map<Symbol, FormAnalyzer> ANALYSERS = Maps.of(
-      commonLispSymbol("COND"), new AnalyzeCond(),
-      commonLispSymbol("DEFGENERIC"), new AnalyzeDefgeneric(),
-      commonLispSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO),
-      commonLispSymbol("DEFMETHOD"), new AnalyzeDefmethod(),
-      commonLispSymbol("DEFPACKAGE"), (analyzer, form) -> {},
-      commonLispSymbol("DEFPARAMETER"), new AnalyzeDefparameter(),
-      commonLispSymbol("DEFSTRUCT"), new AnalyzeDefstruct(),
-      commonLispSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN),
-      commonLispSymbol("DEFVAR"), new AnalyzeDefvar(),
-      commonLispSymbol("DOLIST"), new AnalyzeDolist(),
-      commonLispSymbol("ECASE"), new AnalyzeEcase(),
-      commonLispSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind(),
-      commonLispSymbol("IN-PACKAGE"), new AnalyzeInPackage(),
-      commonLispSymbol("LABELS"), new AnalyzeLabels(),
-      commonLispSymbol("LAMBDA"), ANALYZE_LAMBDA,
-      commonLispSymbol("LET"), new AnalyzeLet(),
-      commonLispSymbol("LET*"), new AnalyzeLetStar(),
-      commonLispSymbol("LOOP"), new AnalyzeLoop());
+      clSymbol("COND"), new AnalyzeCond(),
+      clSymbol("DEFGENERIC"), new AnalyzeDefgeneric(),
+      clSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO),
+      clSymbol("DEFMETHOD"), new AnalyzeDefmethod(),
+      clSymbol("DEFPACKAGE"), new AnalyzeDefpackage(),
+      clSymbol("DEFPARAMETER"), new AnalyzeDefparameter(),
+      clSymbol("DEFSTRUCT"), new AnalyzeDefstruct(),
+      clSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN),
+      clSymbol("DEFVAR"), new AnalyzeDefvar(),
+      clSymbol("DOLIST"), new AnalyzeDolist(),
+      clSymbol("ECASE"), new AnalyzeEcase(),
+      clSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind(),
+      clSymbol("IN-PACKAGE"), new AnalyzeInPackage(),
+      clSymbol("LABELS"), new AnalyzeLabels(),
+      clSymbol("LAMBDA"), ANALYZE_LAMBDA,
+      clSymbol("LET"), new AnalyzeLet(),
+      clSymbol("LET*"), new AnalyzeLetStar(),
+      clSymbol("LOOP"), new AnalyzeLoop());
 
   private final LispFile lispFile;
   public final PackageManager packageManager;

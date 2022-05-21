@@ -2,7 +2,6 @@ package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.LexicalBindingManager;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.CommonLispPackage;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -19,7 +18,7 @@ public class LambdaAnalyzer {
 
   private static final Set<Symbol> KEYWORDS =
       Stream.of("&BODY", "&KEY", "&OPTIONAL", "&REST")
-          .map(Symbol::commonLispSymbol)
+          .map(Symbol::clSymbol)
           .collect(Collectors.toSet());
 
   /**

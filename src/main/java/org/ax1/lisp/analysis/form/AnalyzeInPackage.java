@@ -15,18 +15,21 @@ public class AnalyzeInPackage implements FormAnalyzer {
       analyzer.annotations.highlightError(form, "IN-PACKAGE needs exactly 1 argument");
       return;
     }
-    LispSexp arg = form.getSexpList().get(1);
-    String stringDesignator = getStringDesignator(arg, analyzer.annotations, analyzer.packageManager);
+    LispSexp sexp1 = form.getSexpList().get(1);
+    String stringDesignator = getStringDesignator(sexp1, analyzer.annotations, analyzer.packageManager);
     if (stringDesignator == null) {
-      analyzer.annotations.highlightError(arg, "Expected name designator");
+      analyzer.annotations.highlightError(sexp1, "Expected name designator");
       return;
     }
-    LispPackage newPackage = analyzer.packageManager.getPackage(stringDesignator);
-    if (newPackage == null) {
-      analyzer.annotations.highlightUnknown(arg, String.format("Unknown package '%s'", stringDesignator));
+    LispPackage aPackage = analyzer.packageManager.getPackage(stringDesignator);
+    if (aPackage == null) {
+      analyzer.annotations.highlightUnknown(sexp1, String.format("Unknown package '%s'", stringDesignator));
       return;
     }
-    analyzer.packageManager.setCurrentPackage(newPackage);
+    if (sexp1.getSymbol() != null) {
+      aPackage.getDefinition().addUsage(sexp1.getSymbol());
+    }
+    analyzer.packageManager.setCurrentPackage(aPackage);
   }
 
 }
