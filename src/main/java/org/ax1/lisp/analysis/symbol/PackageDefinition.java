@@ -2,7 +2,9 @@ package org.ax1.lisp.analysis.symbol;
 
 import org.ax1.lisp.psi.LispSymbol;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class PackageDefinition {
@@ -10,8 +12,10 @@ public class PackageDefinition {
   private final Set<String> nicknames = new HashSet<>();
   final Set<String> use = new HashSet<>();
   private boolean isWriteable = true;
+
   private LispSymbol definition;
   private final Set<LispSymbol> usages = new HashSet<>();
+  private final Map<String, LispSymbol> exports = new HashMap<>();
 
   public PackageDefinition(String name) {
     this.name = name;
@@ -51,5 +55,13 @@ public class PackageDefinition {
 
   public Set<LispSymbol> getUsages() {
     return usages;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void addExport(String symbolName, LispSymbol symbol) {
+    exports.put(symbolName, symbol);
   }
 }

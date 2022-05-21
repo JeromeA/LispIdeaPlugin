@@ -3,6 +3,7 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LispPackage;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
+import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -11,6 +12,12 @@ import java.util.List;
 
 import static org.ax1.lisp.analysis.StringDesignator.getStringDesignator;
 
+/**
+ * This analyzer can be used from three different context:
+ * - From {@code PackageAnalyzer}, to populate analyzer.scannedPackages with the definition of all packages.
+ * - From {@link SyntaxAnalyzer}, to reference all symbols (definitions and usages).
+ * - From {@code LispAnnotator}, to annotate the code with highlighting and syntax errors.
+ */
 public class AnalyzeDefpackage implements FormAnalyzer {
 
   @Override
@@ -49,11 +56,14 @@ public class AnalyzeDefpackage implements FormAnalyzer {
     }
     analyzer.annotations.highlightKeyword(optionSymbol);
     switch(optionSymbol.getText()) {
+      case ":export":
+        analyzeOptionExport(analyzer, definition, list);
+        break;
       case ":use":
         analyzeOptionUses(analyzer, definition, list);
         break;
       default:
-        analyzer.annotations.highlightError(optionSymbol, "option name expected");
+        analyzer.annotations.highlightError(optionSymbol, "DEFPACKAGE option name expected");
     }
   }
 
@@ -74,6 +84,19 @@ public class AnalyzeDefpackage implements FormAnalyzer {
             usedPackage.getDefinition().addUsage(symbol);
           }
         }
+      }
+    }
+  }
+
+  private void analyzeOptionExport(SyntaxAnalyzer analyzer, PackageDefinition definition, List<LispSexp> list) {
+    for (int i = 1; i < list.size(); i++) {
+      LispSexp sexp = list.get(i);
+      LispSymbol symbol = sexp.getSymbol();
+      String exportedSymbolName = getStringDesignator(sexp, analyzer.annotations, analyzer.packageManager);
+      if (exportedSymbolName == null) {
+        analyzer.annotations.highlightError(sexp, "symbol name (string designator) expected");
+      } else if (symbol != null) {
+        definition.addExport(exportedSymbolName, symbol);
       }
     }
   }
