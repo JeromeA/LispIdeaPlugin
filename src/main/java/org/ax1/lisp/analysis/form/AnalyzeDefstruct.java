@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.Struct;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -20,24 +21,40 @@ public class AnalyzeDefstruct implements FormAnalyzer {
       analyzer.annotations.highlightError(form, "DEFSTRUCT needs at least 1 argument");
       return;
     }
-    LispSymbol symbol = list.get(1).getSymbol();
-    if (symbol == null) {
-      // TODO: support list format.
-      analyzer.annotations.highlightError(list.get(1), "Struct name expected");
-      return;
-    }
-    analyzer.annotations.highlight(symbol, FUNCTION_DECLARATION);
-    String structName = symbol.getText();
-    analyzer.packageManager.getFunction("make-" + structName).setDefinition(form, symbol);
+
+    Struct struct = createStruct(analyzer, list.get(1));
+    if (struct == null) return;
+    analyzer.packageManager.getFunction("make-" + struct.name).setDefinition(form, struct.symbolName);
 
     // Skip documentation.
     int arg = 2;
     if (list.size() > arg && list.get(arg).getFirstChild().getNode().getElementType() == STRING) arg++;
 
     while (list.size() > arg) {
-      analyzeSlot(analyzer, form, structName, list.get(arg));
+      analyzeSlot(analyzer, form, struct.name, list.get(arg));
       arg++;
     }
+  }
+
+  private Struct createStruct(SyntaxAnalyzer analyzer, LispSexp nameSexp) {
+    LispSymbol symbol = nameSexp.getSymbol();
+    if (symbol != null) {
+      return createStruct(symbol);
+    }
+    if (nameSexp.getList() == null
+        || nameSexp.getList().getSexpList().isEmpty()
+        || nameSexp.getList().getSexpList().get(0).getSymbol() == null) {
+      analyzer.annotations.highlightError(nameSexp, "Struct name expected");
+      return null;
+    }
+    return createStruct(nameSexp.getList().getSexpList().get(0).getSymbol());
+  }
+
+  private Struct createStruct(LispSymbol symbol) {
+    Struct struct = new Struct();
+    struct.name = symbol.getText();
+    struct.symbolName = symbol;
+    return struct;
   }
 
   private void analyzeSlot(SyntaxAnalyzer analyzer, LispList container, String structName, LispSexp slot) {

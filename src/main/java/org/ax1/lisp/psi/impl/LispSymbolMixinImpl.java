@@ -29,10 +29,12 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
 
   public PsiReference getReference() {
     if (isVariableReference() || isFunctionCall()) {
-      return new LispSymbolReference(this, getSymbolBinding().getDefinition());
+      LispSymbol definition = getSymbolBinding().getDefinition();
+      return definition == null ? null : new LispSymbolReference(this, definition);
     }
     if (isPackageReference()) {
-      return new LispSymbolReference(this, getPackageDefinition().getDefinition());
+      LispSymbol definition = getPackageDefinition().getDefinition();
+      return definition == null ? null : new LispSymbolReference(this, definition);
     }
     return null;
   }
