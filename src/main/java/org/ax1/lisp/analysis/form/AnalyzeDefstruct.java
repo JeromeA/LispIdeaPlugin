@@ -31,7 +31,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
     if (list.size() > arg && list.get(arg).getFirstChild().getNode().getElementType() == STRING) arg++;
 
     while (list.size() > arg) {
-      analyzeSlot(analyzer, form, struct.name, list.get(arg));
+      analyzeSlot(analyzer, form, struct, list.get(arg));
       arg++;
     }
   }
@@ -57,17 +57,17 @@ public class AnalyzeDefstruct implements FormAnalyzer {
     return struct;
   }
 
-  private void analyzeSlot(SyntaxAnalyzer analyzer, LispList container, String structName, LispSexp slot) {
+  private void analyzeSlot(SyntaxAnalyzer analyzer, LispList container, Struct struct, LispSexp slot) {
     LispSymbol simpleSymbol = slot.getSymbol();
     if (simpleSymbol != null) {
-      analyzer.packageManager.getFunction(structName + "-" + simpleSymbol.getText()).setDefinition(container, simpleSymbol);
+      analyzer.packageManager.getFunction(struct.name + "-" + simpleSymbol.getText()).setDefinition(container, simpleSymbol);
       analyzer.annotations.highlight(simpleSymbol, FUNCTION_DECLARATION);
       return;
     }
     LispList list = slot.getList();
     if (list != null && list.getSexpList().size() >= 1 && list.getSexpList().get(0).getSymbol() != null) {
       LispSymbol symbol = list.getSexpList().get(0).getSymbol();
-      analyzer.packageManager.getFunction(structName + "-" + symbol.getText()).setDefinition(container, symbol);
+      analyzer.packageManager.getFunction(struct.name + "-" + symbol.getText()).setDefinition(container, symbol);
       analyzer.annotations.highlight(symbol, FUNCTION_DECLARATION);
       // TODO: analyze slot options.
       return;

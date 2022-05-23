@@ -64,4 +64,8 @@ public class PackageDefinition {
   public void addExport(String symbolName, LispSymbol symbol) {
     exports.put(symbolName, symbol);
   }
+
+  public boolean isExported(String name) {
+    return exports.containsKey(name);
+  }
 }

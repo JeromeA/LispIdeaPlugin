@@ -23,7 +23,7 @@ public class LispPackage implements Cloneable {
     if (symbol == null) {
       for (String packageName : definition.use) {
         LispPackage lispPackage = packageManager.getPackage(packageName);
-        if (lispPackage != null && lispPackage.isExporting(symbolName)) {
+        if (lispPackage != null && lispPackage.isExported(symbolName)) {
           return lispPackage.intern(packageManager, symbolName);
         }
       }
@@ -41,9 +41,8 @@ public class LispPackage implements Cloneable {
     return symbol;
   }
 
-  private boolean isExporting(String symbolName) {
-    // TODO: do the right thing.
-    return symbols.containsKey(symbolName);
+  private boolean isExported(String symbolName) {
+    return definition.isExported(symbolName);
   }
 
   public Collection<SymbolBinding> getFunctions() {

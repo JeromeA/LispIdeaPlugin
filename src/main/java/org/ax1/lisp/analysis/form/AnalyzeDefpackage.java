@@ -75,10 +75,10 @@ public class AnalyzeDefpackage implements FormAnalyzer {
         analyzer.annotations.highlightError(sexp, "package name (string designator) expected");
       } else {
         LispPackage usedPackage = analyzer.packageManager.getPackage(usedPackageName);
+        definition.addUse(usedPackageName);
         if (usedPackage == null) {
           analyzer.annotations.highlightError(sexp, "unknown package");
         } else {
-          definition.addUse(usedPackageName);
           LispSymbol symbol = sexp.getSymbol();
           if (symbol != null) {
             usedPackage.getDefinition().addUsage(symbol);

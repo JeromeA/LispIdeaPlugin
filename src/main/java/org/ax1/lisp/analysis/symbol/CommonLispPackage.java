@@ -1009,15 +1009,18 @@ public class CommonLispPackage extends LispPackage {
     return definition;
   }
 
-  public void addFunction(String name) {
+  private void addFunction(String name) {
     getFunction(intern(name)).setDescription("Standard function");
+    getDefinition().addExport(name, null);
   }
 
-  public void addVariable(String name) {
+  private void addVariable(String name) {
     getVariable(intern(name)).setDescription("Standard variable");
+    getDefinition().addExport(name, null);
   }
 
-  public void addKeyword(String name) {
+  private void addKeyword(String name) {
     getVariable(intern(name)).setKeyword(true);
+    getDefinition().addExport(name, null);
   }
 }
