@@ -16,10 +16,16 @@ public class AnalyzeLoop implements FormAnalyzer {
   @Override
   public void analyze(SyntaxAnalyzer analyzer, LispList form) {
     analyzer.annotations.highlightKeyword(form.getSexpList().get(0));
-    analyze(analyzer, form, 1);
+    if (form.getSexpList().size() == 1) return;
+    LispSexp firstSexp = form.getSexpList().get(1);
+    if (firstSexp.getList() != null) {
+      analyzer.analyzeForms(form.getSexpList(), 1);
+    } else {
+      analyzeExtended(analyzer, form, 1);
+    }
   }
 
-  private void analyze(SyntaxAnalyzer analyzer, LispList form, int startAt) {
+  private void analyzeExtended(SyntaxAnalyzer analyzer, LispList form, int startAt) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() <= startAt) return;
     LispSymbol symbol = list.get(startAt).getSymbol();
@@ -54,7 +60,7 @@ public class AnalyzeLoop implements FormAnalyzer {
     List<LispSexp> list = form.getSexpList();
     analyzer.annotations.highlightKeyword(list.get(startAt));
     analyzer.analyzeForm(list.get(startAt + 1));
-    analyze(analyzer, form, startAt + 2);
+    analyzeExtended(analyzer, form, startAt + 2);
   }
 
   private void analyzeWith(SyntaxAnalyzer analyzer, LispList form, int startAt) {
@@ -73,7 +79,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       }
       analyzer.annotations.highlightKeyword(sexp2);
       analyzer.analyzeForm(list.get(startAt + 3));
-      analyze(analyzer, form, startAt + 4);
+      analyzeExtended(analyzer, form, startAt + 4);
     }
   }
 
@@ -93,7 +99,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       }
       analyzer.annotations.highlightKeyword(sexp2);
       analyzer.analyzeForm(list.get(startAt + 3));
-      analyze(analyzer, form, startAt + 4);
+      analyzeExtended(analyzer, form, startAt + 4);
     }
   }
 }
