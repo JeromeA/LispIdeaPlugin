@@ -16,10 +16,10 @@ public class SyntaxAnalyzer {
 
   private static final AnalyzeFunctionCall ANALYZE_FUNCTION_CALL = new AnalyzeFunctionCall();
   private static final AnalyzeLambda ANALYZE_LAMBDA = new AnalyzeLambda();
-  public static final FormAnalyzer EMPTY_ANALYZER = (analyzer, form) -> {};
 
   private static final Map<Symbol, FormAnalyzer> ANALYSERS = Maps.of(
       clSymbol("COND"), new AnalyzeCond(),
+      clSymbol("DEFCLASS"), new AnalyzeDefclass(),
       clSymbol("DEFGENERIC"), new AnalyzeDefgeneric(),
       clSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO),
       clSymbol("DEFMETHOD"), new AnalyzeDefmethod(),

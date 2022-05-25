@@ -1,6 +1,7 @@
 package org.ax1.lisp.analysis.symbol;
 
 import static org.ax1.lisp.analysis.symbol.CommonLispPackage.COMMON_LISP;
+import static org.ax1.lisp.analysis.symbol.KeywordPackage.KEYWORD;
 
 public class Symbol {
 
@@ -17,7 +18,7 @@ public class Symbol {
   }
 
   public static Symbol keywordSymbol(String name) {
-    return new Symbol("", name);
+    return new Symbol(KEYWORD, name);
   }
 
   public String getName() {
