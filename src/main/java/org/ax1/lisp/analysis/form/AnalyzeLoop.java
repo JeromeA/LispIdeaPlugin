@@ -73,13 +73,17 @@ public class AnalyzeLoop implements FormAnalyzer {
     }
     try (LexicalScope lexicalScope = analyzer.lexicalBindings.defineLexicalVariables(form, List.of(sexp1.getSymbol()))) {
       LispSexp sexp2 = list.get(startAt + 2);
-      if (sexp2.getSymbol() == null || ! sexp2.getSymbol().getText().equals("=")) {
-        analyzer.annotations.highlightError(sexp2, "'=' expected");
+      if (sexp2.getSymbol() == null) {
+        analyzer.annotations.highlightError(sexp2, "Symbol expected");
         return;
       }
-      analyzer.annotations.highlightKeyword(sexp2);
-      analyzer.analyzeForm(list.get(startAt + 3));
-      analyzeExtended(analyzer, form, startAt + 4);
+      if (sexp2.getSymbol().getText().equals("=")) {
+        analyzer.annotations.highlightKeyword(sexp2);
+        analyzer.analyzeForm(list.get(startAt + 3));
+        analyzeExtended(analyzer, form, startAt + 4);
+      } else {
+        analyzeExtended(analyzer, form, startAt + 2);
+      }
     }
   }
 
