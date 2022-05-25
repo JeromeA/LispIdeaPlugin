@@ -1,6 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -25,7 +26,9 @@ public class AnalyzeDefgeneric implements FormAnalyzer {
       analyzer.annotations.highlightError(sexp1, "Function name expected");
       return;
     }
-    analyzer.packageManager.getFunction(symbol1.getText()).setDefinition(form, symbol1);
+    SymbolBinding binding = analyzer.packageManager.getFunction(symbol1.getText());
+    binding.setDefinition(form, symbol1);
+    binding.setGeneric();
     analyzer.annotations.highlight(symbol1, FUNCTION_DECLARATION);
   }
 }

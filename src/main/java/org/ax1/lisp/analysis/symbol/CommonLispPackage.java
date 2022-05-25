@@ -1020,7 +1020,7 @@ public class CommonLispPackage extends LispPackage {
   }
 
   private void addKeyword(String name) {
-    getVariable(intern(name)).setKeyword(true);
+    getVariable(intern(name)).setKeyword();
     getDefinition().addExport(name, null);
   }
 }

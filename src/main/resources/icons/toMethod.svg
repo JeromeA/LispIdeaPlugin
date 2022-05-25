@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2000-2021 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file. -->
+<svg width="12" height="12" version="1.1" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+ <circle cx="4" cy="6" r="4" fill="#40b6e0" fill-opacity=".7" fill-rule="evenodd"/>
+ <path d="m10 9h2l-2.5 3-2.5-3h2v-9h1z" fill="#db5860" fill-rule="evenodd"/>
+ <text transform="scale(1.019 .98137)" x="0.97460639" y="8.6587057" font-family="'Noto Sans CJK HK'" font-size="6.8696px" font-weight="bold" stroke-width=".98138" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:1.25" xml:space="preserve"><tspan x="0.97460639" y="8.6587057" stroke-width=".98138">M</tspan></text>
+</svg>

@@ -75,32 +75,44 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
 
   @Override
   public boolean isFunctionCall() {
-    SymbolBinding symbolBinding = getSymbolBinding();
-    return symbolBinding != null && symbolBinding.getSymbolType() == FUNCTION && symbolBinding.getDefinition() != this;
+    SymbolBinding binding = getSymbolBinding();
+    return binding != null && binding.getSymbolType() == FUNCTION && binding.getDefinition() != this;
   }
 
   @Override
   public boolean isFunctionDefinition() {
-    SymbolBinding symbolBinding = getSymbolBinding();
-    return symbolBinding != null && symbolBinding.getSymbolType() == FUNCTION && symbolBinding.getDefinition() == this;
+    SymbolBinding binding = getSymbolBinding();
+    return binding != null && binding.getSymbolType() == FUNCTION && binding.getDefinition() == this;
   }
 
   @Override
   public boolean isVariableReference() {
-    SymbolBinding symbolBinding = getSymbolBinding();
-    return symbolBinding != null && symbolBinding.getSymbolType() == VARIABLE && symbolBinding.getDefinition() != this;
+    SymbolBinding binding = getSymbolBinding();
+    return binding != null && binding.getSymbolType() == VARIABLE && binding.getDefinition() != this;
   }
 
   @Override
   public boolean isVariableDefinition() {
-    SymbolBinding symbolBinding = getSymbolBinding();
-    return symbolBinding != null && symbolBinding.getSymbolType() == VARIABLE && symbolBinding.getDefinition() == this;
+    SymbolBinding binding = getSymbolBinding();
+    return binding != null && binding.getSymbolType() == VARIABLE && binding.getDefinition() == this;
   }
 
   @Override
   public boolean isLexicalDefinition() {
-    SymbolBinding symbolBinding = getSymbolBinding();
-    return symbolBinding != null && symbolBinding.getBindingType() == LEXICAL && symbolBinding.getDefinition() == this;
+    SymbolBinding binding = getSymbolBinding();
+    return binding != null && binding.getBindingType() == LEXICAL && binding.getDefinition() == this;
+  }
+
+  @Override
+  public boolean isGenericDefinition() {
+    SymbolBinding binding = getSymbolBinding();
+    return binding != null && binding.isGeneric() && binding.getDefinition() == this;
+  }
+
+  @Override
+  public boolean isMethodDefinition() {
+    SymbolBinding binding = getSymbolBinding();
+    return binding != null && binding.isGeneric() && binding.getMethods().contains(this);
   }
 
   @Override

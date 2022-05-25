@@ -7,6 +7,8 @@ import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 
+import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.FUNCTION_DECLARATION;
+
 public class AnalyzeDefmethod implements FormAnalyzer {
 
   @Override
@@ -23,6 +25,9 @@ public class AnalyzeDefmethod implements FormAnalyzer {
       analyzer.annotations.highlightError(sexp1, "Function name expected");
       return;
     }
+    analyzer.packageManager.getFunction(symbol1.getText()).addMethod(symbol1);
+    analyzer.annotations.highlight(symbol1, FUNCTION_DECLARATION);
+
     int arg = 2;
     // Skip method qualifiers.
     while (arg < list.size() && list.get(arg).getList() == null) arg++;

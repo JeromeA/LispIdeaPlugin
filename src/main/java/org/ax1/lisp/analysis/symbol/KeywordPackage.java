@@ -17,7 +17,7 @@ public class KeywordPackage extends LispPackage {
   @Override
   public Symbol intern(String symbolName) {
     Symbol symbol = super.intern(symbolName);
-    getVariable(symbol).setKeyword(true);
+    getVariable(symbol).setKeyword();
     return symbol;
   }
 }

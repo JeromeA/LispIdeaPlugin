@@ -19,10 +19,12 @@ public class SymbolBinding {
 
   private LispSymbol definition;
   private final Set<LispSymbol> usages = new HashSet<>();
+  private final Set<LispSymbol> methods = new HashSet<>();
 
   private final SymbolType symbolType;
   private final BindingType bindingType;
   private boolean isKeyword;
+  private boolean isGeneric;
 
   public SymbolBinding(Symbol symbol, SymbolType symbolType, BindingType bindingType) {
     this.symbol = symbol;
@@ -38,6 +40,11 @@ public class SymbolBinding {
     usages.add(symbol);
   }
 
+  public void addMethod(LispSymbol symbol) {
+    methods.add(symbol);
+    setGeneric();
+  }
+
   public void setDefinition(LispList container, LispSymbol symbol) {
     this.container = container;
     definition = symbol;
@@ -49,6 +56,10 @@ public class SymbolBinding {
 
   public Collection<LispSymbol> getUsages() {
     return usages;
+  }
+
+  public Collection<LispSymbol> getMethods() {
+    return methods;
   }
 
   public LispSymbol getDefinition() {
@@ -79,17 +90,26 @@ public class SymbolBinding {
     return isKeyword;
   }
 
-  public void setKeyword(boolean isKeyword) {
-    this.isKeyword = isKeyword;
+  public void setKeyword() {
+    isKeyword = true;
+  }
+
+  public boolean isGeneric() {
+    return isGeneric;
+  }
+
+  public void setGeneric() {
+    isGeneric = true;
   }
 
   private void merge(SymbolBinding binding) {
     if (binding.description != null) description = binding.description;
     if (binding.container != null) container = binding.container;
-    if (binding.definition != null) {
-      definition = binding.definition;
-    }
+    if (binding.definition != null) definition = binding.definition;
+    if (binding.isGeneric) isGeneric = true;
+    if (binding.isKeyword) isKeyword = true;
     usages.addAll(binding.usages);
+    methods.addAll(binding.methods);
   }
 
   public static SymbolBinding merge(Collection<SymbolBinding> symbolBindings) {

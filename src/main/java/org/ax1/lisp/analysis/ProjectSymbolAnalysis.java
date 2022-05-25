@@ -38,6 +38,7 @@ public class ProjectSymbolAnalysis {
   private void addBinding(SymbolBinding binding) {
     if (binding.getDefinition() != null) bindings.put(binding.getDefinition(), binding);
     binding.getUsages().forEach(u -> bindings.put(u, binding));
+    binding.getMethods().forEach(m -> bindings.put(m, binding));
   }
 
   private void addPackage(PackageDefinition packageDefinition) {

@@ -59,6 +59,9 @@
     <lang.findUsagesProvider
         language="Lisp"
         implementationClass="org.ax1.lisp.LispFindUsagesProvider"/>
+    <codeInsight.lineMarkerProvider
+        language="Lisp"
+        implementationClass="org.ax1.lisp.LispLineMarkerProvider"/>
   </extensions>
   <actions>
     <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction" use-shortcut-of="RunClass"/>
