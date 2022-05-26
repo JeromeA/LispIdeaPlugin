@@ -116,9 +116,10 @@ public class SyntaxAnalyzer {
       completions.addAll(getGlobalVariables());
     } else {
       Symbol symbol = packageManager.getSymbol(parsedSymbol);
-      SymbolBinding binding = lexicalBindings.registerVariableUsage(symbol, parsedSymbol);
-      if (binding.isKeyword()) {
+      if (symbol.isConstant()) {
         annotations.highlightConstant(parsedSymbol);
+      } else {
+        lexicalBindings.registerVariableUsage(symbol, parsedSymbol);
       }
     }
   }

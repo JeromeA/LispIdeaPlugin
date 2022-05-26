@@ -15,11 +15,4 @@ public class KeywordPackage extends LispPackage {
     definition.setReadOnly();
     return definition;
   }
-
-  @Override
-  public Symbol intern(String symbolName) {
-    Symbol symbol = super.intern(symbolName);
-    getVariable(symbol).setKeyword();
-    return symbol;
-  }
 }

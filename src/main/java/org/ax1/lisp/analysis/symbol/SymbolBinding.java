@@ -23,7 +23,6 @@ public class SymbolBinding {
 
   private final SymbolType symbolType;
   private final BindingType bindingType;
-  private boolean isKeyword;
   private boolean isGeneric;
 
   public SymbolBinding(Symbol symbol, SymbolType symbolType, BindingType bindingType) {
@@ -86,14 +85,6 @@ public class SymbolBinding {
     this.description = description;
   }
 
-  public boolean isKeyword() {
-    return isKeyword;
-  }
-
-  public void setKeyword() {
-    isKeyword = true;
-  }
-
   public boolean isGeneric() {
     return isGeneric;
   }
@@ -107,7 +98,6 @@ public class SymbolBinding {
     if (binding.container != null) container = binding.container;
     if (binding.definition != null) definition = binding.definition;
     if (binding.isGeneric) isGeneric = true;
-    if (binding.isKeyword) isKeyword = true;
     usages.addAll(binding.usages);
     methods.addAll(binding.methods);
   }

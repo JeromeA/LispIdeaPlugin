@@ -8,14 +8,14 @@ import org.ax1.lisp.psi.LispSymbol;
 
 import static org.ax1.lisp.psi.LispTypes.STRING;
 
-public class StringDesignator {
+public class Strings {
 
-  public static String getStringDesignator(LispSexp nameDesignator, Annotate annotate, PackageManager packageManager) {
+  public static String getStringDesignator(SyntaxAnalyzer analyzer, LispSexp nameDesignator) {
     if (nameDesignator.getList() != null) return null;
     LispSymbol symbolName = nameDesignator.getSymbol();
     if (symbolName != null) {
-      annotate.highlightConstant(symbolName);
-      Symbol symbol = packageManager.getSymbol(symbolName);
+      analyzer.annotations.highlightConstant(symbolName);
+      Symbol symbol = analyzer.packageManager.getSymbol(symbolName);
       return symbol.getName();
     }
     ASTNode token = nameDesignator.getFirstChild().getNode();
@@ -26,4 +26,8 @@ public class StringDesignator {
     return null;
   }
 
+  public static String getString(LispSexp sexp) {
+    // TODO: do the real thing.
+    return sexp.getText();
+  }
 }

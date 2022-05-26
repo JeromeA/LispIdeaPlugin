@@ -2,11 +2,16 @@ package org.ax1.lisp.analysis.symbol;
 
 import java.util.Arrays;
 
+import static org.ax1.lisp.analysis.symbol.Symbol.clSymbol;
+
 public class CommonLispPackage extends LispPackage {
 
   public static final String COMMON_LISP = "COMMON-LISP";
 
-  public static final String[] COMMON_LISP_FUNCTIONS = {
+  public static final Symbol NIL = clSymbol("NIL");
+  public static final Symbol T = clSymbol("T");
+
+  private static final String[] COMMON_LISP_FUNCTIONS = {
       "*",
       "**",
       "***",
@@ -933,7 +938,7 @@ public class CommonLispPackage extends LispPackage {
       "ZEROP",
   };
 
-  public static final String[] COMMON_LISP_VARIABLES = {
+  private static final String[] COMMON_LISP_VARIABLES = {
       "*BREAK-ON-SIGNALS*",
       "*COMPILE-FILE-PATHNAME*",
       "*COMPILE-FILE-TRUENAME*",
@@ -978,9 +983,11 @@ public class CommonLispPackage extends LispPackage {
       "*STANDARD-OUTPUT*",
       "*TERMINAL-IO*",
       "*TRACE-OUTPUT*",
+      "NIL",
+      "T"
   };
 
-  public static final String[] COMMON_LISP_CONSTANTS = {
+  private static final String[] COMMON_LISP_OTHER = {
       "&ALLOW-OTHER-KEYS",
       "&AUX",
       "&BODY",
@@ -988,9 +995,7 @@ public class CommonLispPackage extends LispPackage {
       "&KEY",
       "&OPTIONAL",
       "&REST",
-      "&WHOLE",
-      "NIL",
-      "T"
+      "&WHOLE"
   };
 
   public static CommonLispPackage INSTANCE = new CommonLispPackage();
@@ -999,7 +1004,7 @@ public class CommonLispPackage extends LispPackage {
     super(createDefinition());
     Arrays.stream(COMMON_LISP_FUNCTIONS).forEach(this::addFunction);
     Arrays.stream(COMMON_LISP_VARIABLES).forEach(this::addVariable);
-    Arrays.stream(COMMON_LISP_CONSTANTS).forEach(this::addKeyword);
+    Arrays.stream(COMMON_LISP_OTHER).forEach(this::addKeyword);
   }
 
   private static PackageDefinition createDefinition() {
@@ -1020,7 +1025,6 @@ public class CommonLispPackage extends LispPackage {
   }
 
   private void addKeyword(String name) {
-    getVariable(intern(name)).setKeyword();
     getDefinition().addExport(name, null);
   }
 }

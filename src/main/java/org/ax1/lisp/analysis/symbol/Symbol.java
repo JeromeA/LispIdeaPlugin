@@ -1,6 +1,8 @@
 package org.ax1.lisp.analysis.symbol;
 
-import static org.ax1.lisp.analysis.symbol.CommonLispPackage.COMMON_LISP;
+import java.util.Objects;
+
+import static org.ax1.lisp.analysis.symbol.CommonLispPackage.*;
 import static org.ax1.lisp.analysis.symbol.KeywordPackage.KEYWORD;
 
 public class Symbol {
@@ -44,5 +46,9 @@ public class Symbol {
   @Override
   public String toString() {
     return packageName + ":" + name;
+  }
+
+  public boolean isConstant() {
+    return packageName.equals(KEYWORD) || Objects.equals(this, NIL) || Objects.equals(this, T);
   }
 }

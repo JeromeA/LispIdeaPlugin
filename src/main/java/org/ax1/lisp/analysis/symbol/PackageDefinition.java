@@ -10,6 +10,7 @@ import java.util.Set;
 public class PackageDefinition {
   final String name;
   private final Set<String> nicknames = new HashSet<>();
+  private String description;
   final Set<String> use = new HashSet<>();
   private boolean isWriteable = true;
 
@@ -67,5 +68,9 @@ public class PackageDefinition {
 
   public boolean isExported(String name) {
     return exports.containsKey(name);
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }

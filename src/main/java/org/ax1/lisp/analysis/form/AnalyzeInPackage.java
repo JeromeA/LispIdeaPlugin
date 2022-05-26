@@ -5,7 +5,7 @@ import org.ax1.lisp.analysis.symbol.LispPackage;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 
-import static org.ax1.lisp.analysis.StringDesignator.getStringDesignator;
+import static org.ax1.lisp.analysis.Strings.getStringDesignator;
 
 public class AnalyzeInPackage implements FormAnalyzer {
   @Override
@@ -16,7 +16,7 @@ public class AnalyzeInPackage implements FormAnalyzer {
       return;
     }
     LispSexp sexp1 = form.getSexpList().get(1);
-    String stringDesignator = getStringDesignator(sexp1, analyzer.annotations, analyzer.packageManager);
+    String stringDesignator = getStringDesignator(analyzer, sexp1);
     if (stringDesignator == null) {
       analyzer.annotations.highlightError(sexp1, "Expected name designator");
       return;
