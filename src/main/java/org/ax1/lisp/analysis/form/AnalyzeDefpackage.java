@@ -98,7 +98,7 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       return;
     }
     LispSexp descriptionSexp = optionList.getSexpList().get(1);
-    if (descriptionSexp.getNode().getElementType() != STRING) {
+    if (descriptionSexp.getNode().getFirstChildNode().getElementType() != STRING) {
       analyzer.annotations.highlightError(descriptionSexp, "Description string expected");
       return;
     }
