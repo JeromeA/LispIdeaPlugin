@@ -36,7 +36,8 @@ public final class PackageManager {
 
   public void add(LispPackage packageToAdd) {
     if (packages.containsKey(packageToAdd.getName())) {
-      throw new RuntimeException("Package already exists.");
+      System.err.println("Duplicate package " + packageToAdd.getName() + " ignored.");
+      return;
     }
     addImpl(packageToAdd);
   }
