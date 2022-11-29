@@ -28,6 +28,7 @@ public class LispAnnotator implements Annotator {
     context.lexicalBindings.getRetiredFunctions().forEach(lexicalSymbol -> checkNoUsages(lexicalSymbol, highlighter));
     ProjectDefinitions projectAnalysis = projectComputedData.getProjectAnalysis();
     projectAnalysis.getFunctions().forEach(binding -> checkBinding(binding, highlighter));
+    projectAnalysis.getVariables().forEach(binding -> checkBinding(binding, highlighter));
   }
 
   private void checkBinding(SymbolBinding binding, Highlighter annotations) {
