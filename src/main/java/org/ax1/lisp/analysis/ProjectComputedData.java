@@ -11,16 +11,16 @@ import org.ax1.lisp.psi.LispFile;
 import java.util.*;
 
 @Service
-public final class ProjectAnalyser {
+public final class ProjectComputedData {
 
   private final Project project;
   private final CachedValuesManager cacheManager;
 
-  public static ProjectAnalyser getInstance(Project project) {
-    return project.getService(ProjectAnalyser.class);
+  public static ProjectComputedData getInstance(Project project) {
+    return project.getService(ProjectComputedData.class);
   }
 
-  public ProjectAnalyser(Project project) {
+  public ProjectComputedData(Project project) {
     this.project = project;
     cacheManager = CachedValuesManager.getManager(this.project);
   }
@@ -33,12 +33,12 @@ public final class ProjectAnalyser {
     return getCachedValue(lispFile, new FilePackageAnalyzer(lispFile));
   }
 
-  public ProjectSymbolAnalysis getProjectSymbolAnalysis() {
-    return getCachedValue(project, new ProjectSymbolAnalyzer(project));
+  public ProjectDefinitions getProjectAnalysis() {
+    return getCachedValue(project, new ProjectAnalysisProvider(project));
   }
 
-  public FileSymbolAnalysis getFileSymbolAnalysis(LispFile lispFile) {
-    return getCachedValue(lispFile, new FileSymbolAnalyzer(lispFile));
+  public Bindings getFileAnalysis(LispFile lispFile) {
+    return getCachedValue(lispFile, new FileAnalysisProvider(lispFile));
   }
 
   private <T> T getCachedValue(UserDataHolder dataHolder, CachedValueProvider<T> provider) {

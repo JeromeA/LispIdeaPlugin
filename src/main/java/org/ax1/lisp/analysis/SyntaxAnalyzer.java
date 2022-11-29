@@ -38,18 +38,13 @@ public class SyntaxAnalyzer {
       clSymbol("LET*"), new AnalyzeLetStar(),
       clSymbol("LOOP"), new AnalyzeLoop());
 
+  private AnalysisContext context;
   private final LispFile lispFile;
-  public final PackageManager packageManager;
   public final Set<PackageDefinition> scannedPackages = new HashSet<>();
-  public final LexicalBindingManager lexicalBindings;
   public List<String> completions = new ArrayList<>();
-  public final Annotate annotations;
 
-  public SyntaxAnalyzer(LispFile lispFile, Annotate annotations, PackageManager packageManager) {
+  public SyntaxAnalyzer(LispFile lispFile) {
     this.lispFile = lispFile;
-    this.annotations = annotations;
-    this.packageManager = packageManager;
-    lexicalBindings = new LexicalBindingManager(this);
   }
 
   public void analyze() {
@@ -75,18 +70,17 @@ public class SyntaxAnalyzer {
   private void analyseQuotedForm(LispQuoted quoted) {
     PsiElement quote = quoted.getFirstChild();
     LispSexp quotedSexp = quoted.getSexp();
-    annotations.highlightKeyword(quote);
+    context.highlighter.highlightKeyword(quote);
     String quoteType = quote.getText();
     switch (quoteType) {
       case "'":
         // We arbitrarily decide to highlight quoted expressions as data.
-        annotations.highlightConstant(quoted);
+        context.highlighter.highlightConstant(quoted);
         break;
       case "#'":
-        LispSymbol parsedSymbol = quotedSexp.getSymbol();
-        if (parsedSymbol != null) {
-          Symbol symbol = packageManager.getSymbol(parsedSymbol);
-          lexicalBindings.registerFunctionUsage(symbol, parsedSymbol);
+        LispSymbol symbolName = quotedSexp.getSymbol();
+        if (symbolName != null) {
+          context.addFunctionUsage(symbolName);
           return;
         }
         LispList list = quotedSexp.getList();
@@ -95,10 +89,10 @@ public class SyntaxAnalyzer {
           if (sexpList.size() < 2
               || sexpList.get(0).getSymbol() == null
               || !sexpList.get(0).getSymbol().getText().equals("lambda")) {
-            annotations.highlightError(quotedSexp, "Expected lambda form");
+            context.highlighter.highlightError(quotedSexp, "Expected lambda form");
             return;
           }
-          ANALYZE_LAMBDA.analyze(this, list);
+          ANALYZE_LAMBDA.analyze(context, list);
         }
         break;
       case "`":
@@ -112,14 +106,14 @@ public class SyntaxAnalyzer {
 
   private void analyseSymbolForm(LispSymbol parsedSymbol) {
     if (isCompletion(parsedSymbol)) {
-      completions.addAll(lexicalBindings.getLexicalVariables());
-      completions.addAll(getGlobalVariables());
+      completions.addAll(context.lexicalBindings.getLexicalVariables());
+      completions.addAll(getGlobalVariableNames());
     } else {
-      Symbol symbol = packageManager.getSymbol(parsedSymbol);
+      Symbol symbol = context.packageManager.getSymbol(parsedSymbol);
       if (symbol.isConstant()) {
-        annotations.highlightConstant(parsedSymbol);
+        context.highlighter.highlightConstant(parsedSymbol);
       } else {
-        lexicalBindings.registerVariableUsage(symbol, parsedSymbol);
+        context.addVariableUsage(parsedSymbol);
       }
     }
   }
@@ -131,11 +125,11 @@ public class SyntaxAnalyzer {
     LispSymbol parsedSymbol = sexp0.getSymbol();
     if (parsedSymbol != null) {
       if (isCompletion(parsedSymbol)) {
-        completions.addAll(lexicalBindings.getLexicalFunctions());
+        completions.addAll(context.lexicalBindings.getLexicalFunctions());
         completions.addAll(getGlobalFunctions());
       } else {
-        Symbol symbol = packageManager.getSymbol(parsedSymbol);
-        getAnalyzer(symbol).analyze(this, form);
+        Symbol symbol = context.packageManager.getSymbol(parsedSymbol);
+        getAnalyzer(symbol).analyze(context, form);
       }
     } else {
       // TODO: handle lambda expression case.
@@ -147,25 +141,26 @@ public class SyntaxAnalyzer {
     return formAnalyzer == null ? ANALYZE_FUNCTION_CALL : formAnalyzer;
   }
 
-  /** These are really the global variables, not just the ones found by this analysis so far. */
-  private List<String> getGlobalVariables() {
-    return ProjectAnalyser.getInstance(lispFile.getProject()).getProjectSymbolAnalysis()
-        .variables.values().stream()
-        .map(SymbolBinding::getSymbol)
-        .map(Symbol::getName)
+  private List<String> getGlobalVariableNames() {
+    return ProjectComputedData.getInstance(lispFile.getProject()).getProjectAnalysis()
+        .getVariables().stream()
+        .map(SymbolBinding::getName)
         .collect(Collectors.toList());
   }
 
   /** These are really the global functions, not just the ones found by this analysis so far. */
   private List<String> getGlobalFunctions() {
-    return ProjectAnalyser.getInstance(lispFile.getProject()).getProjectSymbolAnalysis()
-        .functions.values().stream()
-        .map(SymbolBinding::getSymbol)
-        .map(Symbol::getName)
+    return ProjectComputedData.getInstance(lispFile.getProject()).getProjectAnalysis()
+        .getFunctions().stream()
+        .map(SymbolBinding::getName)
         .collect(Collectors.toList());
   }
 
   private boolean isCompletion(LispSymbol symbol) {
     return symbol.getText().endsWith(DUMMY_IDENTIFIER_TRIMMED);
+  }
+
+  public void setContext(AnalysisContext context) {
+    this.context = context;
   }
 }

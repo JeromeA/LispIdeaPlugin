@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.Struct;
-import org.ax1.lisp.analysis.SyntaxAnalyzer;
+import org.ax1.lisp.analysis.AnalysisContext;
+import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -14,64 +14,74 @@ import static org.ax1.lisp.psi.LispTypes.STRING;
 public class AnalyzeDefstruct implements FormAnalyzer {
 
   @Override
-  public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.annotations.highlightKeyword(form);
+  public void analyze(AnalysisContext context, LispList form) {
+    context.highlighter.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
-      analyzer.annotations.highlightError(form, "DEFSTRUCT needs at least 1 argument");
+      context.highlighter.highlightError(form, "DEFSTRUCT needs at least 1 argument");
       return;
     }
 
-    Struct struct = createStruct(analyzer, list.get(1));
+    Struct struct = createStruct(context, list.get(1));
     if (struct == null) return;
-    analyzer.packageManager.getFunction("make-" + struct.name).setDefinition(form, struct.symbolName);
+    Symbol symbol = context.packageManager.getSymbol("make-" + struct.name);
+    context.result.addFunctionDefinition(symbol, struct.symbolToken);
 
     // Skip documentation.
     int arg = 2;
     if (list.size() > arg && list.get(arg).getFirstChild().getNode().getElementType() == STRING) arg++;
 
     while (list.size() > arg) {
-      analyzeSlot(analyzer, form, struct, list.get(arg));
+      analyzeSlot(context, struct, list.get(arg));
       arg++;
     }
   }
 
-  private Struct createStruct(SyntaxAnalyzer analyzer, LispSexp nameSexp) {
+  private Struct createStruct(AnalysisContext context, LispSexp nameSexp) {
     LispSymbol symbol = nameSexp.getSymbol();
     if (symbol != null) {
-      return createStruct(symbol);
+      return createStruct(context, symbol);
     }
     if (nameSexp.getList() == null
         || nameSexp.getList().getSexpList().isEmpty()
         || nameSexp.getList().getSexpList().get(0).getSymbol() == null) {
-      analyzer.annotations.highlightError(nameSexp, "Struct name expected");
+      context.highlighter.highlightError(nameSexp, "Struct name expected");
       return null;
     }
-    return createStruct(nameSexp.getList().getSexpList().get(0).getSymbol());
+    return createStruct(context, nameSexp.getList().getSexpList().get(0).getSymbol());
   }
 
-  private Struct createStruct(LispSymbol symbol) {
+  private Struct createStruct(AnalysisContext context, LispSymbol symbol) {
     Struct struct = new Struct();
     struct.name = symbol.getText();
-    struct.symbolName = symbol;
+    struct.symbol = context.packageManager.getSymbol(struct.name);
+    struct.symbolToken = symbol;
     return struct;
   }
 
-  private void analyzeSlot(SyntaxAnalyzer analyzer, LispList container, Struct struct, LispSexp slot) {
+  private void analyzeSlot(AnalysisContext context, Struct struct, LispSexp slot) {
     LispSymbol simpleSymbol = slot.getSymbol();
     if (simpleSymbol != null) {
-      analyzer.packageManager.getFunction(struct.name + "-" + simpleSymbol.getText()).setDefinition(container, simpleSymbol);
-      analyzer.annotations.highlight(simpleSymbol, FUNCTION_DECLARATION);
+      Symbol functionSymbol = context.packageManager.getSymbol(struct.name + "-" + simpleSymbol.getText());
+      context.result.addFunctionDefinition(functionSymbol, simpleSymbol);
+      context.highlighter.highlight(simpleSymbol, FUNCTION_DECLARATION);
       return;
     }
     LispList list = slot.getList();
     if (list != null && list.getSexpList().size() >= 1 && list.getSexpList().get(0).getSymbol() != null) {
       LispSymbol symbol = list.getSexpList().get(0).getSymbol();
-      analyzer.packageManager.getFunction(struct.name + "-" + symbol.getText()).setDefinition(container, symbol);
-      analyzer.annotations.highlight(symbol, FUNCTION_DECLARATION);
+      Symbol functionSymbol = context.packageManager.getSymbol(struct.name + "-" + symbol.getText());
+      context.result.addFunctionDefinition(functionSymbol, symbol);
+      context.highlighter.highlight(symbol, FUNCTION_DECLARATION);
       // TODO: analyze slot options.
       return;
     }
-    analyzer.annotations.highlightError(slot, "Slot definition expected");
+    context.highlighter.highlightError(slot, "Slot definition expected");
+  }
+
+  public static class Struct {
+    public String name;
+    public LispSymbol symbolToken;
+    public Symbol symbol;
   }
 }

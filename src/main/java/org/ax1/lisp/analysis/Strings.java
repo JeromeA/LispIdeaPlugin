@@ -10,12 +10,12 @@ import static org.ax1.lisp.psi.LispTypes.STRING;
 
 public class Strings {
 
-  public static String getStringDesignator(SyntaxAnalyzer analyzer, LispSexp nameDesignator) {
+  public static String getStringDesignator(AnalysisContext context, LispSexp nameDesignator) {
     if (nameDesignator.getList() != null) return null;
     LispSymbol symbolName = nameDesignator.getSymbol();
     if (symbolName != null) {
-      analyzer.annotations.highlightConstant(symbolName);
-      Symbol symbol = analyzer.packageManager.getSymbol(symbolName);
+      context.highlighter.highlightConstant(symbolName);
+      Symbol symbol = context.packageManager.getSymbol(symbolName);
       return symbol.getName();
     }
     ASTNode token = nameDesignator.getFirstChild().getNode();

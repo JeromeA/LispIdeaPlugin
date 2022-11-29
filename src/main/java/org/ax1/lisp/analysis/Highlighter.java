@@ -13,12 +13,12 @@ import static com.intellij.openapi.editor.colors.CodeInsightColors.NOT_USED_ELEM
 import static com.intellij.openapi.editor.colors.CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES;
 import static org.ax1.lisp.parsing.LispSyntaxHighlighter.KEYWORD;
 
-public class Annotate {
+public class Highlighter {
 
   private final LispFile lispFile;
   private final AnnotationHolder holder;
 
-  public Annotate(LispFile lispFile, AnnotationHolder holder) {
+  public Highlighter(LispFile lispFile, AnnotationHolder holder) {
     this.lispFile = lispFile;
     this.holder = holder;
   }

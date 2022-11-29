@@ -1,6 +1,9 @@
 package org.ax1.lisp.analysis.symbol;
 
-import java.util.Arrays;
+import com.google.common.collect.ImmutableSet;
+import org.ax1.lisp.analysis.Bindings;
+
+import java.util.Set;
 
 import static org.ax1.lisp.analysis.symbol.Symbol.clSymbol;
 
@@ -11,7 +14,7 @@ public class CommonLispPackage extends LispPackage {
   public static final Symbol NIL = clSymbol("NIL");
   public static final Symbol T = clSymbol("T");
 
-  private static final String[] COMMON_LISP_FUNCTIONS = {
+  private static final Set<String> COMMON_LISP_FUNCTIONS = ImmutableSet.of(
       "*",
       "**",
       "***",
@@ -935,10 +938,9 @@ public class CommonLispPackage extends LispPackage {
       "WRITE-TO-STRING",
       "Y-OR-N-P",
       "YES-OR-NO-P",
-      "ZEROP",
-  };
+      "ZEROP");
 
-  private static final String[] COMMON_LISP_VARIABLES = {
+  private static final Set<String> COMMON_LISP_VARIABLES = ImmutableSet.of(
       "*BREAK-ON-SIGNALS*",
       "*COMPILE-FILE-PATHNAME*",
       "*COMPILE-FILE-TRUENAME*",
@@ -984,10 +986,9 @@ public class CommonLispPackage extends LispPackage {
       "*TERMINAL-IO*",
       "*TRACE-OUTPUT*",
       "NIL",
-      "T"
-  };
+      "T");
 
-  private static final String[] COMMON_LISP_OTHER = {
+  private static final Set<String> COMMON_LISP_LAMBDA_KEYWORDS = ImmutableSet.of(
       "&ALLOW-OTHER-KEYS",
       "&AUX",
       "&BODY",
@@ -995,16 +996,17 @@ public class CommonLispPackage extends LispPackage {
       "&KEY",
       "&OPTIONAL",
       "&REST",
-      "&WHOLE"
-  };
+      "&WHOLE");
 
   public static CommonLispPackage INSTANCE = new CommonLispPackage();
 
+  public final Bindings bindings = new Bindings();
+
   private CommonLispPackage() {
-    super(createDefinition());
-    Arrays.stream(COMMON_LISP_FUNCTIONS).forEach(this::addFunction);
-    Arrays.stream(COMMON_LISP_VARIABLES).forEach(this::addVariable);
-    Arrays.stream(COMMON_LISP_OTHER).forEach(this::addKeyword);
+    super(null, createDefinition());
+    COMMON_LISP_FUNCTIONS.forEach(this::addFunction);
+    COMMON_LISP_VARIABLES.forEach(this::addVariable);
+    COMMON_LISP_LAMBDA_KEYWORDS.forEach(this::addKeyword);
   }
 
   private static PackageDefinition createDefinition() {
@@ -1015,16 +1017,19 @@ public class CommonLispPackage extends LispPackage {
   }
 
   private void addFunction(String name) {
-    getFunction(intern(name)).setDescription("Standard function");
-    getDefinition().addExport(name, null);
+    getDefinition().addExport(name);
+    Symbol symbol = intern(name);
+    bindings.addFunctionDefinition(symbol, "Standard function.");
   }
 
   private void addVariable(String name) {
-    getVariable(intern(name)).setDescription("Standard variable");
-    getDefinition().addExport(name, null);
+    getDefinition().addExport(name);
+    Symbol symbol = intern(name);
+    bindings.addFunctionDefinition(symbol, "Standard variable.");
   }
 
   private void addKeyword(String name) {
-    getDefinition().addExport(name, null);
+    getDefinition().addExport(name);
+    intern(name);
   }
 }

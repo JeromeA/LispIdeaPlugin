@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.symbol;
 
+import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.HashMap;
@@ -8,18 +9,27 @@ import java.util.Map;
 import java.util.Set;
 
 public class PackageDefinition {
+  private LispSexp definition;
   final String name;
   private final Set<String> nicknames = new HashSet<>();
   private String description;
-  final Set<String> use = new HashSet<>();
-  private boolean isWriteable = true;
+  public final Map<String, LispSexp> use = new HashMap<>();
+  public final Map<String, LispSexp> exports = new HashMap<>();
+  public final Map<String, LispSexp> shadows = new HashMap<>();
+  public final Map<LispSymbol, Set<LispSymbol>> importFrom = new HashMap<>();
+  // Each in-package is a usage.
+  public final Set<LispSexp> usages = new HashSet<>();
 
-  private LispSymbol definition;
-  private final Set<LispSymbol> usages = new HashSet<>();
-  private final Map<String, LispSymbol> exports = new HashMap<>();
+  private boolean isWriteable = true;
 
   public PackageDefinition(String name) {
     this.name = name;
+  }
+
+  public static PackageDefinition createDefaultDefinition(String name) {
+    PackageDefinition definition = new PackageDefinition(name);
+    definition.use.put(CommonLispPackage.COMMON_LISP, null);
+    return definition;
   }
 
   public void addNickname(String nickname) {
@@ -30,44 +40,24 @@ public class PackageDefinition {
     return nicknames;
   }
 
-  public void addUse(String packageName) {
-    use.add(packageName);
-  }
-
-  public boolean isWriteable() {
-    return isWriteable;
-  }
-
   public void setReadOnly() {
     isWriteable = false;
   }
 
-  public void setDefinition(LispSymbol symbol) {
+  public void setDefinition(LispSexp symbol) {
     definition = symbol;
   }
 
-  public void addUsage(LispSymbol symbol) {
-    usages.add(symbol);
-  }
-
-  public LispSymbol getDefinition() {
+  public LispSexp getDefinition() {
     return definition;
-  }
-
-  public Set<LispSymbol> getUsages() {
-    return usages;
   }
 
   public String getName() {
     return name;
   }
 
-  public void addExport(String symbolName, LispSymbol symbol) {
-    exports.put(symbolName, symbol);
-  }
-
-  public boolean isExported(String name) {
-    return exports.containsKey(name);
+  public void addExport(String symbolName) {
+    exports.put(symbolName, null);
   }
 
   public void setDescription(String description) {

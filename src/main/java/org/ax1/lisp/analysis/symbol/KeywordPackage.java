@@ -7,7 +7,7 @@ public class KeywordPackage extends LispPackage {
   public static KeywordPackage INSTANCE = new KeywordPackage();
 
   private KeywordPackage() {
-    super(createDefinition());
+    super(null, createDefinition());
   }
 
   private static PackageDefinition createDefinition() {

@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 public class ProjectPackageAnalyzer implements CachedValueProvider<Collection<PackageDefinition>> {
 
   private final Project project;
-  private final ProjectAnalyser projectAnalyser;
+  private final ProjectComputedData projectComputedData;
   private final PsiManager psiManager;
 
   public ProjectPackageAnalyzer(Project project) {
     this.project = project;
-    projectAnalyser = ProjectAnalyser.getInstance(project);
+    projectComputedData = ProjectComputedData.getInstance(project);
     psiManager = PsiManager.getInstance(project);
   }
 
@@ -33,7 +33,7 @@ public class ProjectPackageAnalyzer implements CachedValueProvider<Collection<Pa
         FileTypeIndex.getFiles(LispFileType.INSTANCE, GlobalSearchScope.allScope(project)).stream()
             .map(psiManager::findFile)
             .map(f -> (LispFile) f)
-            .map(projectAnalyser::getPackages)
+            .map(projectComputedData::getPackages)
             .flatMap(Collection::stream).collect(Collectors.toSet());
     return new Result<>(packages, PsiModificationTracker.MODIFICATION_COUNT);
   }

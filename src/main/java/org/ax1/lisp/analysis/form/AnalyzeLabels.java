@@ -1,7 +1,9 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
-import org.ax1.lisp.analysis.SyntaxAnalyzer;
+import org.ax1.lisp.analysis.LocatedSymbol;
+import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -15,28 +17,28 @@ import static org.ax1.lisp.analysis.form.LambdaAnalyzer.analyzeLambda;
 public class AnalyzeLabels implements FormAnalyzer {
 
   @Override
-  public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.annotations.highlightKeyword(form);
+  public void analyze(AnalysisContext context, LispList form) {
+    context.highlighter.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
-      analyzer.annotations.highlightError(form, "LABELS needs at least 1 argument");
+      context.highlighter.highlightError(form, "LABELS needs at least 1 argument");
       return;
     }
     LispList list1 = list.get(1).getList();
     if (list1 == null) {
-      analyzer.annotations.highlightError(list.get(1), "Function binding list expected");
+      context.highlighter.highlightError(list.get(1), "Function binding list expected");
       return;
     }
     List<LispSexp> functionList = list1.getSexpList();
-    try (LexicalScope lexicalScope = analyzer.lexicalBindings.defineLexicalFunctions(form, getFunctionSymbols(analyzer, functionList))) {
-      functionList.forEach(function -> analyzeFunction(analyzer, function));
-      analyzer.analyzeForms(list, 2);
+    try (LexicalScope ignored = context.lexicalBindings.defineLexicalFunctions(getFunctionSymbols(context, functionList))) {
+      functionList.forEach(function -> analyzeFunction(context, function));
+      context.analyzer.analyzeForms(list, 2);
     }
   }
 
-  private void analyzeFunction(SyntaxAnalyzer analyzer, LispSexp function) {
+  private void analyzeFunction(AnalysisContext context, LispSexp function) {
     if (function.getList() != null && function.getList().getSexpList().size() >= 2) {
-      analyzeLambda(analyzer, function.getList(), 1);
+      analyzeLambda(context, function.getList(), 1);
     }
   }
 
@@ -44,19 +46,20 @@ public class AnalyzeLabels implements FormAnalyzer {
    *  Quick scan to find the name of the lexical functions. Errors are ignored, annotations will happen at a later
    *  stage, when each function is analyzed.
    */
-  private List<LispSymbol> getFunctionSymbols(SyntaxAnalyzer analyzer, @NotNull List<LispSexp> functionList) {
-    List<LispSymbol> result = new ArrayList<>();
+  private List<LocatedSymbol> getFunctionSymbols(AnalysisContext context, @NotNull List<LispSexp> functionList) {
+    List<LocatedSymbol> result = new ArrayList<>();
     for (LispSexp function : functionList) {
       if (function.getList() == null || function.getList().getSexpList().size() < 2) {
-        analyzer.annotations.highlightError(function, "Function definition expected");
+        context.highlighter.highlightError(function, "Function definition expected");
         continue;
       }
       LispSexp functionName = function.getList().getSexpList().get(0);
-      if (functionName.getSymbol() == null) {
-        analyzer.annotations.highlightError(function, "Function name expected");
+      LispSymbol symbolLocation = functionName.getSymbol();
+      if (symbolLocation == null) {
+        context.highlighter.highlightError(function, "Function name expected");
         continue;
       }
-      result.add(functionName.getSymbol());
+      result.add(context.packageManager.getLocatedSymbol(symbolLocation));
     }
     return result;
   }

@@ -10,12 +10,12 @@ public class PackageAnalyzer {
 
   private final LispFile lispFile;
   private final AnalyzeDefpackage analyzeDefpackage;
-  public final SyntaxAnalyzer analyzer;
+  public final AnalysisContext context;
 
-  public PackageAnalyzer(LispFile lispFile, Annotate annotate) {
+  public PackageAnalyzer(LispFile lispFile, Highlighter highlighter) {
     this.lispFile = lispFile;
     this.analyzeDefpackage = new AnalyzeDefpackage();
-    this.analyzer = new SyntaxAnalyzer(lispFile, annotate, new PackageManager());
+    this.context = new AnalysisContext(highlighter, new PackageManager(), null);
   }
 
   public void analyzePackages() {
@@ -30,7 +30,7 @@ public class PackageAnalyzer {
     LispSymbol symbol = sexpList.get(0).getSymbol();
     if (symbol == null) return;
     if (symbol.getText().equals("defpackage")) {
-      analyzeDefpackage.analyze(analyzer, form);
+      analyzeDefpackage.analyze(context, form);
     }
   }
 }

@@ -7,7 +7,7 @@ import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
-import org.ax1.lisp.analysis.ProjectAnalyser;
+import org.ax1.lisp.analysis.SymbolBinding;
 import org.ax1.lisp.psi.LispSymbol;
 import org.ax1.lisp.psi.LispTypes;
 import org.jetbrains.annotations.NotNull;
@@ -33,20 +33,19 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
   public LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement element) {
     if (getTokenType(element) == LispTypes.SYMBOL_TOKEN) {
       LispSymbol symbol = (LispSymbol) element.getParent();
-      if (symbol.isMethodDefinition()) {
-        NavigatablePsiElement target = ProjectAnalyser.getInstance(element.getProject()).getProjectSymbolAnalysis().bindings.get(symbol).getDefinition();
-        if (target == null) return null;
+      SymbolBinding symbolBinding = symbol.getSymbolDefinition();
+      if (symbolBinding == null) return null;
+      if (symbolBinding.type != SymbolBinding.Type.FUNCTION) return null;
+      if (symbolBinding.methods.contains(symbol) && !symbolBinding.definitions.isEmpty()) {
+        NavigatablePsiElement target = (NavigatablePsiElement) symbolBinding.definitions.get(0);
         return new LineMarkerInfo<>(element, element.getTextRange(), TO_GENERIC,
             null, new DefaultGutterIconNavigationHandler<>(List.of(target), "Generic Definition"),
             GutterIconRenderer.Alignment.RIGHT, () -> "Go to generic");
       }
-      if (symbol.isGenericDefinition()) {
-        Collection<NavigatablePsiElement> targets = ProjectAnalyser.getInstance(element.getProject())
-            .getProjectSymbolAnalysis().bindings.get(symbol)
-            .getMethods().stream()
+      if (symbolBinding.definitions.contains(symbol) && !symbolBinding.methods.isEmpty()) {
+        Collection<NavigatablePsiElement> targets = symbolBinding.methods.stream()
             .map(NavigatablePsiElement.class::cast)
             .collect(Collectors.toList());
-        if (targets.isEmpty()) return null;
         return new LineMarkerInfo<>(element, element.getTextRange(), TO_METHOD,
             null, new DefaultGutterIconNavigationHandler<>(targets, "Implementations"),
             GutterIconRenderer.Alignment.RIGHT, () -> "Go to implementations");

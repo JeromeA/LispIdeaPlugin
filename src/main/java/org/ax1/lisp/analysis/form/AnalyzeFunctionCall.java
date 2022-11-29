@@ -1,6 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.SyntaxAnalyzer;
+import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSymbol;
@@ -21,18 +21,18 @@ public class AnalyzeFunctionCall implements FormAnalyzer {
           .collect(Collectors.toSet());
 
   @Override
-  public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.annotations.highlightKeyword(form);
+  public void analyze(AnalysisContext context, LispList form) {
+    context.highlighter.highlightKeyword(form);
     LispSymbol parsedSymbol = form.getSexpList().get(0).getSymbol();
     if (parsedSymbol == null) {
-      analyzer.annotations.highlightError(form.getSexpList().get(0), "Function name expected");
+      context.highlighter.highlightError(form.getSexpList().get(0), "Function name expected");
       return;
     }
-    Symbol symbol = analyzer.packageManager.getSymbol(parsedSymbol);
+    Symbol symbol = context.packageManager.getSymbol(parsedSymbol);
     if (KEYWORDS.contains(symbol)) {
-      analyzer.annotations.highlightKeyword(parsedSymbol);
+      context.highlighter.highlightKeyword(parsedSymbol);
     }
-    analyzer.lexicalBindings.registerFunctionUsage(symbol, parsedSymbol);
-    analyzer.analyzeForms(form.getSexpList(), 1);
+    context.addFunctionUsage(parsedSymbol);
+    context.analyzer.analyzeForms(form.getSexpList(), 1);
   }
 }

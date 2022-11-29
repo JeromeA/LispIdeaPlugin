@@ -1,6 +1,9 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.SyntaxAnalyzer;
+import org.ax1.lisp.analysis.AnalysisContext;
+import org.ax1.lisp.analysis.LexicalBindingManager;
+import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
+import org.ax1.lisp.analysis.LocatedSymbol;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -13,6 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 public class AnalyzeDestructuringBind implements FormAnalyzer {
 
   private static final Set<Symbol> KEYWORDS =
@@ -21,40 +26,43 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
           .collect(Collectors.toSet());
 
   @Override
-  public void analyze(SyntaxAnalyzer analyzer, LispList form) {
-    analyzer.annotations.highlightKeyword(form);
+  public void analyze(AnalysisContext context, LispList form) {
+    context.highlighter.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
-      analyzer.annotations.highlightError(form, "DESTRUCTURING-BIND needs at least 2 arguments.");
+      context.highlighter.highlightError(form, "DESTRUCTURING-BIND needs at least 2 arguments.");
       return;
     }
     LispSexp sexp1 = list.get(1);
     LispList list1 = sexp1.getList();
     if (list1 == null) {
-      analyzer.annotations.highlightError(sexp1, "Destructuring lambda list expected");
+      context.highlighter.highlightError(sexp1, "Destructuring lambda list expected");
       return;
     }
-    analyzer.lexicalBindings.defineLexicalVariables(form, getDestructuringBindVariableSymbols(analyzer, list1.getSexpList()));
-    analyzer.analyzeForms(list, 2);
-    analyzer.lexicalBindings.dropLexicalVariables();
+    List<LocatedSymbol> variables = getDestructuringBindVariableSymbols(context, list1.getSexpList()).stream()
+        .map(context.packageManager::getLocatedSymbol)
+        .collect(toImmutableList());
+    try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {
+      context.analyzer.analyzeForms(list, 2);
+    }
   }
 
-  private List<LispSymbol> getDestructuringBindVariableSymbols(SyntaxAnalyzer analyzer, @NotNull List<LispSexp> lambdaList) {
+  private List<LispSymbol> getDestructuringBindVariableSymbols(AnalysisContext context, @NotNull List<LispSexp> lambdaList) {
     List<LispSymbol> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
       LispSymbol symbolName = sexp.getSymbol();
       LispList list = sexp.getList();
       if (symbolName != null) {
-        Symbol symbol = analyzer.packageManager.getSymbol(symbolName);
+        Symbol symbol = context.packageManager.getSymbol(symbolName);
         if (KEYWORDS.contains(symbol)) {
-          analyzer.annotations.highlightConstant(symbolName);
+          context.highlighter.highlightConstant(symbolName);
         } else {
           result.add(symbolName);
         }
       } else if (list != null) {
-        result.addAll(getDestructuringBindVariableSymbols(analyzer, list.getSexpList()));
+        result.addAll(getDestructuringBindVariableSymbols(context, list.getSexpList()));
       } else {
-        analyzer.annotations.highlightError(sexp, "Destructuring lambda list expected");
+        context.highlighter.highlightError(sexp, "Destructuring lambda list expected");
       }
     }
     return result;

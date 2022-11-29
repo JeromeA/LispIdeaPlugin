@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-import static org.ax1.lisp.analysis.LispAnnotator.EMPTY_ANNOTATE;
+import static org.ax1.lisp.analysis.LispAnnotator.EMPTY_HIGHLIGHTER;
 
 public class FilePackageAnalyzer implements CachedValueProvider<Collection<PackageDefinition>> {
 
@@ -19,8 +19,8 @@ public class FilePackageAnalyzer implements CachedValueProvider<Collection<Packa
 
   @Override
   public @Nullable Result<Collection<PackageDefinition>> compute() {
-    PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, EMPTY_ANNOTATE);
+    PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, EMPTY_HIGHLIGHTER);
     packageAnalyzer.analyzePackages();
-    return new Result<>(packageAnalyzer.analyzer.scannedPackages, lispFile);
+    return new Result<>(packageAnalyzer.context.result.packages, lispFile);
   }
 }
