@@ -35,14 +35,18 @@ all packages know the PackageManager.
 
 ## Multiple passes for parsing
 
-When it comes to the number of passes, there are 3 categories of project:
-* Test projects, that only use CL-USER package, or packages which only use CL. Super easy to parse in one single pass.
+To parse a file, we need to know everything about the packages they use.
+
+From the point of view of multi-passes parsing, there are 3 categories of project:
+* Trivial projects, that only use CL-USER package, or packages which in turn only use CL.
+Super easy to parse in one single pass as we know everything about the packages, even if we didn't see them yet.
 But they are just test projects, this never happens for real.
 * Projects with packages. If we parse a file without knowing the package definition, we will have to parse it again.
 In that case, it's better to have a quick pass to find the DEFPACKAGEs first (and skip everything else), so that the
 next pass gets everything right.
 * Project that mess with packages (like calling DEFPACKAGE from macros), but for these, we won't be able to avoid
-multi-pass, unless we start taking ASDF into account, which is not going to happen early enough.
+multi-pass, unless we start taking system loading into account, which is not going to happen soon, and will always
+be limited.
 
 So, we're optimizing for the second case: a quick pass is checking for DEFPACKAGEs before the real parsing is happening.
 
@@ -64,7 +68,20 @@ findSymbol():
 
 intern() calls findSymbol(), and create the symbol if nothing is found.
 
-## Cleanup
+## Usage highlighting
 
-In the current CL, I have to do the following cleanups:
-* remove any reference to SymbolBinding
+Usage highlighting relies on many assumptions that a plugin can easily break. I broke it multiple times already,
+and I pledge to write down the reasons whenever it happens again.
+
+For the feature to work, the symbols have to provide a reference, and this reference must resolve to the
+definition.
+
+Quick summary:
+
+* The starting point is IdentifierHighlighterPass.highlightReferencesAndDeclarations().
+* which calls getTargetSymbols(), which returns the symbol at the caret.
+* and then calls highlightTargetUsages.
+* which calls getUsageRanges
+* which get a PsiTarget, and calls getPsiUsageRanges
+* which collect references in refs.
+

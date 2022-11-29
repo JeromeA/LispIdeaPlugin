@@ -24,6 +24,7 @@ class FileAnalysisProvider implements CachedValueProvider<Bindings> {
     analyzer.setContext(context);
     analyzer.analyze();
     if (!context.lexicalBindings.isEmpty()) throw new RuntimeException("Unbalanced lexical stack.");
+    context.result.addLexicalBindings(context.lexicalBindings.getRetiredBindings());
     return new Result<>(context.result, lispFile);
   }
 }

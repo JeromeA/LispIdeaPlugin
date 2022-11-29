@@ -47,4 +47,8 @@ public class Bindings {
   public void addVariableUsage(Symbol variableName, LispSymbol location) {
     definitions.add(newUsage(Type.VARIABLE, Scope.DYNAMIC, variableName, location));
   }
+
+  public void addLexicalBindings(Collection<SymbolBinding> nindings) {
+    definitions.addAll(nindings);
+  }
 }

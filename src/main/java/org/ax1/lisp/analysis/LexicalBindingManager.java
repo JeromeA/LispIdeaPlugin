@@ -14,15 +14,14 @@ public class LexicalBindingManager {
 
   private final Stack<Map<Symbol, SymbolBinding>> functions = new Stack<>();
   private final Stack<Map<Symbol, SymbolBinding>> variables = new Stack<>();
-  private final List<SymbolBinding> retiredFunctions = new ArrayList<>();
-  private final List<SymbolBinding> retiredVariables = new ArrayList<>();
+  private final List<SymbolBinding> retiredBindings = new ArrayList<>();
 
   public void dropLexicalVariables() {
-    retiredVariables.addAll(variables.pop().values());
+    retiredBindings.addAll(variables.pop().values());
   }
 
   public void dropLexicalFunctions() {
-    retiredFunctions.addAll(functions.pop().values());
+    retiredBindings.addAll(functions.pop().values());
   }
 
   public LexicalScope defineLexicalVariables(List<LocatedSymbol> variableList) {
@@ -64,12 +63,8 @@ public class LexicalBindingManager {
     return functions.empty() && variables.empty();
   }
 
-  public Collection<SymbolBinding> getRetiredVariables() {
-    return retiredVariables;
-  }
-
-  public Collection<SymbolBinding> getRetiredFunctions() {
-    return retiredFunctions;
+  public Collection<SymbolBinding> getRetiredBindings() {
+    return retiredBindings;
   }
 
   public List<String> getLexicalVariables() {

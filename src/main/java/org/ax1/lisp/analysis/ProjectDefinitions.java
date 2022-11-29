@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ax1.lisp.analysis.SymbolBinding.Scope.LEXICAL;
 import static org.ax1.lisp.analysis.SymbolBinding.Type.VARIABLE;
 
 public class ProjectDefinitions {
@@ -22,21 +23,24 @@ public class ProjectDefinitions {
   public ProjectDefinitions(ImmutableList<Bindings> results) {
     for (Bindings result : results) {
       for (SymbolBinding definition : result.definitions) {
-        add(definition.type == VARIABLE ? variables : functions, definition);
+        if (definition.scope == LEXICAL) {
+          addSymbolReferences(definition);
+        } else {
+          merge(definition.type == VARIABLE ? variables : functions, definition);
+        }
       }
     }
-    for (SymbolBinding definition : functions.values()) {
-      definition.definitions.forEach(def -> symbolDefinitions.put(def, definition));
-      definition.methods.forEach(def -> symbolDefinitions.put(def, definition));
-      definition.usages.forEach(def -> symbolDefinitions.put(def, definition));
-    }
-    for (SymbolBinding definition : variables.values()) {
-      definition.definitions.forEach(def -> symbolDefinitions.put(def, definition));
-      definition.usages.forEach(def -> symbolDefinitions.put(def, definition));
-    }
+    functions.values().forEach(this::addSymbolReferences);
+    variables.values().forEach(this::addSymbolReferences);
   }
 
-  private void add(Map<Symbol, SymbolBinding> definitionMap, SymbolBinding definition) {
+  private void addSymbolReferences(SymbolBinding definition) {
+    definition.definitions.forEach(def -> symbolDefinitions.put(def, definition));
+    definition.usages.forEach(def -> symbolDefinitions.put(def, definition));
+    definition.methods.forEach(def -> symbolDefinitions.put(def, definition));
+  }
+
+  private void merge(Map<Symbol, SymbolBinding> definitionMap, SymbolBinding definition) {
     definitionMap.merge(definition.symbol, definition, ProjectDefinitions::mergeDefinitions);
   }
 
