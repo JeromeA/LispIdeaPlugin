@@ -12,44 +12,40 @@ public class SymbolBinding {
   public final List<LispSymbol> definitions = new ArrayList<>();
   public final List<LispSymbol> methods = new ArrayList<>(); // For the methods of a generic.
   public final List<LispSymbol> usages = new ArrayList<>();
-  public final String signature; // Signature of the function, if it's a function definition.
   public final Type type;
   public final Scope scope;
   public String description; // Whatever should be in the tooltip.
   public LispList container;
 
-  private SymbolBinding(Type type, Scope scope, Symbol symbol) {
+  private SymbolBinding(Type type, Scope scope, Symbol symbol, String description) {
     this.symbol = symbol;
     this.type = type;
     this.scope = scope;
-    signature = null;
-    description = null;
+    this.description = description;
   }
 
-  public static SymbolBinding newDefinition(Type type, Scope scope, Symbol symbol, LispSymbol definition) {
-    SymbolBinding symbolBinding = new SymbolBinding(type, scope, symbol);
+  public static SymbolBinding newDefinition(Type type, Scope scope, Symbol symbol, LispSymbol definition, String description) {
+    SymbolBinding symbolBinding = new SymbolBinding(type, scope, symbol, description);
     symbolBinding.definitions.add(definition);
     return symbolBinding;
   }
 
-  public static SymbolBinding newDefinition(Type type, Scope scope, LocatedSymbol locatedSymbol) {
-    return newDefinition(type, scope, locatedSymbol.symbol, locatedSymbol.location);
+  public static SymbolBinding newDefinition(Type type, Scope scope, LocatedSymbol locatedSymbol, String description) {
+    return newDefinition(type, scope, locatedSymbol.symbol, locatedSymbol.location, description);
   }
 
   public static SymbolBinding newDefinition(Type type, Scope scope, Symbol symbol, String description) {
-    SymbolBinding symbolBinding = new SymbolBinding(type, scope, symbol);
-    symbolBinding.description = description;
-    return symbolBinding;
+    return new SymbolBinding(type, scope, symbol, description);
   }
 
-  public static SymbolBinding newMethod(Symbol symbol, LispSymbol definition) {
-    SymbolBinding symbolBinding = new SymbolBinding(Type.METHOD, Scope.DYNAMIC, symbol);
+  public static SymbolBinding newMethod(Symbol symbol, LispSymbol definition, String description) {
+    SymbolBinding symbolBinding = new SymbolBinding(Type.METHOD, Scope.DYNAMIC, symbol, description);
     symbolBinding.methods.add(definition);
     return symbolBinding;
   }
 
   public static SymbolBinding newUsage(Type type, Scope scope, Symbol symbol, LispSymbol usage) {
-    SymbolBinding symbolBinding = new SymbolBinding(type, scope, symbol);
+    SymbolBinding symbolBinding = new SymbolBinding(type, scope, symbol, null);
     symbolBinding.usages.add(usage);
     return symbolBinding;
   }

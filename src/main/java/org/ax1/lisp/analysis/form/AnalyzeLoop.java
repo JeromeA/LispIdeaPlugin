@@ -2,7 +2,9 @@ package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
+import org.ax1.lisp.analysis.LexicalVariableHelper;
 import org.ax1.lisp.analysis.LocatedSymbol;
+import org.ax1.lisp.analysis.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -163,8 +165,9 @@ public class AnalyzeLoop implements FormAnalyzer {
       startAt += 2;
     }
 
-    List<LocatedSymbol> variables = List.of(context.packageManager.getLocatedSymbol(sexp1.getSymbol()));
-    try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {
+    SymbolBinding variable = LexicalVariableHelper.newLexicalVariable("LOOP",
+        context.packageManager.getLocatedSymbol(sexp1.getSymbol()), null);
+    try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(List.of(variable))) {
       variableClause(context, form, startAt);
     }
   }
@@ -195,8 +198,9 @@ public class AnalyzeLoop implements FormAnalyzer {
       startAt += 2;
     }
 
-    List<LocatedSymbol> locatedVariables = variables.stream()
+    List<SymbolBinding> locatedVariables = variables.stream()
         .map(context.packageManager::getLocatedSymbol)
+        .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("LOOP", locatedSymbol, null))
         .collect(toImmutableList());
     try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(locatedVariables)) {
       variableClause(context, form, startAt);
@@ -420,8 +424,9 @@ public class AnalyzeLoop implements FormAnalyzer {
       }
       consumed++;
       // We don't support lexical bindings created by accumulations, because their scope is the whole loop.
-      List<LocatedSymbol> variables = List.of(context.packageManager.getLocatedSymbol(symbol3));
-      context.lexicalBindings.defineLexicalVariables(variables).close();
+      SymbolBinding variable = LexicalVariableHelper.newLexicalVariable("LOOP",
+          context.packageManager.getLocatedSymbol(symbol3), null);
+      context.lexicalBindings.defineLexicalVariables(List.of(variable)).close();
     }
     return consumed;
   }

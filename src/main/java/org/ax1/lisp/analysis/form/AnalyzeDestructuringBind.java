@@ -1,9 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.LexicalBindingManager;
+import org.ax1.lisp.analysis.*;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
-import org.ax1.lisp.analysis.LocatedSymbol;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -39,8 +37,9 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
       context.highlighter.highlightError(sexp1, "Destructuring lambda list expected");
       return;
     }
-    List<LocatedSymbol> variables = getDestructuringBindVariableSymbols(context, list1.getSexpList()).stream()
+    List<SymbolBinding> variables = getDestructuringBindVariableSymbols(context, list1.getSexpList()).stream()
         .map(context.packageManager::getLocatedSymbol)
+        .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("DESTRUCTURING-BIND", locatedSymbol, null))
         .collect(toImmutableList());
     try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {
       context.analyzer.analyzeForms(list, 2);

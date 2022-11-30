@@ -88,60 +88,6 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
-  public boolean isLetVariableName() {
-    PsiElement container1 = getParent().getParent();
-    if (!(container1 instanceof LispList)) return false;
-    PsiElement container2 = container1.getParent().getParent();
-    if (!(container2 instanceof LispList)) return false;
-    LispList formLet = (LispList) container2;
-    if (!formLet.isFormLet()) {
-      PsiElement container3 = container2.getParent().getParent();
-      if (!(container3 instanceof LispList)) return false;
-      formLet = (LispList) container3;
-      if (!formLet.isFormLet()) return false;
-    }
-    for (LispSexp sexp : formLet.getVariableList()) {
-      if (sexp.getSymbol() == this) return true;
-      LispList list = sexp.getList();
-      if (list != null) {
-        List<LispSexp> varInitList = list.getSexpList();
-        if (!varInitList.isEmpty()) {
-          LispSymbol symbol = varInitList.get(0).getSymbol();
-          if (symbol == this) return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  @Override
-  public boolean isParameterName() {
-    PsiElement container1 = getParent().getParent();
-    if (!(container1 instanceof LispList)) return false;
-    PsiElement container2 = container1.getParent().getParent();
-    if (!(container2 instanceof LispList)) return false;
-    LispList defun = (LispList) container2;
-    if (!defun.isFormDefun()) return false;
-    for (LispSexp sexp : defun.getDefunLambdaList()) {
-      if (sexp.getSymbol() == this) return true;
-    }
-    return false;
-  }
-
-  public boolean isDestructuringBindVariableName() {
-    LispList destructuringBind = getSymbolDefinition().container;
-    LispSexp lispSexp = destructuringBind.getSexpList().get(0);
-    return lispSexp.getSymbol().getText().equals("destructuring-bind");
-  }
-
-  @Override
-  public LispList getDefunFromParameter() {
-    LispList lambdaList = (LispList) getParent().getParent();
-    return (LispList) lambdaList.getParent().getParent();
-  }
-
-  @Override
   public SymbolBinding getSymbolDefinition() {
     return ProjectComputedData.getInstance(getProject()).getProjectAnalysis().getDefinition(this);
   }

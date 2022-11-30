@@ -1,9 +1,10 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.LexicalBindingManager;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
+import org.ax1.lisp.analysis.LexicalVariableHelper;
 import org.ax1.lisp.analysis.LocatedSymbol;
+import org.ax1.lisp.analysis.SymbolBinding;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -40,7 +41,7 @@ public class AnalyzeDefmethod implements FormAnalyzer {
       context.highlighter.highlightError(sexp1, "Function name expected");
       return;
     }
-    context.addMethodDefinition(symbol1);
+    context.addMethodDefinition(symbol1, "");
     context.highlighter.highlight(symbol1, FUNCTION_DECLARATION);
 
     int arg = 2;
@@ -57,8 +58,9 @@ public class AnalyzeDefmethod implements FormAnalyzer {
       return;
     }
 
-    List<LocatedSymbol> variables = getVariables(context, lambdaList).stream()
+    List<SymbolBinding> variables = getVariables(context, lambdaList).stream()
         .map(context.packageManager::getLocatedSymbol)
+        .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("DEFMETHOD", locatedSymbol, null))
         .collect(toImmutableList());
     try(LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {
       context.analyzer.analyzeForms(list, arg + 1);

@@ -14,16 +14,16 @@ public class Bindings {
   public final Collection<SymbolBinding> definitions = new ArrayList<>();
   private final Collection<SymbolBinding> conditionDefinitions = new ArrayList<>();
 
-  public void addFunctionDefinition(Symbol functionName, LispSymbol location) {
-    definitions.add(newDefinition(Type.FUNCTION, Scope.DYNAMIC, functionName, location));
+  public void addFunctionDefinition(Symbol functionName, LispSymbol location, String description) {
+    definitions.add(newDefinition(Type.FUNCTION, Scope.DYNAMIC, functionName, location, description));
   }
 
   public void addFunctionDefinition(Symbol functionName, String description) {
     definitions.add(newDefinition(Type.FUNCTION, Scope.DYNAMIC, functionName, description));
   }
 
-  public void addMethodDefinition(Symbol methodName, LispSymbol location) {
-    definitions.add(newMethod(methodName, location));
+  public void addMethodDefinition(Symbol methodName, LispSymbol location, String description) {
+    definitions.add(newMethod(methodName, location, description));
   }
 
   public void addDefPackage(PackageDefinition definition) {
@@ -36,8 +36,8 @@ public class Bindings {
     packages.add(packageDefinition);
   }
 
-  public void addVariableDefinition(Symbol variableName, LispSymbol location) {
-    definitions.add(newDefinition(Type.VARIABLE, Scope.DYNAMIC, variableName, location));
+  public void addVariableDefinition(Symbol variableName, LispSymbol location, String description) {
+    definitions.add(newDefinition(Type.VARIABLE, Scope.DYNAMIC, variableName, location, description));
   }
 
   public void addFunctionUsage(Symbol functionName, LispSymbol location) {

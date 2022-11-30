@@ -25,7 +25,7 @@ public class AnalyzeDefgeneric implements FormAnalyzer {
       context.highlighter.highlightError(sexp1, "Function name expected");
       return;
     }
-    context.addFunctionDefinition(symbol1);
+    context.addFunctionDefinition(symbol1, "");
     context.highlighter.highlight(symbol1, FUNCTION_DECLARATION);
   }
 }

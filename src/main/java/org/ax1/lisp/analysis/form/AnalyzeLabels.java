@@ -3,7 +3,6 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
 import org.ax1.lisp.analysis.LocatedSymbol;
-import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -38,7 +37,7 @@ public class AnalyzeLabels implements FormAnalyzer {
 
   private void analyzeFunction(AnalysisContext context, LispSexp function) {
     if (function.getList() != null && function.getList().getSexpList().size() >= 2) {
-      analyzeLambda(context, function.getList(), 1);
+      analyzeLambda("LABELS", context, function.getList(), 1);
     }
   }
 

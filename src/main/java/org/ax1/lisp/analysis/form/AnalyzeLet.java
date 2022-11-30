@@ -2,14 +2,15 @@ package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LocatedSymbol;
+import org.ax1.lisp.analysis.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+
+import static org.ax1.lisp.analysis.LexicalVariableHelper.newLexicalVariable;
 
 public class AnalyzeLet implements FormAnalyzer {
 
@@ -28,7 +29,7 @@ public class AnalyzeLet implements FormAnalyzer {
     }
     List<LispSexp> varList = list1.getSexpList();
     context.analyzer.analyzeForms(getInitForms(varList), 0);
-    context.lexicalBindings.defineLexicalVariables(getLetVariableSymbols(context, varList));
+    context.lexicalBindings.defineLexicalVariables(getLetVariables(context, varList));
     context.analyzer.analyzeForms(list, 2);
     context.lexicalBindings.dropLexicalVariables();
   }
@@ -47,20 +48,23 @@ public class AnalyzeLet implements FormAnalyzer {
     return result;
   }
 
-  private List<LocatedSymbol> getLetVariableSymbols(AnalysisContext context, @NotNull List<LispSexp> varList) {
-    List<LocatedSymbol> result = new ArrayList<>();
+  private List<SymbolBinding> getLetVariables(AnalysisContext context, @NotNull List<LispSexp> varList) {
+    List<SymbolBinding> result = new ArrayList<>();
     for (LispSexp sexp : varList) {
       LispSymbol symbol = sexp.getSymbol();
       LispList list = sexp.getList();
       if (symbol != null) {
-        result.add(context.packageManager.getLocatedSymbol(symbol));
+        LocatedSymbol locatedSymbol = context.packageManager.getLocatedSymbol(symbol);
+        result.add(newLexicalVariable("LET", locatedSymbol, "nil"));
       } else if (list != null) {
         List<LispSexp> sexpList = list.getSexpList();
         if (sexpList.size() < 1 || sexpList.get(0).getSymbol() == null) {
           context.highlighter.highlightError(list, "Expected var init form");
           continue;
         }
-        result.add(context.packageManager.getLocatedSymbol(sexpList.get(0).getSymbol()));
+        LocatedSymbol locatedSymbol = context.packageManager.getLocatedSymbol(sexpList.get(0).getSymbol());
+        String initialValue = sexpList.size() < 2 ? "nil" : sexpList.get(1).getText();
+        result.add(newLexicalVariable("LET", locatedSymbol, initialValue));
       } else {
         context.highlighter.highlightError(sexp, "Expected var binding");
       }

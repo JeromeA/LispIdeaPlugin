@@ -1,12 +1,16 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalysisContext;
+import org.ax1.lisp.analysis.LocatedSymbol;
+import org.ax1.lisp.analysis.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+
+import static org.ax1.lisp.analysis.LexicalVariableHelper.newLexicalVariable;
 
 public class AnalyzeLetStar implements FormAnalyzer {
 
@@ -34,27 +38,32 @@ public class AnalyzeLetStar implements FormAnalyzer {
       LispSexp sexp = varList.get(startAt);
       LispSymbol symbol = sexp.getSymbol();
       LispList varWithInit = sexp.getList();
-      if (symbol != null) {
-        analyzeLetStarVarList(context, form, varList, startAt + 1);
-      } else if (varWithInit != null) {
+      String initialValue = "nil";
+      if (symbol == null && varWithInit == null) {
+        context.highlighter.highlightError(sexp, "Variable binding expected");
+        return;
+      }
+      if (symbol == null) {
         List<LispSexp> varWithInitList = varWithInit.getSexpList();
         if (varWithInitList.size() != 2) {
           context.highlighter.highlightError(varWithInit, "Variable binding expected");
           return;
         }
-        LispSymbol variable = varWithInitList.get(0).getSymbol();
+        symbol = varWithInitList.get(0).getSymbol();
         LispSexp init = varWithInitList.get(1);
-        if (variable == null) {
+        if (symbol == null) {
           context.highlighter.highlightError(varWithInitList.get(0), "Expected variable name");
           return;
         }
         context.analyzer.analyzeForm(init);
-        context.lexicalBindings.defineLexicalVariables(List.of(context.packageManager.getLocatedSymbol(variable)));
-        analyzeLetStarVarList(context, form, varList, startAt + 1);
-        context.lexicalBindings.dropLexicalVariables();
-      } else {
-        context.highlighter.highlightError(sexp, "Variable binding expected");
+        initialValue = init.getText();
       }
+      LocatedSymbol locatedSymbol = context.packageManager.getLocatedSymbol(symbol);
+      SymbolBinding variable = newLexicalVariable("LET*", locatedSymbol, initialValue);
+      context.lexicalBindings.defineLexicalVariables(List.of(variable));
+      analyzeLetStarVarList(context, form, varList, startAt + 1);
+      context.lexicalBindings.dropLexicalVariables();
     }
   }
+
 }

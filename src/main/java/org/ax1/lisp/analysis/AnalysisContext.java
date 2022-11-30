@@ -19,16 +19,16 @@ public class AnalysisContext {
     this.lexicalBindings = new LexicalBindingManager();
   }
 
-  public void addFunctionDefinition(LispSymbol symbolName) {
-    result.addFunctionDefinition(packageManager.getSymbol(symbolName), symbolName);
+  public void addFunctionDefinition(LispSymbol symbolName, String description) {
+    result.addFunctionDefinition(packageManager.getSymbol(symbolName), symbolName, description);
   }
 
-  public void addMethodDefinition(LispSymbol symbolName) {
-    result.addMethodDefinition(packageManager.getSymbol(symbolName), symbolName);
+  public void addMethodDefinition(LispSymbol symbolName, String description) {
+    result.addMethodDefinition(packageManager.getSymbol(symbolName), symbolName, description);
   }
 
-  public void addVariableDefinition(LispSymbol symbolName) {
-    result.addVariableDefinition(packageManager.getSymbol(symbolName), symbolName);
+  public void addVariableDefinition(LispSymbol symbolName, String description) {
+    result.addVariableDefinition(packageManager.getSymbol(symbolName), symbolName, description);
   }
 
   public void addFunctionUsage(LispSymbol symbolName) {

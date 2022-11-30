@@ -79,7 +79,7 @@ public class AnalyzeDefclass implements FormAnalyzer {
           context.highlighter.highlightError(slotOptions.get(i + 1), "Method name expected");
           continue;
         }
-        context.addFunctionDefinition(symbolName);
+        context.addFunctionDefinition(symbolName, "");
         context.highlighter.highlight(symbolName, FUNCTION_DECLARATION);
       } else if (!OTHER_OPTIONS.contains(option)) {
         context.highlighter.highlightError(slotOption, "Slot option expected");

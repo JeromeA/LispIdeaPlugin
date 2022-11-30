@@ -1,12 +1,15 @@
 package org.ax1.lisp.analysis.form;
 
+import com.intellij.lang.documentation.DocumentationMarkup;
 import org.ax1.lisp.analysis.AnalysisContext;
+import org.ax1.lisp.analysis.Strings;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 
+import static com.intellij.lang.documentation.DocumentationMarkup.GRAYED_ELEMENT;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.FUNCTION_DECLARATION;
 import static org.ax1.lisp.analysis.form.LambdaAnalyzer.analyzeLambda;
 
@@ -27,14 +30,41 @@ public class AnalyzeDefun implements FormAnalyzer {
       return;
     }
     LispSexp sexp1 = list.get(1);
-    LispSymbol symbol1 = sexp1.getSymbol();
-    if (symbol1 != null) {
-      context.addFunctionDefinition(symbol1);
-      context.highlighter.highlight(symbol1, FUNCTION_DECLARATION);
+    LispSymbol functionName = sexp1.getSymbol();
+    if (functionName != null) {
+      context.highlighter.highlight(functionName, FUNCTION_DECLARATION);
+      StringBuilder sb = new StringBuilder();
+      sb.append(DocumentationMarkup.DEFINITION_START);
+      sb.append("(");
+      sb.append(functionName.getText());
+      LispList lambda = list.get(2).getList();
+      if (lambda != null) {
+        for (LispSexp sexp : lambda.getSexpList()) {
+          sb.append(" ");
+          sb.append(sexp.getText());
+        }
+      }
+      sb.append(")");
+      sb.append(DocumentationMarkup.DEFINITION_END);
+      sb.append(DocumentationMarkup.CONTENT_START);
+      String docString = getDocString(list);
+      if (docString == null) {
+        sb.append(GRAYED_ELEMENT.addText("No doc string."));
+      } else {
+        sb.append(docString);
+      }
+      sb.append(DocumentationMarkup.CONTENT_END);
+      String description = sb.toString();
+      context.addFunctionDefinition(functionName, description);
     } else {
       // TODO: check DEFUN SETF case.
     }
-    analyzeLambda(context, form, 2);
+    analyzeLambda("DEFUN", context, form, 2);
+  }
+
+  private String getDocString(List<LispSexp> list) {
+    if (list.size() < 4) return null;
+    return Strings.getString(list.get(3));
   }
 
   public enum Type {

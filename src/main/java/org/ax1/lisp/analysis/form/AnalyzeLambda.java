@@ -18,6 +18,6 @@ public class AnalyzeLambda implements FormAnalyzer {
       context.highlighter.highlightError(form, "LAMBDA needs at least 1 argument");
       return;
     }
-    analyzeLambda(context, form, 1);
+    analyzeLambda("LAMBDA", context, form, 1);
   }
 }

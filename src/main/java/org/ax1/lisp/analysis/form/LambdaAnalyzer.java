@@ -1,9 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.LexicalBindingManager;
+import org.ax1.lisp.analysis.*;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
-import org.ax1.lisp.analysis.LocatedSymbol;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -25,15 +23,16 @@ public class LambdaAnalyzer {
   /**
    * Analyze a lambda function, starting from the lambda list at the specified index in the form.
    */
-  public static void analyzeLambda(AnalysisContext context, LispList form, int lambdaListIndex) {
+  public static void analyzeLambda(String formName, AnalysisContext context, LispList form, int lambdaListIndex) {
     List<LispSexp> list = form.getSexpList();
     LispList lambdaList = list.get(lambdaListIndex).getList();
     if (lambdaList == null) {
       context.highlighter.highlightError(list.get(lambdaListIndex), "Lambda list expected");
       return;
     }
-    List<LocatedSymbol> variables = getVariables(context, lambdaList).stream()
+    List<SymbolBinding> variables = getVariables(context, lambdaList).stream()
         .map(context.packageManager::getLocatedSymbol)
+        .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable(formName, locatedSymbol, null))
         .collect(toImmutableList());
     try(LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {
       context.analyzer.analyzeForms(list, lambdaListIndex + 1);

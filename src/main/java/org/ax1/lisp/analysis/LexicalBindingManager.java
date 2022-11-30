@@ -2,6 +2,7 @@ package org.ax1.lisp.analysis;
 
 import org.ax1.lisp.analysis.SymbolBinding.Type;
 import org.ax1.lisp.analysis.symbol.Symbol;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -24,10 +25,11 @@ public class LexicalBindingManager {
     retiredBindings.addAll(functions.pop().values());
   }
 
-  public LexicalScope defineLexicalVariables(List<LocatedSymbol> variableList) {
+  @NotNull
+  public LexicalScope defineLexicalVariables(Collection<SymbolBinding> bindings) {
     Map<Symbol, SymbolBinding> newDictionary = new HashMap<>();
-    for (LocatedSymbol variable : variableList) {
-      newDictionary.put(variable.symbol, newDefinition(Type.VARIABLE, LEXICAL, variable));
+    for (SymbolBinding binding : bindings) {
+      newDictionary.put(binding.symbol, binding);
     }
     variables.push(newDictionary);
     return this::dropLexicalVariables;
@@ -36,7 +38,7 @@ public class LexicalBindingManager {
   public LexicalScope defineLexicalFunctions(List<LocatedSymbol> functionList) {
     Map<Symbol, SymbolBinding> newDictionary = new HashMap<>();
     for (LocatedSymbol function : functionList) {
-      newDictionary.put(function.symbol, newDefinition(Type.FUNCTION, LEXICAL, function));
+      newDictionary.put(function.symbol, newDefinition(Type.FUNCTION, LEXICAL, function, ""));
     }
     functions.push(newDictionary);
     return this::dropLexicalFunctions;

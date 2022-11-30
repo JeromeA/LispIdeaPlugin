@@ -25,7 +25,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
     Struct struct = createStruct(context, list.get(1));
     if (struct == null) return;
     Symbol symbol = context.packageManager.getSymbol("make-" + struct.name);
-    context.result.addFunctionDefinition(symbol, struct.symbolToken);
+    context.result.addFunctionDefinition(symbol, struct.symbolToken, "");
 
     // Skip documentation.
     int arg = 2;
@@ -63,7 +63,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
     LispSymbol simpleSymbol = slot.getSymbol();
     if (simpleSymbol != null) {
       Symbol functionSymbol = context.packageManager.getSymbol(struct.name + "-" + simpleSymbol.getText());
-      context.result.addFunctionDefinition(functionSymbol, simpleSymbol);
+      context.result.addFunctionDefinition(functionSymbol, simpleSymbol, "");
       context.highlighter.highlight(simpleSymbol, FUNCTION_DECLARATION);
       return;
     }
@@ -71,7 +71,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
     if (list != null && list.getSexpList().size() >= 1 && list.getSexpList().get(0).getSymbol() != null) {
       LispSymbol symbol = list.getSexpList().get(0).getSymbol();
       Symbol functionSymbol = context.packageManager.getSymbol(struct.name + "-" + symbol.getText());
-      context.result.addFunctionDefinition(functionSymbol, symbol);
+      context.result.addFunctionDefinition(functionSymbol, symbol, "");
       context.highlighter.highlight(symbol, FUNCTION_DECLARATION);
       // TODO: analyze slot options.
       return;
