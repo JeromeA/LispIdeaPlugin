@@ -69,7 +69,7 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       case "DOCUMENTATION":
         analyzeOptionDocumentation(context, definition, optionList);
         break;
-      case "NICKNAME":
+      case "NICKNAMES":
       case "SHADOW":
       case "SHADOWING-IMPORT-FROM":
       case "INTERN":
