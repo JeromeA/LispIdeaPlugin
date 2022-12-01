@@ -68,6 +68,13 @@ findSymbol():
 
 intern() calls findSymbol(), and create the symbol if nothing is found.
 
+## Unknown package
+
+When finding a symbol from an unknown package, we should:
+* Return a null Symbol, and the caller should mark it as invalid.
+* Create a default package and proceed. Anyway, it will be marked later as undefined. No need to add the burden of
+checking for null in every single symbol management. I am going for this solution for now. 
+
 ## Usage highlighting
 
 Usage highlighting relies on many assumptions that a plugin can easily break. I broke it multiple times already,

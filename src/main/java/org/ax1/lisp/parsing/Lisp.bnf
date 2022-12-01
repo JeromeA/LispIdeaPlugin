@@ -24,7 +24,7 @@
 
 lispFile ::= topLevelUnit_*
 private topLevelUnit_ ::= syntaxUnit_ | invalidClose
-private syntaxUnit_ ::= COMMENT | sexp
+private syntaxUnit_ ::= COMMENT | SHARP_SIGN_PLUS_KEYWORD_PACAKGE | sexp
 sexp ::= STRING | NUMBER | CHARACTER | symbol | list | quoted
 list ::= (LPAREN syntaxUnit_* RPAREN?)
 symbol ::= SYMBOL_TOKEN
