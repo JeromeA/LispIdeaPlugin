@@ -36,11 +36,11 @@ public class SyntaxAnalyzer {
       clSymbol("LAMBDA"), ANALYZE_LAMBDA,
       clSymbol("LET"), new AnalyzeLet(),
       clSymbol("LET*"), new AnalyzeLetStar(),
-      clSymbol("LOOP"), new AnalyzeLoop());
+      clSymbol("LOOP"), new AnalyzeLoop(),
+      clSymbol("WITH-OUTPUT-TO-STRING"), new AnalyzeWithOutputToString());
 
   private AnalysisContext context;
   private final LispFile lispFile;
-  public final Set<PackageDefinition> scannedPackages = new HashSet<>();
   public List<String> completions = new ArrayList<>();
 
   public SyntaxAnalyzer(LispFile lispFile) {
