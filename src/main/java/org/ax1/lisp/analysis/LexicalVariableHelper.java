@@ -18,7 +18,7 @@ public class LexicalVariableHelper {
   @NotNull
   public static String getDescription(String formName, Symbol symbol, String initialValue) {
     StringBuilder sb = new StringBuilder();
-    sb.append(DEFINITION_ELEMENT.addText(symbol.getName()));
+    sb.append(DEFINITION_ELEMENT.addText("Variable " + symbol.getName()));
     sb.append(SECTIONS_START);
     sb.append(SECTION_HEADER_CELL.addText("Binding site:"));
     sb.append(SECTION_CONTENT_CELL.addText(formName));
