@@ -36,7 +36,7 @@ public class AnalyzeDefvar implements FormAnalyzer {
       return;
     }
     if (sexpList.size() >= 3) context.analyzer.analyzeForm(sexpList.get(2));
-    if (sexpList.size() >= 4) context.highlighter.highlightError(sexpList.get(4), "Too many arguments for " + type.name());
+    if (sexpList.size() > 4) context.highlighter.highlightError(sexpList.get(4), "Too many arguments for " + type.name());
     context.addVariableDefinition(symbol, getDescription(sexpList, symbol));
   }
 
