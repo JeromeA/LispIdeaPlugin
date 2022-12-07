@@ -9,7 +9,7 @@ import java.util.Collection;
 
 import static org.ax1.lisp.analysis.LispAnnotator.EMPTY_HIGHLIGHTER;
 
-public class FilePackageAnalyzer implements CachedValueProvider<Collection<PackageDefinition>> {
+public class FilePackageAnalyzer implements CachedValueProvider<Bindings> {
 
   private final LispFile lispFile;
 
@@ -18,9 +18,9 @@ public class FilePackageAnalyzer implements CachedValueProvider<Collection<Packa
   }
 
   @Override
-  public @Nullable Result<Collection<PackageDefinition>> compute() {
+  public @Nullable Result<Bindings> compute() {
     PackageAnalyzer packageAnalyzer = new PackageAnalyzer(lispFile, EMPTY_HIGHLIGHTER);
     packageAnalyzer.analyzePackages();
-    return new Result<>(packageAnalyzer.context.result.packages, lispFile);
+    return new Result<>(packageAnalyzer.context.result, lispFile);
   }
 }

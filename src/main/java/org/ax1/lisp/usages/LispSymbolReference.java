@@ -13,7 +13,7 @@ public class LispSymbolReference extends PsiReferenceBase<LispSymbol> {
 
   private final PsiElement definition;
 
-  public LispSymbolReference(@NotNull LispSymbol symbol, @NotNull PsiElement definition) {
+  public LispSymbolReference(@NotNull LispSymbol symbol, PsiElement definition) {
     super(symbol);
     this.definition = definition;
   }

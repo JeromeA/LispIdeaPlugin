@@ -20,7 +20,7 @@ class FileAnalysisProvider implements CachedValueProvider<Bindings> {
   @Override
   public @Nullable Result<Bindings> compute() {
     SyntaxAnalyzer analyzer = new SyntaxAnalyzer(lispFile);
-    AnalysisContext context = new AnalysisContext(EMPTY_HIGHLIGHTER, new PackageManager(projectComputedData.getPackages()), analyzer);
+    AnalysisContext context = new AnalysisContext(EMPTY_HIGHLIGHTER, new PackageManager(projectComputedData.getPackageDefinitions()), analyzer);
     analyzer.setContext(context);
     analyzer.analyze();
     if (!context.lexicalBindings.isEmpty()) throw new RuntimeException("Unbalanced lexical stack.");

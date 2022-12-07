@@ -46,9 +46,7 @@ public class LispFindUsagesProvider implements FindUsagesProvider {
 
   @Override
   public @Nls @NotNull String getNodeText(@NotNull PsiElement element, boolean useFullName) {
-    LispSymbol lispSymbol = (LispSymbol) element;
-    // TODO: return the package name when useFullName is true;
-    return lispSymbol.getText();
+    return element.getText();
   }
 
   @Override

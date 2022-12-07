@@ -25,11 +25,11 @@ public final class ProjectComputedData {
     cacheManager = CachedValuesManager.getManager(this.project);
   }
 
-  public Collection<PackageDefinition> getPackages() {
-    return getCachedValue(project, new ProjectPackageAnalyzer(project));
+  public Collection<PackageDefinition> getPackageDefinitions() {
+    return getCachedValue(project, new PackageBindingProvider(project));
   }
 
-  public Collection<PackageDefinition> getPackages(LispFile lispFile) {
+  public Bindings getPackageBindings(LispFile lispFile) {
     return getCachedValue(lispFile, new FilePackageAnalyzer(lispFile));
   }
 

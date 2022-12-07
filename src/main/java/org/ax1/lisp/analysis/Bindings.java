@@ -51,4 +51,8 @@ public class Bindings {
   public void addLexicalBindings(Collection<SymbolBinding> nindings) {
     definitions.addAll(nindings);
   }
+
+  public void addPackages(List<PackageDefinition> packagesToAdd) {
+    packages.addAll(packagesToAdd);
+  }
 }

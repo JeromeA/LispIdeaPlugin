@@ -10,8 +10,11 @@ import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.PsiModificationTracker;
 import org.ax1.lisp.LispFileType;
 import org.ax1.lisp.analysis.symbol.CommonLispPackage;
+import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.psi.LispFile;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
@@ -29,15 +32,19 @@ class ProjectAnalysisProvider implements CachedValueProvider<ProjectDefinitions>
 
   @Override
   public @Nullable Result<ProjectDefinitions> compute() {
-    ImmutableList<Bindings> results = Streams.concat(
+    ImmutableList<Bindings> bindings = Streams.concat(
             getFileDefinitions().stream(),
             getDependencyDefinitions().stream())
         .collect(toImmutableList());
-    return new Result<>(new ProjectDefinitions(results), PsiModificationTracker.MODIFICATION_COUNT);
+    return new Result<>(new ProjectDefinitions(bindings, getPackageDefinitions()), PsiModificationTracker.MODIFICATION_COUNT);
   }
 
   private ImmutableList<Bindings> getDependencyDefinitions() {
     return ImmutableList.of(CommonLispPackage.INSTANCE.bindings);
+  }
+
+  private Collection<PackageDefinition> getPackageDefinitions() {
+    return projectComputedData.getPackageDefinitions();
   }
 
   private ImmutableList<Bindings> getFileDefinitions() {

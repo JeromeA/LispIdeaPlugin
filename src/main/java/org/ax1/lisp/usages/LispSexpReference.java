@@ -15,7 +15,7 @@ public class LispSexpReference extends PsiReferenceBase<LispSexp> {
 
   private final PsiElement definition;
 
-  public LispSexpReference(@NotNull LispSexp sexp, @NotNull PsiElement definition) {
+  public LispSexpReference(@NotNull LispSexp sexp, PsiElement definition) {
     super(sexp);
     this.definition = definition;
   }

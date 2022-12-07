@@ -83,12 +83,17 @@ and I pledge to write down the reasons whenever it happens again.
 For the feature to work, the symbols have to provide a reference, and this reference must resolve to the
 definition.
 
-Quick summary:
+Summary:
+* Look up for any declaration or reference at the cursor position.
+  * A declaration can be provided by:
+    * A PsiSymbolDeclarationProvider
+    * PsiElement.getOwnDeclarations() coupled with PsiElement.getOwnReferences().
+    * NamedElement at cursor (even though it's not necessarily a declaration).
+  * A reference is found by calling getReference on the element at the cursor position.
+  * If we found both a declaration and a reference, we only keep the reference.
+* Check if LispFindUsagesHandlerFactory can find usages for this PsiElement.
+* Call LispFindUsagesHandler.findReferencesToHighlight().
 
-* The starting point is IdentifierHighlighterPass.highlightReferencesAndDeclarations().
-* which calls getTargetSymbols(), which returns the symbol at the caret.
-* and then calls highlightTargetUsages.
-* which calls getUsageRanges
-* which get a PsiTarget, and calls getPsiUsageRanges
-* which collect references in refs.
+## Find usages
 
+Find usages is completely unrelated to usage highlighting. It is based on LispFindUsagesProvider.

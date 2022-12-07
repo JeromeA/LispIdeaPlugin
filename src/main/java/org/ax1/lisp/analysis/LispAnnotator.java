@@ -21,7 +21,7 @@ public class LispAnnotator implements Annotator {
 
     Highlighter highlighter = new Highlighter(lispFile, holder);
     SyntaxAnalyzer analyzer = new SyntaxAnalyzer(lispFile);
-    AnalysisContext context = new AnalysisContext(highlighter, new PackageManager(projectComputedData.getPackages()), analyzer);
+    AnalysisContext context = new AnalysisContext(highlighter, new PackageManager(projectComputedData.getPackageDefinitions()), analyzer);
     analyzer.setContext(context);
     analyzer.analyze();
 

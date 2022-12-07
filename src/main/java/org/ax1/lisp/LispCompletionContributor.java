@@ -27,7 +27,7 @@ public class LispCompletionContributor extends CompletionContributor {
         ProjectComputedData projectComputedData = ProjectComputedData.getInstance(project);
         LispFile lispFile = (LispFile) symbolToken.getContainingFile();
         SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lispFile);
-        AnalysisContext analysisContext = new AnalysisContext(EMPTY_HIGHLIGHTER, new PackageManager(projectComputedData.getPackages()), syntaxAnalyzer);
+        AnalysisContext analysisContext = new AnalysisContext(EMPTY_HIGHLIGHTER, new PackageManager(projectComputedData.getPackageDefinitions()), syntaxAnalyzer);
         syntaxAnalyzer.setContext(analysisContext);
         syntaxAnalyzer.analyze();
         syntaxAnalyzer.completions.stream()
