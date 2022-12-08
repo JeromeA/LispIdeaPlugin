@@ -33,7 +33,7 @@ public final class ProjectComputedData {
     return getCachedValue(lispFile, new FilePackageAnalyzer(lispFile));
   }
 
-  public ProjectDefinitions getProjectAnalysis() {
+  public synchronized ProjectDefinitions getProjectAnalysis() {
     return getCachedValue(project, new ProjectAnalysisProvider(project));
   }
 
