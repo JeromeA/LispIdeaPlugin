@@ -60,7 +60,7 @@ public final class PackageManager {
   public Symbol getSymbol(String name) {
     name = name.toUpperCase();
     if (name.startsWith("#:")) {
-      return new Symbol("", name);
+      return new Symbol("", name.substring(2));
     }
     if (name.startsWith(":")) {
       return KeywordPackage.INSTANCE.intern(name.substring(1));
