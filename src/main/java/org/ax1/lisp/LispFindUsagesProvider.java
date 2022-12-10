@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.TokenSet;
 import org.ax1.lisp.analysis.Strings;
 import org.ax1.lisp.analysis.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.parsing.LispLexerAdapter;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -66,11 +67,13 @@ public class LispFindUsagesProvider implements FindUsagesProvider {
       if (symbolDefinition != null) {
         return symbolDefinition.getName();
       }
-      return symbol.getText();
     }
     if (element instanceof LispSexp) {
       LispSexp sexp = (LispSexp) element;
-      return Strings.getString(sexp);
+      PackageDefinition packageDefinition = sexp.getPackageDefinition();
+      if (packageDefinition != null) {
+        return packageDefinition.getName();
+      }
     }
     return element.getText();
   }

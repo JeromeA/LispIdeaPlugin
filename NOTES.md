@@ -86,15 +86,22 @@ For the feature to work, the symbols have to provide a reference, and this refer
 definition.
 
 Summary:
-* Look up for any declaration or reference at the cursor position.
+* IdentifierHighlighterPass.highlightReferencesAndDeclarations looks up for any declaration or reference at the cursor 
+position, by calling getTargetSymbols().
   * A declaration can be provided by:
     * A PsiSymbolDeclarationProvider
     * PsiElement.getOwnDeclarations() coupled with PsiElement.getOwnReferences().
     * NamedElement at cursor (even though it's not necessarily a declaration).
   * A reference is found by calling getReference on the element at the cursor position.
   * If we found both a declaration and a reference, we only keep the reference.
+  * Finally getTargetSymbols() resolves the reference and returns the definition.
 * Check if LispFindUsagesHandlerFactory can find usages for this PsiElement.
 * Call LispFindUsagesHandler.findReferencesToHighlight().
+* Finally, the definition is added to the list to highlight:
+  * If it's a PsiNameIdentifierOwner, call getNameIdentifier().
+  * Otherwise, see if a token is exactly the text of the symbol. This is the reason we are implementing
+PsiNameIdentifierOwner, not only for packages (the string token includes quotes and escape characters) but also
+for symbols (the token may contain the package name).
 
 ## Find usages
 
@@ -102,18 +109,8 @@ Find usages is completely unrelated to usage highlighting. It is based on LispFi
 
 Summary:
 * SearchForUsagesRunnable.searchUsages()
-* PsiSearchHelperImpl.processRequests (called)
-* PsiSearchHelperImpl.processCandidates (not called)
 * call LowLevelSearchUtil.processElementsAtOffsets
-* which calls processTreeUp to go through the token and all the parents
+* which calls processTreeUp to go through the token and its parents all the way to the File.
 * they are checked one after another by calling SingleTargetRequestResultProcessor.processTextOccurrence.
 * which looks up for any reference for that PsiElement
 * if the reference resolves to the target, it's a hit
-
-But for a package, processTextOccurence is never called. Probably the string that is searched is not in the index.
-
-The thread in charge of doing the job is running a SearchForUsagesRunnable, whose mySearchFor is the UsageTarget.
-
-* Why is it working for a symbol, but not for a package?
-* What are getType(), getDescriptiveName() and getText() for? The Strings they restur doesn't seem to appear in the
-  find usage results, like the comment suggest.

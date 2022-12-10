@@ -62,6 +62,11 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
+  public @Nullable PsiElement getNameIdentifier() {
+    return this;
+  }
+
+  @Override
   public boolean isFunctionCall() {
     SymbolBinding symbolBinding = getSymbolDefinition();
     return symbolBinding != null && symbolBinding.type == FUNCTION && symbolBinding.usages.contains(this);

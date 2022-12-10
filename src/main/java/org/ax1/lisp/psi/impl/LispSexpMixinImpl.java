@@ -11,6 +11,7 @@ import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 import org.ax1.lisp.usages.LispSexpReference;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements LispSexp {
 
@@ -47,5 +48,10 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
       return packageDefinition.getName();
     }
     return super.getName();
+  }
+
+  @Override
+  public @Nullable PsiElement getNameIdentifier() {
+    return this;
   }
 }
