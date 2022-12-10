@@ -38,6 +38,7 @@ public class SyntaxAnalyzer {
       clSymbol("LET*"), new AnalyzeLetStar(),
       clSymbol("LOOP"), new AnalyzeLoop(),
       clSymbol("MULTIPLE-VALUE-BIND"), new AnalyzeMultipleValueBind(),
+      clSymbol("WITH-OPEN-FILE"), new AnalyzeWithOpenFile(),
       clSymbol("WITH-OUTPUT-TO-STRING"), new AnalyzeWithOutputToString());
 
   private AnalysisContext context;

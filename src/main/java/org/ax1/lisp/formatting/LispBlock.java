@@ -41,7 +41,8 @@ public class LispBlock extends AbstractBlock {
    *         (var2 (init2)))
    *     (do-some-code))
    */
-  private static final Set<String> ALIGNMENT2 = Set.of("dolist", "if", "let", "let*", "unless", "when");
+  private static final Set<String> ALIGNMENT2 =
+      Set.of("dolist", "if", "let", "let*", "unless", "when", "with-open-file");
   private static final Set<String> ALIGNMENT3 = Set.of("defun", "destructuring-bind", "multiple-value-bind");
   private static final Set<String> FIRST_ARG_IS_ALIGNMENT0 = Set.of("let", "let*");
 
