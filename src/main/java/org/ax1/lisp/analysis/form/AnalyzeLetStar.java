@@ -45,18 +45,20 @@ public class AnalyzeLetStar implements FormAnalyzer {
       }
       if (symbol == null) {
         List<LispSexp> varWithInitList = varWithInit.getSexpList();
-        if (varWithInitList.size() != 2) {
+        if (varWithInitList.size() > 2) {
           context.highlighter.highlightError(varWithInit, "Variable binding expected");
           return;
         }
         symbol = varWithInitList.get(0).getSymbol();
-        LispSexp init = varWithInitList.get(1);
         if (symbol == null) {
           context.highlighter.highlightError(varWithInitList.get(0), "Expected variable name");
           return;
         }
-        context.analyzer.analyzeForm(init);
-        initialValue = init.getText();
+        if (varWithInitList.size() == 2) {
+          LispSexp init = varWithInitList.get(1);
+          context.analyzer.analyzeForm(init);
+          initialValue = init.getText();
+        }
       }
       LocatedSymbol locatedSymbol = context.packageManager.getLocatedSymbol(symbol);
       SymbolBinding variable = newLexicalVariable("LET*", locatedSymbol, initialValue);
