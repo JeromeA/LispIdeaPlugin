@@ -27,10 +27,6 @@ public class Symbol {
     return name;
   }
 
-  public String getPackageName() {
-    return packageName;
-  }
-
   @Override
   public int hashCode() {
     return packageName.hashCode() ^ name.hashCode();
@@ -45,10 +41,14 @@ public class Symbol {
 
   @Override
   public String toString() {
-    return packageName + ":" + name;
+    return getQualifiedName();
   }
 
   public boolean isConstant() {
     return packageName.equals(KEYWORD) || Objects.equals(this, NIL) || Objects.equals(this, T);
+  }
+
+  public String getQualifiedName() {
+    return packageName + ":" + name;
   }
 }

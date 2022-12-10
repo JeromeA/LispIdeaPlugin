@@ -3,7 +3,6 @@ package org.ax1.lisp.psi.impl;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
@@ -20,7 +19,7 @@ import static org.ax1.lisp.analysis.SymbolBinding.Scope.LEXICAL;
 import static org.ax1.lisp.analysis.SymbolBinding.Type.FUNCTION;
 import static org.ax1.lisp.analysis.SymbolBinding.Type.VARIABLE;
 
-public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implements PsiNameIdentifierOwner, LispSymbol {
+public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implements LispSymbol {
 
   public LispSymbolMixinImpl(@NotNull ASTNode node) {
     super(node);
@@ -38,6 +37,10 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
 
   @Override
   public String getName() {
+    SymbolBinding symbolBinding = getSymbolDefinition();
+    if (symbolBinding != null) {
+      return symbolBinding.symbol.getName();
+    }
     return getText();
   }
 
@@ -50,9 +53,10 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
-  public @Nullable PsiElement getNameIdentifier() {
-    if (isVariableDefinition() || isFunctionDefinition()) {
-      return this;
+  public @Nullable String getQualifiedName() {
+    SymbolBinding symbolBinding = getSymbolDefinition();
+    if (symbolBinding != null) {
+      return symbolBinding.symbol.getQualifiedName();
     }
     return null;
   }

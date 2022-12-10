@@ -39,7 +39,7 @@ public class SymbolBinding {
   }
 
   public static SymbolBinding newMethod(Symbol symbol, LispSymbol definition, String description) {
-    SymbolBinding symbolBinding = new SymbolBinding(Type.METHOD, Scope.DYNAMIC, symbol, description);
+    SymbolBinding symbolBinding = new SymbolBinding(Type.FUNCTION, Scope.DYNAMIC, symbol, description);
     symbolBinding.methods.add(definition);
     return symbolBinding;
   }
@@ -56,7 +56,6 @@ public class SymbolBinding {
 
   public enum Type {
     FUNCTION,
-    METHOD,
     VARIABLE
   }
 

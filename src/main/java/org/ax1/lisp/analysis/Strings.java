@@ -23,7 +23,9 @@ public class Strings {
   public static String getString(LispSexp sexp) {
     // TODO: do the real thing.
     ASTNode token = sexp.getFirstChild().getNode();
-    if (token.getElementType() != STRING) return null;
+    if (token.getElementType() != STRING) {
+      return null;
+    }
     String text = token.getText();
     return text.substring(1, text.length() - 1);
   }

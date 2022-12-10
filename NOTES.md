@@ -70,10 +70,12 @@ intern() calls findSymbol(), and create the symbol if nothing is found.
 
 ## Unknown package
 
-When finding a symbol from an unknown package, we should:
+When finding a symbol from an unknown package, we could either:
 * Return a null Symbol, and the caller should mark it as invalid.
 * Create a default package and proceed. Anyway, it will be marked later as undefined. No need to add the burden of
-checking for null in every single symbol management. I am going for this solution for now. 
+checking for null in every single symbol management.
+
+I am going for the second solution for now. 
 
 ## Usage highlighting
 
@@ -97,3 +99,21 @@ Summary:
 ## Find usages
 
 Find usages is completely unrelated to usage highlighting. It is based on LispFindUsagesProvider.
+
+Summary:
+* SearchForUsagesRunnable.searchUsages()
+* PsiSearchHelperImpl.processRequests (called)
+* PsiSearchHelperImpl.processCandidates (not called)
+* call LowLevelSearchUtil.processElementsAtOffsets
+* which calls processTreeUp to go through the token and all the parents
+* they are checked one after another by calling SingleTargetRequestResultProcessor.processTextOccurrence.
+* which looks up for any reference for that PsiElement
+* if the reference resolves to the target, it's a hit
+
+But for a package, processTextOccurence is never called. Probably the string that is searched is not in the index.
+
+The thread in charge of doing the job is running a SearchForUsagesRunnable, whose mySearchFor is the UsageTarget.
+
+* Why is it working for a symbol, but not for a package?
+* What are getType(), getDescriptiveName() and getText() for? The Strings they restur doesn't seem to appear in the
+  find usage results, like the comment suggest.
