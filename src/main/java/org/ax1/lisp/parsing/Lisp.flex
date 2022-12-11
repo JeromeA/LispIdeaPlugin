@@ -47,6 +47,7 @@ symbol = [^\ \r\n\t\"'`,;()] [^\ \r\n\t\"';()]*
 
 <STRING> {
   {double_quote}                 { yybegin(YYINITIAL); return LispTypes.STRING; }
-  ([^\"] | "\\\"")+              { }
+  [^\"\\]+                       { }
+  \\.                            { }
   <<EOF>>                        { yybegin(YYINITIAL); return LispTypes.STRING; }
 }
