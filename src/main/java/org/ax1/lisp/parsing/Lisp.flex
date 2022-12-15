@@ -19,14 +19,14 @@ import com.intellij.psi.TokenType;
 lparen = "("
 rparen = ")"
 eol = \r | \n | \r\n
-white_space = [\ \r\n\t]
+white_space = [\ \r\n\t\f]
 comment = ; [^\r\n]* {eol}?
-sharp_sign_plus_keyword_package = "#" [+-] ":"? [^\ \r\n\t\"'`,;()] [^\ \r\n\t\"';()]*
+sharp_sign_plus_keyword_package = "#" [+-] ":"? [^\ \r\n\t\f\"'`,;()] [^\ \r\n\t\f\"';()]*
 number = -? [0-9]+ ("." [0-9]*)? | "#x" [0-9a-fA-F]+
-character = "#\\" [^\ \r\n\t][a-zA-Z]*
+character = "#\\" [^\ \r\n\t\f][a-zA-Z]*
 quote = ['`] | "," "@"? | "#'"
 double_quote = \"
-symbol = [^\ \r\n\t\"'`,;()] [^\ \r\n\t\"';()]*
+symbol = [^\ \r\n\t\f\"'`,;()] [^\ \r\n\t\f\"';()]*
 
 %state STRING
 
