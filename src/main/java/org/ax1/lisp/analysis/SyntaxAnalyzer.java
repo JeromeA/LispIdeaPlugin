@@ -22,6 +22,7 @@ public class SyntaxAnalyzer {
       clSymbol("DEFCLASS"), new AnalyzeDefclass(),
       clSymbol("DEFCONSTANT"), new AnalyzeDefvar(AnalyzeDefvar.Type.DEFCONSTANT),
       clSymbol("DEFGENERIC"), new AnalyzeDefgeneric(),
+      clSymbol("DEFINE-CONDITION"), new AnalyzeDefineCondition(),
       clSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO),
       clSymbol("DEFMETHOD"), new AnalyzeDefmethod(),
       clSymbol("DEFPACKAGE"), new AnalyzeDefpackage(),
