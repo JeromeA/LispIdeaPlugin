@@ -34,6 +34,7 @@ public class SyntaxAnalyzer {
       clSymbol("DOLIST"), new AnalyzeDolist(),
       clSymbol("DOTIMES"), new AnalyzeDoTimes(),
       clSymbol("ECASE"), new AnalyzeEcase(),
+      clSymbol("EVAL-WHEN"), new AnalyzeEvalWhen(),
       clSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind(),
       clSymbol("IN-PACKAGE"), new AnalyzeInPackage(),
       clSymbol("LABELS"), new AnalyzeLabels(),

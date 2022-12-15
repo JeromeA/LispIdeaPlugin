@@ -28,7 +28,6 @@ public class AnalyzeLoop implements FormAnalyzer {
 
   private static final Set<String> FOR_SUBCLAUSE_KEYWORDS = Set.of("=", "across", "below", "from", "in", "on", "to");
 
-
   @Override
   public void analyze(AnalysisContext context, LispList form) {
     context.highlighter.highlightKeyword(form.getSexpList().get(0));
