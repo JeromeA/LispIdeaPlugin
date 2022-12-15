@@ -29,6 +29,7 @@ public class SyntaxAnalyzer {
       clSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN),
       clSymbol("DEFVAR"), new AnalyzeDefvar(AnalyzeDefvar.Type.DEFVAR),
       clSymbol("DOLIST"), new AnalyzeDolist(),
+      clSymbol("DOTIMES"), new AnalyzeDoTimes(),
       clSymbol("ECASE"), new AnalyzeEcase(),
       clSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind(),
       clSymbol("IN-PACKAGE"), new AnalyzeInPackage(),
