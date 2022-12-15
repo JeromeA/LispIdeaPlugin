@@ -18,6 +18,7 @@ public class SyntaxAnalyzer {
   private static final AnalyzeLambda ANALYZE_LAMBDA = new AnalyzeLambda();
 
   private static final Map<Symbol, FormAnalyzer> ANALYSERS = Maps.of(
+      clSymbol("CASE"), new AnalyzeCase(),
       clSymbol("COND"), new AnalyzeCond(),
       clSymbol("DEFCLASS"), new AnalyzeDefclass(),
       clSymbol("DEFCONSTANT"), new AnalyzeDefvar(AnalyzeDefvar.Type.DEFCONSTANT),
