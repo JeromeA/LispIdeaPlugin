@@ -14,12 +14,12 @@ public class AnalyzeCond implements FormAnalyzer {
     context.highlighter.highlightKeyword(form);
     List<LispSexp> sexpList = form.getSexpList();
     for (LispSexp sexp : sexpList.stream().skip(1).collect(Collectors.toList())) {
-      LispList pair = sexp.getList();
-      if (pair == null || pair.getSexpList().size() < 2) {
+      LispList condCase = sexp.getList();
+      if (condCase == null || condCase.getSexpList().isEmpty()) {
         context.highlighter.highlightError(sexp, "(test form*) expected");
         continue;
       }
-      context.analyzer.analyzeForms(pair.getSexpList(), 0);
+      context.analyzer.analyzeForms(condCase.getSexpList(), 0);
     }
   }
 }
