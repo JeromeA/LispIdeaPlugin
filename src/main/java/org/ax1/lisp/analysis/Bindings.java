@@ -40,6 +40,10 @@ public class Bindings {
     definitions.add(newDefinition(Type.VARIABLE, Scope.DYNAMIC, variableName, location, description));
   }
 
+  public void addVariableDefinition(Symbol variableName, String description) {
+    definitions.add(newDefinition(Type.VARIABLE, Scope.DYNAMIC, variableName, description));
+  }
+
   public void addFunctionUsage(Symbol functionName, LispSymbol location) {
     definitions.add(newUsage(Type.FUNCTION, Scope.DYNAMIC, functionName, location));
   }

@@ -1025,7 +1025,7 @@ public class CommonLispPackage extends LispPackage {
   private void addVariable(String name) {
     getDefinition().addExport(name);
     Symbol symbol = intern(name);
-    bindings.addFunctionDefinition(symbol, "Standard variable.");
+    bindings.addVariableDefinition(symbol, "Standard variable.");
   }
 
   private void addKeyword(String name) {
