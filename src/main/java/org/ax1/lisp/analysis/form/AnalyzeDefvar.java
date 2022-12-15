@@ -22,12 +22,8 @@ public class AnalyzeDefvar implements FormAnalyzer {
   public void analyze(AnalysisContext context, LispList form) {
     context.highlighter.highlightKeyword(form);
     List<LispSexp> sexpList = form.getSexpList();
-    if (type == Type.DEFVAR && sexpList.size() < 2) {
-      context.highlighter.highlightError(form, "DEFVAR takes at least one argument");
-      return;
-    }
-    if (type == Type.DEFPARAMETER && sexpList.size() < 3) {
-      context.highlighter.highlightError(form, "DEFPARAMETER takes at least one argument");
+    if (sexpList.size() < type.getMinArg() + 1) {
+      context.highlighter.highlightError(form, type.name() + " takes at least 1 argument");
       return;
     }
     LispSymbol symbol = sexpList.get(1).getSymbol();
@@ -36,7 +32,6 @@ public class AnalyzeDefvar implements FormAnalyzer {
       return;
     }
     if (sexpList.size() >= 3) context.analyzer.analyzeForm(sexpList.get(2));
-    if (sexpList.size() > 4) context.highlighter.highlightError(sexpList.get(4), "Too many arguments for " + type.name());
     context.addVariableDefinition(symbol, getDescription(sexpList, symbol));
   }
 
@@ -59,7 +54,18 @@ public class AnalyzeDefvar implements FormAnalyzer {
   }
 
   public enum Type {
-    DEFVAR,
-    DEFPARAMETER
+    DEFCONSTANT(2),
+    DEFPARAMETER(2),
+    DEFVAR(1);
+
+    final int minArg;
+
+    Type(int minArg) {
+      this.minArg = minArg;
+    }
+
+    public int getMinArg() {
+      return minArg;
+    }
   }
 }

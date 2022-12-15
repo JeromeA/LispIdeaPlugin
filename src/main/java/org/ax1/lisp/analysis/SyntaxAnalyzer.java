@@ -20,6 +20,7 @@ public class SyntaxAnalyzer {
   private static final Map<Symbol, FormAnalyzer> ANALYSERS = Maps.of(
       clSymbol("COND"), new AnalyzeCond(),
       clSymbol("DEFCLASS"), new AnalyzeDefclass(),
+      clSymbol("DEFCONSTANT"), new AnalyzeDefvar(AnalyzeDefvar.Type.DEFCONSTANT),
       clSymbol("DEFGENERIC"), new AnalyzeDefgeneric(),
       clSymbol("DEFMACRO"), new AnalyzeDefun(AnalyzeDefun.Type.DEFMACRO),
       clSymbol("DEFMETHOD"), new AnalyzeDefmethod(),
