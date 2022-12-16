@@ -1,11 +1,12 @@
 package org.ax1.lisp.analysis;
 
 import org.ax1.lisp.analysis.symbol.Symbol;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.lang.documentation.DocumentationMarkup.*;
-import static org.ax1.lisp.analysis.SymbolBinding.Scope.LEXICAL;
-import static org.ax1.lisp.analysis.SymbolBinding.newDefinition;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.Scope.LEXICAL;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.newDefinition;
 
 public class LexicalVariableHelper {
 

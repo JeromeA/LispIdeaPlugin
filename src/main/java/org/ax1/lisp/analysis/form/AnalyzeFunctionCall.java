@@ -3,6 +3,7 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
+import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.Set;
@@ -23,16 +24,16 @@ public class AnalyzeFunctionCall implements FormAnalyzer {
   @Override
   public void analyze(AnalysisContext context, LispList form) {
     context.highlighter.highlightKeyword(form);
-    LispSymbol parsedSymbol = form.getSexpList().get(0).getSymbol();
-    if (parsedSymbol == null) {
-      context.highlighter.highlightError(form.getSexpList().get(0), "Function name expected");
+    LispSexp functionName = form.getSexpList().get(0);
+    if (functionName.getSymbol() == null) {
+      context.highlighter.highlightError(functionName, "Function name expected");
       return;
     }
-    Symbol symbol = context.packageManager.getSymbol(parsedSymbol);
+    Symbol symbol = context.packageManager.getSymbol(functionName);
     if (KEYWORDS.contains(symbol)) {
-      context.highlighter.highlightKeyword(parsedSymbol);
+      context.highlighter.highlightKeyword(functionName);
     }
-    context.addFunctionUsage(parsedSymbol);
+    context.addFunctionUsage(functionName);
     context.analyzer.analyzeForms(form.getSexpList(), 1);
   }
 }

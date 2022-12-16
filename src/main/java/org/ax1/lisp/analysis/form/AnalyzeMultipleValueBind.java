@@ -3,7 +3,7 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalBindingManager;
 import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -39,12 +39,11 @@ public class AnalyzeMultipleValueBind implements FormAnalyzer {
     }
   }
 
-  private List<LispSymbol> getVariableSymbols(AnalysisContext context, @NotNull List<LispSexp> lambdaList) {
-    List<LispSymbol> result = new ArrayList<>();
+  private List<LispSexp> getVariableSymbols(AnalysisContext context, @NotNull List<LispSexp> lambdaList) {
+    List<LispSexp> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
-      LispSymbol symbolName = sexp.getSymbol();
-      if (symbolName != null) {
-        result.add(symbolName);
+      if (sexp.getSymbol() != null) {
+        result.add(sexp);
       } else {
         context.highlighter.highlightError(sexp, "Variable name expected");
       }

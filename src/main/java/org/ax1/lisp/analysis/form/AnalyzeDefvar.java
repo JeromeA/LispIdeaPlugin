@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import com.intellij.openapi.util.NlsSafe;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -26,19 +27,19 @@ public class AnalyzeDefvar implements FormAnalyzer {
       context.highlighter.highlightError(form, type.name() + " takes at least 1 argument");
       return;
     }
-    LispSymbol symbol = sexpList.get(1).getSymbol();
-    if (symbol == null) {
-      context.highlighter.highlightError(sexpList.get(1), "Variable name expected");
+    LispSexp varName = sexpList.get(1);
+    if (varName.getSymbol() == null) {
+      context.highlighter.highlightError(varName, "Variable name expected");
       return;
     }
     if (sexpList.size() >= 3) context.analyzer.analyzeForm(sexpList.get(2));
-    context.addVariableDefinition(symbol, getDescription(sexpList, symbol));
+    context.addVariableDefinition(varName, getDescription(sexpList, varName.getText()));
   }
 
   @NotNull
-  private String getDescription(List<LispSexp> sexpList, LispSymbol symbol) {
+  private String getDescription(List<LispSexp> sexpList, String name) {
     StringBuilder sb = new StringBuilder();
-    sb.append(DEFINITION_ELEMENT.addText("Variable " + symbol.getText()));
+    sb.append(DEFINITION_ELEMENT.addText("Variable " + name));
     sb.append(SECTIONS_START);
     sb.append(SECTION_HEADER_CELL.addText("Binding site:"));
     sb.append(SECTION_CONTENT_CELL.addText(type.name()));

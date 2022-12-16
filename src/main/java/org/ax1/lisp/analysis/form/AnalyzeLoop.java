@@ -3,8 +3,7 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
 import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.LocatedSymbol;
-import org.ax1.lisp.analysis.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -165,7 +164,7 @@ public class AnalyzeLoop implements FormAnalyzer {
     }
 
     SymbolBinding variable = LexicalVariableHelper.newLexicalVariable("LOOP",
-        context.packageManager.getLocatedSymbol(sexp1.getSymbol()), null);
+        context.packageManager.getLocatedSymbol(sexp1), null);
     try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(List.of(variable))) {
       variableClause(context, form, startAt);
     }
@@ -181,7 +180,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       return;
     }
     LispSexp sexp1 = list.get(startAt);
-    List<LispSymbol> variables = getVariables(context, sexp1);
+    List<LispSexp> variables = getVariables(context, sexp1);
     startAt++;
 
     while (true) {
@@ -206,14 +205,13 @@ public class AnalyzeLoop implements FormAnalyzer {
     }
   }
 
-  private List<LispSymbol> getVariables(AnalysisContext context, LispSexp sexp) {
-    LispSymbol symbol = sexp.getSymbol();
-    if (symbol != null) {
-      if (symbol.getText().equals("nil")) {
-        context.highlighter.highlightKeyword(symbol);
+  private List<LispSexp> getVariables(AnalysisContext context, LispSexp sexp) {
+    if (sexp.getSymbol() != null) {
+      if (sexp.getText().equals("nil")) {
+        context.highlighter.highlightKeyword(sexp);
         return List.of();
       }
-      return List.of(symbol);
+      return List.of(sexp);
     }
     LispList list = sexp.getList();
     if (list != null) {
@@ -407,8 +405,7 @@ public class AnalyzeLoop implements FormAnalyzer {
 
     if (list.size() <= startAt + consumed) return consumed;
     LispSexp arg2 = list.get(startAt + consumed);
-    LispSymbol symbol2 = arg2.getSymbol();
-    if (symbol2 != null && symbol2.getText().equals("into")) {
+    if (arg2.getSymbol() != null && arg2.getText().equals("into")) {
       context.highlighter.highlightKeyword(arg2);
       consumed++;
       if (list.size() <= startAt + consumed) {
@@ -416,15 +413,14 @@ public class AnalyzeLoop implements FormAnalyzer {
         return 0;
       }
       LispSexp arg3 = list.get(startAt + consumed);
-      LispSymbol symbol3 = arg3.getSymbol();
-      if (symbol3 == null) {
+      if (arg3.getSymbol() == null) {
         context.highlighter.highlightError(arg3, "Accumulation destination expected");
         return 0;
       }
       consumed++;
       // We don't support lexical bindings created by accumulations, because their scope is the whole loop.
       SymbolBinding variable = LexicalVariableHelper.newLexicalVariable("LOOP",
-          context.packageManager.getLocatedSymbol(symbol3), null);
+          context.packageManager.getLocatedSymbol(arg3), null);
       context.lexicalBindings.defineLexicalVariables(List.of(variable)).close();
     }
     return consumed;

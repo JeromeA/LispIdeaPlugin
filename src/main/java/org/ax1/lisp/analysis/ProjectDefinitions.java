@@ -3,15 +3,15 @@ package org.ax1.lisp.analysis;
 import com.google.common.collect.ImmutableList;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ax1.lisp.analysis.SymbolBinding.Scope.LEXICAL;
-import static org.ax1.lisp.analysis.SymbolBinding.Type.VARIABLE;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.Scope.LEXICAL;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.Type.VARIABLE;
 
 public class ProjectDefinitions {
 
@@ -19,7 +19,7 @@ public class ProjectDefinitions {
   private final Map<Symbol, SymbolBinding> variables = new HashMap<>();
   private final Map<String, PackageDefinition> packages = new HashMap<>();
   private final Map<String, String> packageNames = new HashMap<>();
-  private final Map<LispSymbol, SymbolBinding> definitionByReference = new HashMap<>();
+  private final Map<LispSexp, SymbolBinding> definitionByReference = new HashMap<>();
   private final Map<LispSexp, PackageDefinition> packageByReference = new HashMap<>();
 
   public ProjectDefinitions(ImmutableList<Bindings> results, Collection<PackageDefinition> packageDefinitions) {
@@ -48,7 +48,7 @@ public class ProjectDefinitions {
 
   private void addPackageReferences(PackageDefinition definition) {
     packageByReference.put(definition.getDefinition(), definition);
-    definition.usages.forEach(def -> packageByReference.put(def, definition));
+    definition.getUsages().forEach(def -> packageByReference.put(def, definition));
   }
 
   private void merge(PackageDefinition packageDefinition) {
@@ -57,7 +57,7 @@ public class ProjectDefinitions {
   }
 
   private PackageDefinition mergePackages(PackageDefinition def1, PackageDefinition def2) {
-    def1.usages.addAll(def2.usages);
+    def1.getUsages().addAll(def2.getUsages());
     // TODO: add asserts on various contents from def2.
     if (def2.getDefinition() != null && def1.getDefinition() != def2.getDefinition()) {
       System.err.println("Definitions can't be merged");
@@ -66,8 +66,8 @@ public class ProjectDefinitions {
   }
 
   private void addSymbolReferences(SymbolBinding definition) {
-    definition.definitions.forEach(def -> definitionByReference.put(def, definition));
-    definition.usages.forEach(def -> definitionByReference.put(def, definition));
+    definition.getDefinitions().forEach(def -> definitionByReference.put(def, definition));
+    definition.getUsages().forEach(def -> definitionByReference.put(def, definition));
     definition.methods.forEach(def -> definitionByReference.put(def, definition));
   }
 
@@ -76,9 +76,9 @@ public class ProjectDefinitions {
   }
 
   private static SymbolBinding mergeDefinitions(SymbolBinding def1, SymbolBinding def2) {
-    def1.definitions.addAll(def2.definitions);
+    def1.getDefinitions().addAll(def2.getDefinitions());
     def1.methods.addAll(def2.methods);
-    def1.usages.addAll(def2.usages);
+    def1.getUsages().addAll(def2.getUsages());
     if (def2.description != null) def1.description = def2.description;
     return def1;
   }
@@ -91,8 +91,8 @@ public class ProjectDefinitions {
     return variables.values();
   }
 
-  public SymbolBinding getDefinition(LispSymbol lispSymbol) {
-    return definitionByReference.get(lispSymbol);
+  public SymbolBinding getDefinition(LispSexp lispSexp) {
+    return definitionByReference.get(lispSexp);
   }
 
   public PackageDefinition getPackage(LispSexp lispSexp) {

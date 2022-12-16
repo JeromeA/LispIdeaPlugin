@@ -2,7 +2,7 @@ package org.ax1.lisp.refactoring;
 
 import com.intellij.lang.refactoring.RefactoringSupportProvider;
 import com.intellij.psi.PsiElement;
-import org.ax1.lisp.psi.LispSymbol;
+import org.ax1.lisp.psi.LispSexp;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,16 +19,16 @@ public class LispRefactoringSupportProvider extends RefactoringSupportProvider {
   }
 
   private boolean isDefinition(@NotNull PsiElement element) {
-    if (element instanceof LispSymbol) {
-      LispSymbol symbol = (LispSymbol) element;
+    if (element instanceof LispSexp) {
+      LispSexp symbol = (LispSexp) element;
       return symbol.isFunctionDefinition() || symbol.isVariableDefinition();
     }
     return false;
   }
 
   private boolean isLexicalDefinition(@NotNull PsiElement element) {
-    if (element instanceof LispSymbol) {
-      LispSymbol symbol = (LispSymbol) element;
+    if (element instanceof LispSexp) {
+      LispSexp symbol = (LispSexp) element;
       return symbol.isLexicalDefinition();
     }
     return false;

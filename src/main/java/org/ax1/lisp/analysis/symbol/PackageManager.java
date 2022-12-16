@@ -1,6 +1,7 @@
 package org.ax1.lisp.analysis.symbol;
 
 import org.ax1.lisp.analysis.LocatedSymbol;
+import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.*;
@@ -49,11 +50,15 @@ public final class PackageManager {
     }
   }
 
+  public Symbol getSymbol(LispSexp parsedSymbol) {
+    return getSymbol(parsedSymbol.getText());
+  }
+
   public Symbol getSymbol(LispSymbol parsedSymbol) {
     return getSymbol(parsedSymbol.getText());
   }
 
-  public LocatedSymbol getLocatedSymbol(LispSymbol parsedSymbol) {
+  public LocatedSymbol getLocatedSymbol(LispSexp parsedSymbol) {
     return new LocatedSymbol(getSymbol(parsedSymbol.getText()), parsedSymbol);
   }
 

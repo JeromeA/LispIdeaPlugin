@@ -2,7 +2,7 @@ package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -28,9 +28,9 @@ public class AnalyzeWithOutputToString implements FormAnalyzer {
       context.highlighter.highlightError(list.get(1), "(var) expected");
       return;
     }
-    LispSymbol var = varList.getSexpList().get(0).getSymbol();
+    LispSexp varName = varList.getSexpList().get(0);
     SymbolBinding binding = LexicalVariableHelper.newLexicalVariable("WITH-OUTPUT-TO-STRING",
-        context.packageManager.getLocatedSymbol(var), null);
+        context.packageManager.getLocatedSymbol(varName), null);
     context.lexicalBindings.defineLexicalVariables(List.of(binding));
     context.analyzer.analyzeForms(list, 2);
     context.lexicalBindings.dropLexicalVariables();

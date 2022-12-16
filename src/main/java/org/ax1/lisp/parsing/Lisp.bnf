@@ -14,11 +14,7 @@
   tokenTypeClass="org.ax1.lisp.psi.LispTokenType"
 
   implements("sexp")="org.ax1.lisp.psi.impl.LispSexpMixin"
-  implements("list")="org.ax1.lisp.psi.impl.LispListMixin"
-  implements("symbol")="org.ax1.lisp.psi.impl.LispSymbolMixin"
   mixin("sexp")="org.ax1.lisp.psi.impl.LispSexpMixinImpl"
-  mixin("list")="org.ax1.lisp.psi.impl.LispListMixinImpl"
-  mixin("symbol")="org.ax1.lisp.psi.impl.LispSymbolMixinImpl"
 
 }
 

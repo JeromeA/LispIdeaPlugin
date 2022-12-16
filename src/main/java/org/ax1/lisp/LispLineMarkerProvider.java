@@ -7,7 +7,9 @@ import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
-import org.ax1.lisp.analysis.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.LispDefinition;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 import org.ax1.lisp.psi.LispTypes;
 import org.jetbrains.annotations.NotNull;
@@ -31,18 +33,18 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
 
   @Override
   public LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement element) {
-    if (getTokenType(element) == LispTypes.SYMBOL_TOKEN) {
-      LispSymbol symbol = (LispSymbol) element.getParent();
-      SymbolBinding symbolBinding = symbol.getSymbolDefinition();
+    if (element instanceof LispSexp) {
+      LispSexp sexp = (LispSexp) element;
+      SymbolBinding symbolBinding = sexp.getSymbolDefinition();
       if (symbolBinding == null) return null;
       if (symbolBinding.type != SymbolBinding.Type.FUNCTION) return null;
-      if (symbolBinding.methods.contains(symbol) && !symbolBinding.definitions.isEmpty()) {
-        NavigatablePsiElement target = (NavigatablePsiElement) symbolBinding.definitions.get(0);
+      if (symbolBinding.methods.contains(sexp) && !symbolBinding.getDefinitions().isEmpty()) {
+        NavigatablePsiElement target = (NavigatablePsiElement) symbolBinding.getDefinition();
         return new LineMarkerInfo<>(element, element.getTextRange(), TO_GENERIC,
             null, new DefaultGutterIconNavigationHandler<>(List.of(target), "Generic Definition"),
             GutterIconRenderer.Alignment.RIGHT, () -> "Go to generic");
       }
-      if (symbolBinding.definitions.contains(symbol) && !symbolBinding.methods.isEmpty()) {
+      if (symbolBinding.isDefinition(sexp) && !symbolBinding.methods.isEmpty()) {
         Collection<NavigatablePsiElement> targets = symbolBinding.methods.stream()
             .map(NavigatablePsiElement.class::cast)
             .collect(Collectors.toList());
@@ -50,18 +52,6 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
             null, new DefaultGutterIconNavigationHandler<>(targets, "Implementations"),
             GutterIconRenderer.Alignment.RIGHT, () -> "Go to implementations");
       }
-    }
-    return null;
-  }
-
-  @Override
-  public void collectSlowLineMarkers(@NotNull List<? extends PsiElement> elements, @NotNull Collection<? super LineMarkerInfo<?>> result) {
-    super.collectSlowLineMarkers(elements, result);
-  }
-
-  private IElementType getTokenType(PsiElement element) {
-    if (element instanceof LeafPsiElement) {
-      return ((LeafPsiElement) element).getElementType();
     }
     return null;
   }

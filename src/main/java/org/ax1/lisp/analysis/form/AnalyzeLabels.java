@@ -53,12 +53,11 @@ public class AnalyzeLabels implements FormAnalyzer {
         continue;
       }
       LispSexp functionName = function.getList().getSexpList().get(0);
-      LispSymbol symbolLocation = functionName.getSymbol();
-      if (symbolLocation == null) {
+      if (functionName.getSymbol() == null) {
         context.highlighter.highlightError(function, "Function name expected");
         continue;
       }
-      result.add(context.packageManager.getLocatedSymbol(symbolLocation));
+      result.add(context.packageManager.getLocatedSymbol(functionName));
     }
     return result;
   }

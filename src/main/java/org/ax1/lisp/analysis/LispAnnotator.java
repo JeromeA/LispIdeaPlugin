@@ -4,10 +4,11 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
 import org.ax1.lisp.analysis.symbol.PackageManager;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispFile;
 import org.jetbrains.annotations.NotNull;
 
-import static org.ax1.lisp.analysis.SymbolBinding.Type.FUNCTION;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.Type.FUNCTION;
 
 public class LispAnnotator implements Annotator {
 
@@ -37,17 +38,17 @@ public class LispAnnotator implements Annotator {
   }
 
   private void checkNoDefinition(SymbolBinding symbolBinding, Highlighter annotations) {
-    if (symbolBinding.definitions.isEmpty() && symbolBinding.description == null) {
+    if (symbolBinding.getDefinitions().isEmpty() && symbolBinding.description == null) {
       String message = symbolBinding.type == FUNCTION ? "Function '%s' does not exist" : "Variable '%s' is not defined";
-      symbolBinding.usages.forEach(usage ->
+      symbolBinding.getUsages().forEach(usage ->
           annotations.highlightUnknown(usage, String.format(message, symbolBinding.symbol)));
     }
   }
 
   private void checkNoUsages(SymbolBinding symbolBinding, Highlighter annotations) {
-    if (symbolBinding.usages.isEmpty() && !symbolBinding.definitions.isEmpty()) {
+    if (symbolBinding.getUsages().isEmpty() && !symbolBinding.getDefinitions().isEmpty()) {
       String message = symbolBinding.type == FUNCTION ? "Function '%s' is never called" : "Variable '%s' is never used";
-      annotations.highlightUnused(symbolBinding.definitions.get(0), String.format(message, symbolBinding.symbol));
+      annotations.highlightUnused(symbolBinding.getDefinition(), String.format(message, symbolBinding.symbol));
     }
   }
 }

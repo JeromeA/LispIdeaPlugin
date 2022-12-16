@@ -3,6 +3,7 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.*;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
 import org.ax1.lisp.analysis.symbol.Symbol;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -46,17 +47,16 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
     }
   }
 
-  private List<LispSymbol> getDestructuringBindVariableSymbols(AnalysisContext context, @NotNull List<LispSexp> lambdaList) {
-    List<LispSymbol> result = new ArrayList<>();
+  private List<LispSexp> getDestructuringBindVariableSymbols(AnalysisContext context, @NotNull List<LispSexp> lambdaList) {
+    List<LispSexp> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
-      LispSymbol symbolName = sexp.getSymbol();
       LispList list = sexp.getList();
-      if (symbolName != null) {
-        Symbol symbol = context.packageManager.getSymbol(symbolName);
+      if (sexp.getSymbol() != null) {
+        Symbol symbol = context.packageManager.getSymbol(sexp);
         if (KEYWORDS.contains(symbol)) {
-          context.highlighter.highlightConstant(symbolName);
+          context.highlighter.highlightConstant(sexp);
         } else {
-          result.add(symbolName);
+          result.add(sexp);
         }
       } else if (list != null) {
         result.addAll(getDestructuringBindVariableSymbols(context, list.getSexpList()));

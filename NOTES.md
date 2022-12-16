@@ -103,6 +103,23 @@ position, by calling getTargetSymbols().
 PsiNameIdentifierOwner, not only for packages (the string token includes quotes and escape characters) but also
 for symbols (the token may contain the package name).
 
+## Business code in LispSymbol and LispSexp
+
+A LispSymbol can be a variable name or a function name, and it can be either a definition or a usage.
+
+However, the package management code can't be in LispSymbol, because the same package can be referenced
+by either a symbol or a string.
+
+**Solution 1**: package management code is at LispSexp level, which can contain either a symbol or a string. Problem:
+MemberInplaceRenamer.performRefactoringRename() is skipping our LispSymbol when renaming a symbol, because there
+is a parent (the LispSexp) that is also a PsiNameIdentifierOwner in the renaming range.
+
+**Solution 2**: add package management code at both symbol and string level, and call the same code from there.
+
+**Solution 3**: move all the code to LispSexp, for both symbol and package management.
+
+Conclusion: we switched from Solution 1 to Solution 3.
+
 ## Find usages
 
 Find usages is completely unrelated to usage highlighting. It is based on LispFindUsagesProvider.
@@ -121,7 +138,7 @@ Several classes are involved:
 * RenameElementAction. This is the main entry point, triggered by shift-F6
 * VariableInplaceRenamer and MemberInplaceRenamer, but only of these two makes sense in Lisp. Which one?
 
-In ReplaceRefactoring.startTemplate():
+In InplaceRefactoring.startTemplate():
 * At the beginning of this method, the myEditor.myDocument contains the original text.
 * Then the names are removed.
 * Then the call to TemplateManager.getInstance(myProject).startTemplate() is inserting an uppercase version of the names.

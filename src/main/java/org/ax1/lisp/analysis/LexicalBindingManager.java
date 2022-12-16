@@ -1,6 +1,7 @@
 package org.ax1.lisp.analysis;
 
-import org.ax1.lisp.analysis.SymbolBinding.Type;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolBinding.Type;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -8,8 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.ax1.lisp.analysis.SymbolBinding.Scope.LEXICAL;
-import static org.ax1.lisp.analysis.SymbolBinding.newDefinition;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.Scope.LEXICAL;
+import static org.ax1.lisp.analysis.symbol.SymbolBinding.newDefinition;
 
 public class LexicalBindingManager {
 

@@ -2,7 +2,7 @@ package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LocatedSymbol;
-import org.ax1.lisp.analysis.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -51,10 +51,9 @@ public class AnalyzeLet implements FormAnalyzer {
   private List<SymbolBinding> getLetVariables(AnalysisContext context, @NotNull List<LispSexp> varList) {
     List<SymbolBinding> result = new ArrayList<>();
     for (LispSexp sexp : varList) {
-      LispSymbol symbol = sexp.getSymbol();
       LispList list = sexp.getList();
-      if (symbol != null) {
-        LocatedSymbol locatedSymbol = context.packageManager.getLocatedSymbol(symbol);
+      if (sexp.getSymbol() != null) {
+        LocatedSymbol locatedSymbol = context.packageManager.getLocatedSymbol(sexp);
         result.add(newLexicalVariable("LET", locatedSymbol, "nil"));
       } else if (list != null) {
         List<LispSexp> sexpList = list.getSexpList();
@@ -62,7 +61,7 @@ public class AnalyzeLet implements FormAnalyzer {
           context.highlighter.highlightError(list, "Expected var init form");
           continue;
         }
-        LocatedSymbol locatedSymbol = context.packageManager.getLocatedSymbol(sexpList.get(0).getSymbol());
+        LocatedSymbol locatedSymbol = context.packageManager.getLocatedSymbol(sexpList.get(0));
         String initialValue = sexpList.size() < 2 ? "nil" : sexpList.get(1).getText();
         result.add(newLexicalVariable("LET", locatedSymbol, initialValue));
       } else {

@@ -65,7 +65,7 @@ public class SyntaxAnalyzer {
 
   public void analyzeForm(LispSexp form) {
     if (form.getSymbol() != null) {
-      analyseSymbolForm(form.getSymbol());
+      analyseSymbolForm(form);
     }
     if (form.getList() != null) {
       analyzeCompoundForm(form.getList());
@@ -88,7 +88,7 @@ public class SyntaxAnalyzer {
       case "#'":
         LispSymbol symbolName = quotedSexp.getSymbol();
         if (symbolName != null) {
-          context.addFunctionUsage(symbolName);
+          context.addFunctionUsage(quotedSexp);
           return;
         }
         LispList list = quotedSexp.getList();
@@ -112,16 +112,16 @@ public class SyntaxAnalyzer {
     }
   }
 
-  private void analyseSymbolForm(LispSymbol parsedSymbol) {
-    if (isCompletion(parsedSymbol)) {
+  private void analyseSymbolForm(LispSexp sexp) {
+    if (isCompletion(sexp)) {
       completions.addAll(context.lexicalBindings.getLexicalVariables());
       completions.addAll(getGlobalVariableNames());
     } else {
-      Symbol symbol = context.packageManager.getSymbol(parsedSymbol);
+      Symbol symbol = context.packageManager.getSymbol(sexp);
       if (symbol.isConstant()) {
-        context.highlighter.highlightConstant(parsedSymbol);
+        context.highlighter.highlightConstant(sexp);
       } else {
-        context.addVariableUsage(parsedSymbol);
+        context.addVariableUsage(sexp);
       }
     }
   }
@@ -130,13 +130,12 @@ public class SyntaxAnalyzer {
     List<LispSexp> list = form.getSexpList();
     if (list.isEmpty()) return;
     LispSexp sexp0 = list.get(0);
-    LispSymbol parsedSymbol = sexp0.getSymbol();
-    if (parsedSymbol != null) {
-      if (isCompletion(parsedSymbol)) {
+    if (sexp0.getSymbol() != null) {
+      if (isCompletion(sexp0)) {
         completions.addAll(context.lexicalBindings.getLexicalFunctions());
         completions.addAll(getGlobalFunctions());
       } else {
-        Symbol symbol = context.packageManager.getSymbol(parsedSymbol);
+        Symbol symbol = context.packageManager.getSymbol(sexp0);
         getAnalyzer(symbol).analyze(context, form);
       }
     } else {
@@ -164,8 +163,8 @@ public class SyntaxAnalyzer {
         .collect(Collectors.toList());
   }
 
-  private boolean isCompletion(LispSymbol symbol) {
-    return symbol.getText().endsWith(DUMMY_IDENTIFIER_TRIMMED);
+  private boolean isCompletion(LispSexp sexp) {
+    return sexp.getText().endsWith(DUMMY_IDENTIFIER_TRIMMED);
   }
 
   public void setContext(AnalysisContext context) {

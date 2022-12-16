@@ -3,8 +3,7 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
 import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.LocatedSymbol;
-import org.ax1.lisp.analysis.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -35,14 +34,13 @@ public class AnalyzeDefmethod implements FormAnalyzer {
       context.highlighter.highlightError(form, "DEFMETHOD needs at least 2 arguments.");
       return;
     }
-    LispSexp sexp1 = list.get(1);
-    LispSymbol symbol1 = sexp1.getSymbol();
-    if (symbol1 == null) {
-      context.highlighter.highlightError(sexp1, "Function name expected");
+    LispSexp functionName = list.get(1);
+    if (functionName.getSymbol() == null) {
+      context.highlighter.highlightError(functionName, "Function name expected");
       return;
     }
-    context.addMethodDefinition(symbol1, "");
-    context.highlighter.highlight(symbol1, FUNCTION_DECLARATION);
+    context.addMethodDefinition(functionName, "");
+    context.highlighter.highlight(functionName, FUNCTION_DECLARATION);
 
     int arg = 2;
     // Skip method qualifiers.
@@ -68,17 +66,16 @@ public class AnalyzeDefmethod implements FormAnalyzer {
   }
 
   @NotNull
-  private static List<LispSymbol> getVariables(AnalysisContext context, LispList lambdaList) {
-    List<LispSymbol> result = new ArrayList<>();
+  private static List<LispSexp> getVariables(AnalysisContext context, LispList lambdaList) {
+    List<LispSexp> result = new ArrayList<>();
     for (LispSexp lispSexp : lambdaList.getSexpList()) {
-      LispSymbol variable = getVariable(context, lispSexp);
+      LispSexp variable = getVariable(context, lispSexp);
       if (variable != null) result.add(variable);
     }
     return result;
   }
 
-  private static LispSymbol getVariable(AnalysisContext context, LispSexp sexp) {
-    LispSymbol parsedSymbol = sexp.getSymbol();
+  private static LispSexp getVariable(AnalysisContext context, LispSexp sexp) {
     LispList list = sexp.getList();
     if (list != null) {
       List<LispSexp> specialized = list.getSexpList();
@@ -86,14 +83,14 @@ public class AnalyzeDefmethod implements FormAnalyzer {
         context.highlighter.highlightError(list, "var-specializer expected");
         return null;
       }
-      parsedSymbol = specialized.get(0).getSymbol();
+      sexp = specialized.get(0);
     }
-    if (parsedSymbol != null) {
-      Symbol symbol = context.packageManager.getSymbol(parsedSymbol);
+    if (sexp.getSymbol() != null) {
+      Symbol symbol = context.packageManager.getSymbol(sexp);
       if (KEYWORDS.contains(symbol)) {
-        context.highlighter.highlightConstant(parsedSymbol);
+        context.highlighter.highlightConstant(sexp);
       } else {
-        return parsedSymbol;
+        return sexp;
       }
     }
     return null;

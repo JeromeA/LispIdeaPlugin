@@ -3,13 +3,9 @@ package org.ax1.lisp.analysis.symbol;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public class PackageDefinition {
-  private LispSexp definition;
+public class PackageDefinition extends LispDefinition {
   final String name;
   private final Set<String> nicknames = new HashSet<>();
   private String description;
@@ -17,8 +13,6 @@ public class PackageDefinition {
   public final Map<String, LispSexp> exports = new HashMap<>();
   public final Map<String, LispSexp> shadows = new HashMap<>();
   public final Map<LispSymbol, Set<LispSymbol>> importFrom = new HashMap<>();
-  // Each in-package is a usage.
-  public final Set<LispSexp> usages = new HashSet<>();
 
   private boolean isWriteable = true;
 
@@ -45,13 +39,10 @@ public class PackageDefinition {
   }
 
   public void setDefinition(LispSexp symbol) {
-    definition = symbol;
+    definitions.add(symbol);
   }
 
-  public LispSexp getDefinition() {
-    return definition;
-  }
-
+  @Override
   public String getName() {
     return name;
   }

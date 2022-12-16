@@ -5,12 +5,11 @@ import com.intellij.lang.cacheBuilder.WordsScanner;
 import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.TokenSet;
-import org.ax1.lisp.analysis.Strings;
-import org.ax1.lisp.analysis.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.LispDefinition;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.parsing.LispLexerAdapter;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +22,7 @@ public class LispFindUsagesProvider implements FindUsagesProvider {
 
   @Override
   public boolean canFindUsagesFor(@NotNull PsiElement psiElement) {
-    return psiElement instanceof LispSymbol || psiElement instanceof LispSexp;
+    return psiElement instanceof LispSexp;
   }
 
   @Override
@@ -35,9 +34,9 @@ public class LispFindUsagesProvider implements FindUsagesProvider {
   public @Nls @NotNull String getType(@NotNull PsiElement element) {
     // TODO: fix this. It doesn't work, probably because FindUsages works on a new copy of PSI tree, which does not
     // contain the analysis results.
-    if (element instanceof LispSymbol) {
-      LispSymbol lispSymbol = (LispSymbol) element;
-      SymbolBinding symbolDefinition = lispSymbol.getSymbolDefinition();
+    if (element instanceof LispSexp) {
+      LispSexp LispSexp = (LispSexp) element;
+      SymbolBinding symbolDefinition = LispSexp.getSymbolDefinition();
       if (symbolDefinition == null) return "unknown";
       switch (symbolDefinition.type) {
         case FUNCTION:
@@ -52,27 +51,20 @@ public class LispFindUsagesProvider implements FindUsagesProvider {
   @Override
   public @Nls @NotNull String getDescriptiveName(@NotNull PsiElement element) {
     // TODO: return the whole signature for functions.
-    if (element instanceof LispSymbol) {
-      LispSymbol lispSymbol = (LispSymbol) element;
-      return "descriptiveName:" + lispSymbol.getText();
+    if (element instanceof LispSexp) {
+      LispSexp LispSexp = (LispSexp) element;
+      return "descriptiveName:" + LispSexp.getText();
     }
     return "unknown descriptive name";
   }
 
   @Override
   public @Nls @NotNull String getNodeText(@NotNull PsiElement element, boolean useFullName) {
-    if (element instanceof LispSymbol) {
-      LispSymbol symbol = (LispSymbol) element;
-      SymbolBinding symbolDefinition = symbol.getSymbolDefinition();
-      if (symbolDefinition != null) {
-        return symbolDefinition.getName();
-      }
-    }
     if (element instanceof LispSexp) {
       LispSexp sexp = (LispSexp) element;
-      PackageDefinition packageDefinition = sexp.getPackageDefinition();
-      if (packageDefinition != null) {
-        return packageDefinition.getName();
+      LispDefinition lispDefinition = sexp.getDefinition();
+      if (lispDefinition != null) {
+        return lispDefinition.getName();
       }
     }
     return element.getText();

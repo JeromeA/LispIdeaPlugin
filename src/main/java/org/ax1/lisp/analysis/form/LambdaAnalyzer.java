@@ -3,6 +3,7 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.*;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
 import org.ax1.lisp.analysis.symbol.Symbol;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -40,25 +41,24 @@ public class LambdaAnalyzer {
   }
 
   @NotNull
-  private static List<LispSymbol> getVariables(AnalysisContext context, LispList lambdaList) {
-    List<LispSymbol> result = new ArrayList<>();
+  private static List<LispSexp> getVariables(AnalysisContext context, LispList lambdaList) {
+    List<LispSexp> result = new ArrayList<>();
     for (LispSexp parameterSpecifier : lambdaList.getSexpList()) {
-      LispSymbol lispSymbol = parameterSpecifier.getSymbol();
-      if (lispSymbol != null) {
-        Symbol symbol = context.packageManager.getSymbol(lispSymbol);
+      if (parameterSpecifier.getSymbol() != null) {
+        Symbol symbol = context.packageManager.getSymbol(parameterSpecifier);
         if (KEYWORDS.contains(symbol)) {
-          context.highlighter.highlightConstant(lispSymbol);
+          context.highlighter.highlightConstant(parameterSpecifier);
         } else {
-          result.add(lispSymbol);
+          result.add(parameterSpecifier);
         }
         continue;
       }
       LispList list = parameterSpecifier.getList();
       if (list != null && !list.getSexpList().isEmpty()) {
         List<LispSexp> varInit = list.getSexpList();
-        LispSymbol varName = varInit.get(0).getSymbol();
-        if (varName == null) {
-          context.highlighter.highlightError(varInit.get(0), "Variable name expected");
+        LispSexp varName = varInit.get(0);
+        if (varName.getSymbol() == null) {
+          context.highlighter.highlightError(varName, "Variable name expected");
           continue;
         }
         result.add(varName);

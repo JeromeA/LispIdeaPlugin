@@ -1,21 +1,18 @@
-package org.ax1.lisp.analysis;
+package org.ax1.lisp.analysis.symbol;
 
-import org.ax1.lisp.analysis.symbol.Symbol;
-import org.ax1.lisp.psi.LispList;
-import org.ax1.lisp.psi.LispSymbol;
+import org.ax1.lisp.analysis.LocatedSymbol;
+import org.ax1.lisp.psi.LispSexp;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SymbolBinding {
+public class SymbolBinding extends LispDefinition {
   public final Symbol symbol;
-  public final List<LispSymbol> definitions = new ArrayList<>();
-  public final List<LispSymbol> methods = new ArrayList<>(); // For the methods of a generic.
-  public final List<LispSymbol> usages = new ArrayList<>();
+  public final List<LispSexp> methods = new ArrayList<>(); // For the methods of a generic.
   public final Type type;
   public final Scope scope;
   public String description; // Whatever should be in the tooltip.
-  public LispList container;
+  public LispSexp container;
 
   private SymbolBinding(Type type, Scope scope, Symbol symbol, String description) {
     this.symbol = symbol;
@@ -24,7 +21,7 @@ public class SymbolBinding {
     this.description = description;
   }
 
-  public static SymbolBinding newDefinition(Type type, Scope scope, Symbol symbol, LispSymbol definition, String description) {
+  public static SymbolBinding newDefinition(Type type, Scope scope, Symbol symbol, LispSexp definition, String description) {
     SymbolBinding symbolBinding = new SymbolBinding(type, scope, symbol, description);
     symbolBinding.definitions.add(definition);
     return symbolBinding;
@@ -38,18 +35,19 @@ public class SymbolBinding {
     return new SymbolBinding(type, scope, symbol, description);
   }
 
-  public static SymbolBinding newMethod(Symbol symbol, LispSymbol definition, String description) {
+  public static SymbolBinding newMethod(Symbol symbol, LispSexp definition, String description) {
     SymbolBinding symbolBinding = new SymbolBinding(Type.FUNCTION, Scope.DYNAMIC, symbol, description);
     symbolBinding.methods.add(definition);
     return symbolBinding;
   }
 
-  public static SymbolBinding newUsage(Type type, Scope scope, Symbol symbol, LispSymbol usage) {
+  public static SymbolBinding newUsage(Type type, Scope scope, Symbol symbol, LispSexp usage) {
     SymbolBinding symbolBinding = new SymbolBinding(type, scope, symbol, null);
     symbolBinding.usages.add(usage);
     return symbolBinding;
   }
 
+  @Override
   public String getName() {
     return symbol.getName();
   }

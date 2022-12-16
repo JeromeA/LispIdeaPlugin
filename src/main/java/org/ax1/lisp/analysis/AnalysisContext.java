@@ -2,7 +2,8 @@ package org.ax1.lisp.analysis;
 
 import org.ax1.lisp.analysis.symbol.PackageManager;
 import org.ax1.lisp.analysis.symbol.Symbol;
-import org.ax1.lisp.psi.LispSymbol;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.psi.LispSexp;
 
 public class AnalysisContext {
   public final Highlighter highlighter;
@@ -19,33 +20,33 @@ public class AnalysisContext {
     this.lexicalBindings = new LexicalBindingManager();
   }
 
-  public void addFunctionDefinition(LispSymbol symbolName, String description) {
+  public void addFunctionDefinition(LispSexp symbolName, String description) {
     result.addFunctionDefinition(packageManager.getSymbol(symbolName), symbolName, description);
   }
 
-  public void addMethodDefinition(LispSymbol symbolName, String description) {
+  public void addMethodDefinition(LispSexp symbolName, String description) {
     result.addMethodDefinition(packageManager.getSymbol(symbolName), symbolName, description);
   }
 
-  public void addVariableDefinition(LispSymbol symbolName, String description) {
+  public void addVariableDefinition(LispSexp symbolName, String description) {
     result.addVariableDefinition(packageManager.getSymbol(symbolName), symbolName, description);
   }
 
-  public void addFunctionUsage(LispSymbol symbolName) {
+  public void addFunctionUsage(LispSexp symbolName) {
     Symbol symbol = packageManager.getSymbol(symbolName);
     SymbolBinding lexicalFunction = lexicalBindings.getLexicalFunction(symbol);
     if (lexicalFunction != null) {
-      lexicalFunction.usages.add(symbolName);
+      lexicalFunction.getUsages().add(symbolName);
       return;
     }
     result.addFunctionUsage(symbol, symbolName);
   }
 
-  public void addVariableUsage(LispSymbol symbolName) {
+  public void addVariableUsage(LispSexp symbolName) {
     Symbol symbol = packageManager.getSymbol(symbolName);
     SymbolBinding lexicalVariable = lexicalBindings.getLexicalVariable(symbol);
     if (lexicalVariable != null) {
-      lexicalVariable.usages.add(symbolName);
+      lexicalVariable.getUsages().add(symbolName);
       return;
     }
     result.addVariableUsage(symbol, symbolName);

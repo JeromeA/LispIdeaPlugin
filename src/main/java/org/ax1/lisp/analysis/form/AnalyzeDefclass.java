@@ -66,21 +66,21 @@ public class AnalyzeDefclass implements FormAnalyzer {
     }
     List<LispSexp> slotOptions = slotList.getSexpList();
     for (int i = 1; i < slotOptions.size()-1; i += 2) {
-      LispSymbol slotOption = slotOptions.get(i).getSymbol();
-      if (slotOption == null) {
+      LispSexp slotOption = slotOptions.get(i);
+      if (slotOption.getSymbol() == null) {
         context.highlighter.highlightError(slotOptions.get(i), "Slot option expected");
         continue;
       }
       context.highlighter.highlightKeyword(slotOption);
       Symbol option = context.packageManager.getSymbol(slotOption);
       if (METHOD_GENERATORS.contains(option)) {
-        LispSymbol symbolName = slotOptions.get(i + 1).getSymbol();
-        if (symbolName == null) {
+        LispSexp name = slotOptions.get(i + 1);
+        if (name.getSymbol() == null) {
           context.highlighter.highlightError(slotOptions.get(i + 1), "Method name expected");
           continue;
         }
-        context.addFunctionDefinition(symbolName, "");
-        context.highlighter.highlight(symbolName, FUNCTION_DECLARATION);
+        context.addFunctionDefinition(name, "");
+        context.highlighter.highlight(name, FUNCTION_DECLARATION);
       } else if (!OTHER_OPTIONS.contains(option)) {
         context.highlighter.highlightError(slotOption, "Slot option expected");
       }

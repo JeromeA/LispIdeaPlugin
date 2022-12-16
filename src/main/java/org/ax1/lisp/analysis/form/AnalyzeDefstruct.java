@@ -25,7 +25,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
     Struct struct = createStruct(context, list.get(1));
     if (struct == null) return;
     Symbol symbol = context.packageManager.getSymbol("make-" + struct.name);
-    context.result.addFunctionDefinition(symbol, struct.symbolToken, "");
+    context.result.addFunctionDefinition(symbol, struct.symbolSexp, "");
 
     // Skip documentation.
     int arg = 2;
@@ -38,9 +38,8 @@ public class AnalyzeDefstruct implements FormAnalyzer {
   }
 
   private Struct createStruct(AnalysisContext context, LispSexp nameSexp) {
-    LispSymbol symbol = nameSexp.getSymbol();
-    if (symbol != null) {
-      return createStruct(context, symbol);
+    if (nameSexp.getSymbol() != null) {
+      return createStruct(context, nameSexp);
     }
     if (nameSexp.getList() == null
         || nameSexp.getList().getSexpList().isEmpty()
@@ -48,31 +47,28 @@ public class AnalyzeDefstruct implements FormAnalyzer {
       context.highlighter.highlightError(nameSexp, "Struct name expected");
       return null;
     }
-    return createStruct(context, nameSexp.getList().getSexpList().get(0).getSymbol());
+    return newStruct(context, nameSexp.getList().getSexpList().get(0));
   }
 
-  private Struct createStruct(AnalysisContext context, LispSymbol symbol) {
-    Struct struct = new Struct();
-    struct.name = symbol.getText();
-    struct.symbol = context.packageManager.getSymbol(struct.name);
-    struct.symbolToken = symbol;
-    return struct;
+  private Struct newStruct(AnalysisContext context, LispSexp sexp) {
+    String name = sexp.getText();
+    return new Struct(name, sexp, context.packageManager.getSymbol(name));
   }
 
   private void analyzeSlot(AnalysisContext context, Struct struct, LispSexp slot) {
     LispSymbol simpleSymbol = slot.getSymbol();
     if (simpleSymbol != null) {
       Symbol functionSymbol = context.packageManager.getSymbol(struct.name + "-" + simpleSymbol.getText());
-      context.result.addFunctionDefinition(functionSymbol, simpleSymbol, "");
+      context.result.addFunctionDefinition(functionSymbol, slot, "");
       context.highlighter.highlight(simpleSymbol, FUNCTION_DECLARATION);
       return;
     }
     LispList list = slot.getList();
     if (list != null && list.getSexpList().size() >= 1 && list.getSexpList().get(0).getSymbol() != null) {
-      LispSymbol symbol = list.getSexpList().get(0).getSymbol();
-      Symbol functionSymbol = context.packageManager.getSymbol(struct.name + "-" + symbol.getText());
-      context.result.addFunctionDefinition(functionSymbol, symbol, "");
-      context.highlighter.highlight(symbol, FUNCTION_DECLARATION);
+      LispSexp sexp = list.getSexpList().get(0);
+      Symbol functionSymbol = context.packageManager.getSymbol(struct.name + "-" + sexp.getText());
+      context.result.addFunctionDefinition(functionSymbol, sexp, "");
+      context.highlighter.highlight(sexp, FUNCTION_DECLARATION);
       // TODO: analyze slot options.
       return;
     }
@@ -80,8 +76,14 @@ public class AnalyzeDefstruct implements FormAnalyzer {
   }
 
   public static class Struct {
-    public String name;
-    public LispSymbol symbolToken;
-    public Symbol symbol;
+    public final String name;
+    public final LispSexp symbolSexp;
+    public final Symbol symbol;
+
+    public Struct(String name, LispSexp symbolSexp, Symbol symbol) {
+      this.name = name;
+      this.symbolSexp = symbolSexp;
+      this.symbol = symbol;
+    }
   }
 }

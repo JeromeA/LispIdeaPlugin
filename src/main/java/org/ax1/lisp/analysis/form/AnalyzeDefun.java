@@ -29,9 +29,8 @@ public class AnalyzeDefun implements FormAnalyzer {
       context.highlighter.highlightError(form, type.name() + " needs at least 2 arguments");
       return;
     }
-    LispSexp sexp1 = list.get(1);
-    LispSymbol functionName = sexp1.getSymbol();
-    if (functionName != null) {
+    LispSexp functionName = list.get(1);
+    if (functionName.getSymbol() != null) {
       context.highlighter.highlight(functionName, FUNCTION_DECLARATION);
       StringBuilder sb = new StringBuilder();
       sb.append(DocumentationMarkup.DEFINITION_START);

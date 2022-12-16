@@ -2,7 +2,7 @@ package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolBinding;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -24,14 +24,14 @@ public class AnalyzeDolist implements FormAnalyzer {
       context.highlighter.highlightError(list.get(1), "(var list [result]) expected");
       return;
     }
-    LispSymbol var = varList.getSexpList().get(0).getSymbol();
-    if (var == null) {
+    LispSexp varName = varList.getSexpList().get(0);
+    if (varName.getSymbol() == null) {
       context.highlighter.highlightError(varList.getSexpList().get(0), "variable name expected");
       return;
     }
     context.analyzer.analyzeForm(varList.getSexpList().get(1));
     SymbolBinding binding = LexicalVariableHelper.newLexicalVariable("DOLIST",
-        context.packageManager.getLocatedSymbol(var), null);
+        context.packageManager.getLocatedSymbol(varName), null);
     context.lexicalBindings.defineLexicalVariables(List.of(binding));
     context.analyzer.analyzeForms(list, 2);
     context.lexicalBindings.dropLexicalVariables();

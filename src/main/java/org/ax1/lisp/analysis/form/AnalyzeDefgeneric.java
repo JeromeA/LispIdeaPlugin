@@ -20,12 +20,11 @@ public class AnalyzeDefgeneric implements FormAnalyzer {
       return;
     }
     LispSexp sexp1 = list.get(1);
-    LispSymbol symbol1 = sexp1.getSymbol();
-    if (symbol1 == null) {
+    if (sexp1.getSymbol() == null) {
       context.highlighter.highlightError(sexp1, "Function name expected");
       return;
     }
-    context.addFunctionDefinition(symbol1, "");
-    context.highlighter.highlight(symbol1, FUNCTION_DECLARATION);
+    context.addFunctionDefinition(sexp1, "");
+    context.highlighter.highlight(sexp1, FUNCTION_DECLARATION);
   }
 }
