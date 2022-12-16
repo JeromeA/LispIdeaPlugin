@@ -114,3 +114,14 @@ Summary:
 * they are checked one after another by calling SingleTargetRequestResultProcessor.processTextOccurrence.
 * which looks up for any reference for that PsiElement
 * if the reference resolves to the target, it's a hit
+
+## In-place renaming
+
+Several classes are involved:
+* RenameElementAction. This is the main entry point, triggered by shift-F6
+* VariableInplaceRenamer and MemberInplaceRenamer, but only of these two makes sense in Lisp. Which one?
+
+In ReplaceRefactoring.startTemplate():
+* At the beginning of this method, the myEditor.myDocument contains the original text.
+* Then the names are removed.
+* Then the call to TemplateManager.getInstance(myProject).startTemplate() is inserting an uppercase version of the names.

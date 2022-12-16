@@ -37,9 +37,13 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
 
   @Override
   public String getName() {
+    // TODO: find the exact upper/lower case combination used in the source.
+    //   getName() is used as the starting point for in-place renaming, so we should make sure that the
+    //   returned case matches the one used in the source. Here, we just take the lower case version, which is
+    //   the most common pattern.
     SymbolBinding symbolBinding = getSymbolDefinition();
     if (symbolBinding != null) {
-      return symbolBinding.symbol.getName();
+      return symbolBinding.symbol.getName().toLowerCase();
     }
     return getText();
   }
@@ -104,7 +108,7 @@ public abstract class LispSymbolMixinImpl extends ASTWrapperPsiElement implement
   @Override
   public @NotNull SearchScope getUseScope() {
     SymbolBinding symbolBinding = getSymbolDefinition();
-    if (symbolBinding != null && symbolBinding.scope == LEXICAL) {
+    if (symbolBinding != null && symbolBinding.scope == LEXICAL && symbolBinding.container != null) {
       return new LocalSearchScope(symbolBinding.container);
     }
     return super.getUseScope();

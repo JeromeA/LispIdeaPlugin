@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class LispNamesValidator implements NamesValidator {
 
-  public static final Pattern SYMBOL_PATTERN = Pattern.compile("[^() \r\n\t]*");
+  public static final Pattern SYMBOL_PATTERN = Pattern.compile("[^() \r\n\t\f]*");
 
   @Override
   public boolean isKeyword(@NotNull String name, Project project) {
