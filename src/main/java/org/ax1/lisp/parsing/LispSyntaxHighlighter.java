@@ -51,7 +51,7 @@ public class LispSyntaxHighlighter extends SyntaxHighlighterBase {
     if (tokenType.equals(LispTypes.COMMENT)) {
       return COMMENT_KEYS;
     }
-    if (tokenType.equals(LispTypes.SHARP_SIGN_PLUS_KEYWORD_PACAKGE)) {
+    if (tokenType.equals(LispTypes.SHARP_PLUS)) {
       return COMMENT_KEYS;
     }
     if (tokenType.equals(TokenType.BAD_CHARACTER)) {
