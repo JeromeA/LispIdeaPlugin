@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis;
 
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
-import org.ax1.lisp.analysis.symbol.SymbolBinding.Type;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition.Type;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,14 +9,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.Scope.LEXICAL;
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.newDefinition;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Scope.LEXICAL;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.newDefinition;
 
 public class LexicalBindingManager {
 
-  private final Stack<Map<Symbol, SymbolBinding>> functions = new Stack<>();
-  private final Stack<Map<Symbol, SymbolBinding>> variables = new Stack<>();
-  private final List<SymbolBinding> retiredBindings = new ArrayList<>();
+  private final Stack<Map<Symbol, SymbolDefinition>> functions = new Stack<>();
+  private final Stack<Map<Symbol, SymbolDefinition>> variables = new Stack<>();
+  private final List<SymbolDefinition> retiredBindings = new ArrayList<>();
 
   public void dropLexicalVariables() {
     retiredBindings.addAll(variables.pop().values());
@@ -27,9 +27,9 @@ public class LexicalBindingManager {
   }
 
   @NotNull
-  public LexicalScope defineLexicalVariables(Collection<SymbolBinding> bindings) {
-    Map<Symbol, SymbolBinding> newDictionary = new HashMap<>();
-    for (SymbolBinding binding : bindings) {
+  public LexicalScope defineLexicalVariables(Collection<SymbolDefinition> bindings) {
+    Map<Symbol, SymbolDefinition> newDictionary = new HashMap<>();
+    for (SymbolDefinition binding : bindings) {
       newDictionary.put(binding.symbol, binding);
     }
     variables.push(newDictionary);
@@ -37,7 +37,7 @@ public class LexicalBindingManager {
   }
 
   public LexicalScope defineLexicalFunctions(List<LocatedSymbol> functionList) {
-    Map<Symbol, SymbolBinding> newDictionary = new HashMap<>();
+    Map<Symbol, SymbolDefinition> newDictionary = new HashMap<>();
     for (LocatedSymbol function : functionList) {
       newDictionary.put(function.symbol, newDefinition(Type.FUNCTION, LEXICAL, function, ""));
     }
@@ -45,19 +45,19 @@ public class LexicalBindingManager {
     return this::dropLexicalFunctions;
   }
 
-  public SymbolBinding getLexicalVariable(Symbol symbol) {
+  public SymbolDefinition getLexicalVariable(Symbol symbol) {
     return getSymbolDefinition(variables, symbol);
   }
 
-  public SymbolBinding getLexicalFunction(Symbol symbol) {
+  public SymbolDefinition getLexicalFunction(Symbol symbol) {
     return getSymbolDefinition(functions, symbol);
   }
 
   @Nullable
-  private SymbolBinding getSymbolDefinition(Stack<Map<Symbol, SymbolBinding>> functions, Symbol symbol) {
+  private SymbolDefinition getSymbolDefinition(Stack<Map<Symbol, SymbolDefinition>> functions, Symbol symbol) {
     for (int i = functions.size() - 1; i >= 0; i--) {
-      SymbolBinding SymbolBinding = functions.get(i).get(symbol);
-      if (SymbolBinding != null) return SymbolBinding;
+      SymbolDefinition SymbolDefinition = functions.get(i).get(symbol);
+      if (SymbolDefinition != null) return SymbolDefinition;
     }
     return null;
   }
@@ -66,7 +66,7 @@ public class LexicalBindingManager {
     return functions.empty() && variables.empty();
   }
 
-  public Collection<SymbolBinding> getRetiredBindings() {
+  public Collection<SymbolDefinition> getRetiredBindings() {
     return retiredBindings;
   }
 

@@ -3,10 +3,9 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalBindingManager;
 import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class AnalyzeMultipleValueBind implements FormAnalyzer {
       context.highlighter.highlightError(sexp1, "Variable list expected");
       return;
     }
-    List<SymbolBinding> variables = getVariableSymbols(context, list1.getSexpList()).stream()
+    List<SymbolDefinition> variables = getVariableSymbols(context, list1.getSexpList()).stream()
         .map(context.packageManager::getLocatedSymbol)
         .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("MULTIPLE-VALUE-BIND", locatedSymbol, null))
         .collect(toImmutableList());

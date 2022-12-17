@@ -2,10 +2,9 @@ package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 
@@ -26,9 +25,9 @@ public class AnalyzeWithOpenFile implements FormAnalyzer {
     }
     context.analyzer.analyzeForms(varList.getSexpList(), 1);
     LispSexp varName = varList.getSexpList().get(0);
-    SymbolBinding binding = LexicalVariableHelper.newLexicalVariable("WITH-OPEN-FILE",
+    SymbolDefinition symbolDefinition = LexicalVariableHelper.newLexicalVariable("WITH-OPEN-FILE",
         context.packageManager.getLocatedSymbol(varName), null);
-    context.lexicalBindings.defineLexicalVariables(List.of(binding));
+    context.lexicalBindings.defineLexicalVariables(List.of(symbolDefinition));
     context.analyzer.analyzeForms(list, 2);
     context.lexicalBindings.dropLexicalVariables();
   }

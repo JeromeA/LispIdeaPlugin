@@ -3,10 +3,9 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.*;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
 import org.ax1.lisp.analysis.symbol.Symbol;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ public class LambdaAnalyzer {
       context.highlighter.highlightError(list.get(lambdaListIndex), "Lambda list expected");
       return;
     }
-    List<SymbolBinding> variables = getVariables(context, lambdaList).stream()
+    List<SymbolDefinition> variables = getVariables(context, lambdaList).stream()
         .map(context.packageManager::getLocatedSymbol)
         .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable(formName, locatedSymbol, null))
         .collect(toImmutableList());

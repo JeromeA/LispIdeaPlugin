@@ -3,7 +3,7 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
 import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -163,7 +163,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       startAt += 2;
     }
 
-    SymbolBinding variable = LexicalVariableHelper.newLexicalVariable("LOOP",
+    SymbolDefinition variable = LexicalVariableHelper.newLexicalVariable("LOOP",
         context.packageManager.getLocatedSymbol(sexp1), null);
     try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(List.of(variable))) {
       variableClause(context, form, startAt);
@@ -196,7 +196,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       startAt += 2;
     }
 
-    List<SymbolBinding> locatedVariables = variables.stream()
+    List<SymbolDefinition> locatedVariables = variables.stream()
         .map(context.packageManager::getLocatedSymbol)
         .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("LOOP", locatedSymbol, null))
         .collect(toImmutableList());
@@ -419,7 +419,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       }
       consumed++;
       // We don't support lexical bindings created by accumulations, because their scope is the whole loop.
-      SymbolBinding variable = LexicalVariableHelper.newLexicalVariable("LOOP",
+      SymbolDefinition variable = LexicalVariableHelper.newLexicalVariable("LOOP",
           context.packageManager.getLocatedSymbol(arg3), null);
       context.lexicalBindings.defineLexicalVariables(List.of(variable)).close();
     }

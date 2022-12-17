@@ -3,23 +3,23 @@ package org.ax1.lisp.analysis;
 import com.google.common.collect.ImmutableList;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispSexp;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.Scope.LEXICAL;
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.Type.VARIABLE;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Scope.LEXICAL;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Type.VARIABLE;
 
 public class ProjectDefinitions {
 
-  private final Map<Symbol, SymbolBinding> functions = new HashMap<>();
-  private final Map<Symbol, SymbolBinding> variables = new HashMap<>();
+  private final Map<Symbol, SymbolDefinition> functions = new HashMap<>();
+  private final Map<Symbol, SymbolDefinition> variables = new HashMap<>();
   private final Map<String, PackageDefinition> packages = new HashMap<>();
   private final Map<String, String> packageNames = new HashMap<>();
-  private final Map<LispSexp, SymbolBinding> definitionByReference = new HashMap<>();
+  private final Map<LispSexp, SymbolDefinition> symbolByReference = new HashMap<>();
   private final Map<LispSexp, PackageDefinition> packageByReference = new HashMap<>();
 
   public ProjectDefinitions(ImmutableList<Bindings> results, Collection<PackageDefinition> packageDefinitions) {
@@ -30,11 +30,11 @@ public class ProjectDefinitions {
       packages.put(name, packageDefinition);
     }
     for (Bindings result : results) {
-      for (SymbolBinding symbolBinding : result.definitions) {
-        if (symbolBinding.scope == LEXICAL) {
-          addSymbolReferences(symbolBinding);
+      for (SymbolDefinition symbolDefinition : result.definitions) {
+        if (symbolDefinition.scope == LEXICAL) {
+          addSymbolReferences(symbolDefinition);
         } else {
-          merge(symbolBinding.type == VARIABLE ? variables : functions, symbolBinding);
+          merge(symbolDefinition.type == VARIABLE ? variables : functions, symbolDefinition);
         }
       }
       for (PackageDefinition packageDefinition : result.packages) {
@@ -65,17 +65,17 @@ public class ProjectDefinitions {
     return def1;
   }
 
-  private void addSymbolReferences(SymbolBinding definition) {
-    definition.getDefinitions().forEach(def -> definitionByReference.put(def, definition));
-    definition.getUsages().forEach(def -> definitionByReference.put(def, definition));
-    definition.methods.forEach(def -> definitionByReference.put(def, definition));
+  private void addSymbolReferences(SymbolDefinition definition) {
+    definition.getDefinitions().forEach(def -> symbolByReference.put(def, definition));
+    definition.getUsages().forEach(def -> symbolByReference.put(def, definition));
+    definition.methods.forEach(def -> symbolByReference.put(def, definition));
   }
 
-  private void merge(Map<Symbol, SymbolBinding> definitionMap, SymbolBinding definition) {
+  private void merge(Map<Symbol, SymbolDefinition> definitionMap, SymbolDefinition definition) {
     definitionMap.merge(definition.symbol, definition, ProjectDefinitions::mergeDefinitions);
   }
 
-  private static SymbolBinding mergeDefinitions(SymbolBinding def1, SymbolBinding def2) {
+  private static SymbolDefinition mergeDefinitions(SymbolDefinition def1, SymbolDefinition def2) {
     def1.getDefinitions().addAll(def2.getDefinitions());
     def1.methods.addAll(def2.methods);
     def1.getUsages().addAll(def2.getUsages());
@@ -83,16 +83,16 @@ public class ProjectDefinitions {
     return def1;
   }
 
-  public Collection<SymbolBinding> getFunctions() {
+  public Collection<SymbolDefinition> getFunctions() {
     return functions.values();
   }
 
-  public Collection<SymbolBinding> getVariables() {
+  public Collection<SymbolDefinition> getVariables() {
     return variables.values();
   }
 
-  public SymbolBinding getDefinition(LispSexp lispSexp) {
-    return definitionByReference.get(lispSexp);
+  public SymbolDefinition getDefinition(LispSexp lispSexp) {
+    return symbolByReference.get(lispSexp);
   }
 
   public PackageDefinition getPackage(LispSexp lispSexp) {

@@ -8,7 +8,7 @@ import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
 import org.ax1.lisp.analysis.ProjectComputedData;
 import org.ax1.lisp.analysis.symbol.LispDefinition;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.psi.LispElementFactory;
 import org.ax1.lisp.psi.LispSexp;
@@ -16,9 +16,9 @@ import org.ax1.lisp.usages.LispSexpReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.Scope.LEXICAL;
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.Type.FUNCTION;
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.Type.VARIABLE;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Scope.LEXICAL;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Type.FUNCTION;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Type.VARIABLE;
 
 public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements LispSexp {
 
@@ -41,13 +41,13 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
   }
 
   @Override
-  public SymbolBinding getSymbolDefinition() {
+  public SymbolDefinition getSymbolDefinition() {
     return ProjectComputedData.getInstance(getProject()).getProjectAnalysis().getDefinition(this);
   }
 
   @Override
   public LispDefinition getDefinition() {
-    SymbolBinding symbolDefinition = getSymbolDefinition();
+    SymbolDefinition symbolDefinition = getSymbolDefinition();
     if (symbolDefinition != null) return symbolDefinition;
     return getPackageDefinition();
   }
@@ -80,48 +80,48 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
 
   @Override
   public @Nullable String getQualifiedName() {
-    SymbolBinding symbolBinding = getSymbolDefinition();
-    if (symbolBinding != null) {
-      return symbolBinding.symbol.getQualifiedName();
+    SymbolDefinition symbolDefinition = getSymbolDefinition();
+    if (symbolDefinition != null) {
+      return symbolDefinition.symbol.getQualifiedName();
     }
     return null;
   }
 
   @Override
   public boolean isFunctionCall() {
-    SymbolBinding symbolBinding = getSymbolDefinition();
-    return symbolBinding != null && symbolBinding.type == FUNCTION && symbolBinding.isUsage(this);
+    SymbolDefinition symbolDefinition = getSymbolDefinition();
+    return symbolDefinition != null && symbolDefinition.type == FUNCTION && symbolDefinition.isUsage(this);
   }
 
   @Override
   public boolean isFunctionDefinition() {
-    SymbolBinding symbolBinding = getSymbolDefinition();
-    return symbolBinding != null && symbolBinding.type == FUNCTION && symbolBinding.isDefinition(this);
+    SymbolDefinition symbolDefinition = getSymbolDefinition();
+    return symbolDefinition != null && symbolDefinition.type == FUNCTION && symbolDefinition.isDefinition(this);
   }
 
   @Override
   public boolean isVariableReference() {
-    SymbolBinding symbolBinding = getSymbolDefinition();
-    return symbolBinding != null && symbolBinding.type == VARIABLE && symbolBinding.isUsage(this);
+    SymbolDefinition symbolDefinition = getSymbolDefinition();
+    return symbolDefinition != null && symbolDefinition.type == VARIABLE && symbolDefinition.isUsage(this);
   }
 
   @Override
   public boolean isVariableDefinition() {
-    SymbolBinding symbolBinding = getSymbolDefinition();
-    return symbolBinding != null && symbolBinding.type == VARIABLE && symbolBinding.isDefinition(this);
+    SymbolDefinition symbolDefinition = getSymbolDefinition();
+    return symbolDefinition != null && symbolDefinition.type == VARIABLE && symbolDefinition.isDefinition(this);
   }
 
   @Override
   public boolean isLexicalDefinition() {
-    SymbolBinding symbolBinding = getSymbolDefinition();
-    return symbolBinding != null && symbolBinding.scope == LEXICAL && symbolBinding.isDefinition(this);
+    SymbolDefinition symbolDefinition = getSymbolDefinition();
+    return symbolDefinition != null && symbolDefinition.scope == LEXICAL && symbolDefinition.isDefinition(this);
   }
 
   @Override
   public @NotNull SearchScope getUseScope() {
-    SymbolBinding symbolBinding = getSymbolDefinition();
-    if (symbolBinding != null && symbolBinding.scope == LEXICAL && symbolBinding.container != null) {
-      return new LocalSearchScope(symbolBinding.container);
+    SymbolDefinition symbolDefinition = getSymbolDefinition();
+    if (symbolDefinition != null && symbolDefinition.scope == LEXICAL && symbolDefinition.container != null) {
+      return new LocalSearchScope(symbolDefinition.container);
     }
     return super.getUseScope();
   }

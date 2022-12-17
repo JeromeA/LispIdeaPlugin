@@ -3,11 +3,10 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
 import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -56,7 +55,7 @@ public class AnalyzeDefmethod implements FormAnalyzer {
       return;
     }
 
-    List<SymbolBinding> variables = getVariables(context, lambdaList).stream()
+    List<SymbolDefinition> variables = getVariables(context, lambdaList).stream()
         .map(context.packageManager::getLocatedSymbol)
         .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("DEFMETHOD", locatedSymbol, null))
         .collect(toImmutableList());

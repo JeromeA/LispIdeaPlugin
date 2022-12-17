@@ -2,10 +2,9 @@ package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LocatedSymbol;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -48,8 +47,8 @@ public class AnalyzeLet implements FormAnalyzer {
     return result;
   }
 
-  private List<SymbolBinding> getLetVariables(AnalysisContext context, @NotNull List<LispSexp> varList) {
-    List<SymbolBinding> result = new ArrayList<>();
+  private List<SymbolDefinition> getLetVariables(AnalysisContext context, @NotNull List<LispSexp> varList) {
+    List<SymbolDefinition> result = new ArrayList<>();
     for (LispSexp sexp : varList) {
       LispList list = sexp.getList();
       if (sexp.getSymbol() != null) {

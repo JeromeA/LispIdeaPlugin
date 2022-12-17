@@ -2,10 +2,9 @@ package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class AnalyzeDoTimes implements FormAnalyzer {
       return;
     }
     context.analyzer.analyzeForms(varList.getSexpList(), 1);
-    SymbolBinding binding = LexicalVariableHelper.newLexicalVariable("DOTIMES",
+    SymbolDefinition binding = LexicalVariableHelper.newLexicalVariable("DOTIMES",
         context.packageManager.getLocatedSymbol(varName), null);
     context.lexicalBindings.defineLexicalVariables(List.of(binding));
     context.analyzer.analyzeForms(list, 2);

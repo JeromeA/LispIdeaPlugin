@@ -5,13 +5,8 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import com.intellij.psi.tree.IElementType;
-import org.ax1.lisp.analysis.symbol.LispDefinition;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
-import org.ax1.lisp.psi.LispTypes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -35,17 +30,17 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
   public LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement element) {
     if (element instanceof LispSexp) {
       LispSexp sexp = (LispSexp) element;
-      SymbolBinding symbolBinding = sexp.getSymbolDefinition();
-      if (symbolBinding == null) return null;
-      if (symbolBinding.type != SymbolBinding.Type.FUNCTION) return null;
-      if (symbolBinding.methods.contains(sexp) && !symbolBinding.getDefinitions().isEmpty()) {
-        NavigatablePsiElement target = (NavigatablePsiElement) symbolBinding.getDefinition();
+      SymbolDefinition symbolDefinition = sexp.getSymbolDefinition();
+      if (symbolDefinition == null) return null;
+      if (symbolDefinition.type != SymbolDefinition.Type.FUNCTION) return null;
+      if (symbolDefinition.methods.contains(sexp) && !symbolDefinition.getDefinitions().isEmpty()) {
+        NavigatablePsiElement target = (NavigatablePsiElement) symbolDefinition.getDefinition();
         return new LineMarkerInfo<>(element, element.getTextRange(), TO_GENERIC,
             null, new DefaultGutterIconNavigationHandler<>(List.of(target), "Generic Definition"),
             GutterIconRenderer.Alignment.RIGHT, () -> "Go to generic");
       }
-      if (symbolBinding.isDefinition(sexp) && !symbolBinding.methods.isEmpty()) {
-        Collection<NavigatablePsiElement> targets = symbolBinding.methods.stream()
+      if (symbolDefinition.isDefinition(sexp) && !symbolDefinition.methods.isEmpty()) {
+        Collection<NavigatablePsiElement> targets = symbolDefinition.methods.stream()
             .map(NavigatablePsiElement.class::cast)
             .collect(Collectors.toList());
         return new LineMarkerInfo<>(element, element.getTextRange(), TO_METHOD,

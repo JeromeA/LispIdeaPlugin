@@ -2,7 +2,7 @@ package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LocatedSymbol;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
@@ -61,7 +61,7 @@ public class AnalyzeLetStar implements FormAnalyzer {
         }
       }
       LocatedSymbol locatedSymbol = context.packageManager.getLocatedSymbol(sexp);
-      SymbolBinding variable = newLexicalVariable("LET*", locatedSymbol, initialValue);
+      SymbolDefinition variable = newLexicalVariable("LET*", locatedSymbol, initialValue);
       context.lexicalBindings.defineLexicalVariables(List.of(variable));
       analyzeLetStarVarList(context, form, varList, startAt + 1);
       context.lexicalBindings.dropLexicalVariables();

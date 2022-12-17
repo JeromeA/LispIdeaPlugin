@@ -6,8 +6,7 @@ import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.TokenSet;
 import org.ax1.lisp.analysis.symbol.LispDefinition;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
-import org.ax1.lisp.analysis.symbol.PackageDefinition;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.parsing.LispLexerAdapter;
 import org.ax1.lisp.psi.LispSexp;
 import org.jetbrains.annotations.Nls;
@@ -36,7 +35,7 @@ public class LispFindUsagesProvider implements FindUsagesProvider {
     // contain the analysis results.
     if (element instanceof LispSexp) {
       LispSexp LispSexp = (LispSexp) element;
-      SymbolBinding symbolDefinition = LispSexp.getSymbolDefinition();
+      SymbolDefinition symbolDefinition = LispSexp.getSymbolDefinition();
       if (symbolDefinition == null) return "unknown";
       switch (symbolDefinition.type) {
         case FUNCTION:

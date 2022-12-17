@@ -5,8 +5,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.SearchScope;
 import org.ax1.lisp.analysis.symbol.LispDefinition;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
-import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.psi.LispSexp;
 import org.jetbrains.annotations.NotNull;
 

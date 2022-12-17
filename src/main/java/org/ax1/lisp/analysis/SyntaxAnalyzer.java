@@ -151,7 +151,7 @@ public class SyntaxAnalyzer {
   private List<String> getGlobalVariableNames() {
     return ProjectComputedData.getInstance(lispFile.getProject()).getProjectAnalysis()
         .getVariables().stream()
-        .map(SymbolBinding::getName)
+        .map(SymbolDefinition::getName)
         .collect(Collectors.toList());
   }
 
@@ -159,7 +159,7 @@ public class SyntaxAnalyzer {
   private List<String> getGlobalFunctions() {
     return ProjectComputedData.getInstance(lispFile.getProject()).getProjectAnalysis()
         .getFunctions().stream()
-        .map(SymbolBinding::getName)
+        .map(SymbolDefinition::getName)
         .collect(Collectors.toList());
   }
 

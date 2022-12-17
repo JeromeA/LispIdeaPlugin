@@ -2,18 +2,17 @@ package org.ax1.lisp.analysis;
 
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
-import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispSexp;
 
 import java.util.*;
 
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.*;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.*;
 
 public class Bindings {
   public final Collection<PackageDefinition> packages = new ArrayList<>();
-  public final Collection<SymbolBinding> definitions = new ArrayList<>();
-  private final Collection<SymbolBinding> conditionDefinitions = new ArrayList<>();
+  public final Collection<SymbolDefinition> definitions = new ArrayList<>();
+  private final Collection<SymbolDefinition> conditionDefinitions = new ArrayList<>();
 
   public void addFunctionDefinition(Symbol functionName, LispSexp location, String description) {
     definitions.add(newDefinition(Type.FUNCTION, Scope.DYNAMIC, functionName, location, description));
@@ -53,7 +52,7 @@ public class Bindings {
     definitions.add(newUsage(Type.VARIABLE, Scope.DYNAMIC, variableName, location));
   }
 
-  public void addLexicalBindings(Collection<SymbolBinding> nindings) {
+  public void addLexicalBindings(Collection<SymbolDefinition> nindings) {
     definitions.addAll(nindings);
   }
 

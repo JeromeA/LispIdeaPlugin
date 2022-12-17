@@ -4,8 +4,6 @@ import com.intellij.find.findUsages.FindUsagesHandler;
 import com.intellij.find.findUsages.FindUsagesHandlerFactory;
 import com.intellij.psi.PsiElement;
 import org.ax1.lisp.analysis.symbol.LispDefinition;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
-import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.psi.LispSexp;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

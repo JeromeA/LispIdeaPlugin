@@ -2,7 +2,7 @@ package org.ax1.lisp.analysis;
 
 import org.ax1.lisp.analysis.symbol.PackageManager;
 import org.ax1.lisp.analysis.symbol.Symbol;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispSexp;
 
 public class AnalysisContext {
@@ -34,7 +34,7 @@ public class AnalysisContext {
 
   public void addFunctionUsage(LispSexp symbolName) {
     Symbol symbol = packageManager.getSymbol(symbolName);
-    SymbolBinding lexicalFunction = lexicalBindings.getLexicalFunction(symbol);
+    SymbolDefinition lexicalFunction = lexicalBindings.getLexicalFunction(symbol);
     if (lexicalFunction != null) {
       lexicalFunction.getUsages().add(symbolName);
       return;
@@ -44,7 +44,7 @@ public class AnalysisContext {
 
   public void addVariableUsage(LispSexp symbolName) {
     Symbol symbol = packageManager.getSymbol(symbolName);
-    SymbolBinding lexicalVariable = lexicalBindings.getLexicalVariable(symbol);
+    SymbolDefinition lexicalVariable = lexicalBindings.getLexicalVariable(symbol);
     if (lexicalVariable != null) {
       lexicalVariable.getUsages().add(symbolName);
       return;

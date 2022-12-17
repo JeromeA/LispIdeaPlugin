@@ -4,11 +4,11 @@ import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
 import org.ax1.lisp.analysis.symbol.PackageManager;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispFile;
 import org.jetbrains.annotations.NotNull;
 
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.Type.FUNCTION;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Type.FUNCTION;
 
 public class LispAnnotator implements Annotator {
 
@@ -32,23 +32,23 @@ public class LispAnnotator implements Annotator {
     projectAnalysis.getVariables().forEach(binding -> checkBinding(binding, highlighter));
   }
 
-  private void checkBinding(SymbolBinding binding, Highlighter annotations) {
+  private void checkBinding(SymbolDefinition binding, Highlighter annotations) {
     checkNoUsages(binding, annotations);
     checkNoDefinition(binding, annotations);
   }
 
-  private void checkNoDefinition(SymbolBinding symbolBinding, Highlighter annotations) {
-    if (symbolBinding.getDefinitions().isEmpty() && symbolBinding.description == null) {
-      String message = symbolBinding.type == FUNCTION ? "Function '%s' does not exist" : "Variable '%s' is not defined";
-      symbolBinding.getUsages().forEach(usage ->
-          annotations.highlightUnknown(usage, String.format(message, symbolBinding.symbol)));
+  private void checkNoDefinition(SymbolDefinition symbolDefinition, Highlighter annotations) {
+    if (symbolDefinition.getDefinitions().isEmpty() && symbolDefinition.description == null) {
+      String message = symbolDefinition.type == FUNCTION ? "Function '%s' does not exist" : "Variable '%s' is not defined";
+      symbolDefinition.getUsages().forEach(usage ->
+          annotations.highlightUnknown(usage, String.format(message, symbolDefinition.symbol)));
     }
   }
 
-  private void checkNoUsages(SymbolBinding symbolBinding, Highlighter annotations) {
-    if (symbolBinding.getUsages().isEmpty() && !symbolBinding.getDefinitions().isEmpty()) {
-      String message = symbolBinding.type == FUNCTION ? "Function '%s' is never called" : "Variable '%s' is never used";
-      annotations.highlightUnused(symbolBinding.getDefinition(), String.format(message, symbolBinding.symbol));
+  private void checkNoUsages(SymbolDefinition symbolDefinition, Highlighter annotations) {
+    if (symbolDefinition.getUsages().isEmpty() && !symbolDefinition.getDefinitions().isEmpty()) {
+      String message = symbolDefinition.type == FUNCTION ? "Function '%s' is never called" : "Variable '%s' is never used";
+      annotations.highlightUnused(symbolDefinition.getDefinition(), String.format(message, symbolDefinition.symbol));
     }
   }
 }

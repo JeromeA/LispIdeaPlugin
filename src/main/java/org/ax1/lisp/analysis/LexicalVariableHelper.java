@@ -1,18 +1,18 @@
 package org.ax1.lisp.analysis;
 
 import org.ax1.lisp.analysis.symbol.Symbol;
-import org.ax1.lisp.analysis.symbol.SymbolBinding;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.lang.documentation.DocumentationMarkup.*;
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.Scope.LEXICAL;
-import static org.ax1.lisp.analysis.symbol.SymbolBinding.newDefinition;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Scope.LEXICAL;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.newDefinition;
 
 public class LexicalVariableHelper {
 
   @NotNull
-  public static SymbolBinding newLexicalVariable(String formName, LocatedSymbol locatedSymbol, String initialValue) {
-    return newDefinition(SymbolBinding.Type.VARIABLE, LEXICAL, locatedSymbol,
+  public static SymbolDefinition newLexicalVariable(String formName, LocatedSymbol locatedSymbol, String initialValue) {
+    return newDefinition(SymbolDefinition.Type.VARIABLE, LEXICAL, locatedSymbol,
         getDescription(formName, locatedSymbol.symbol, initialValue));
   }
 
