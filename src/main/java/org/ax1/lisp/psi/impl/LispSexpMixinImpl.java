@@ -2,8 +2,10 @@ package org.ax1.lisp.psi.impl;
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
 import org.ax1.lisp.analysis.ProjectComputedData;
@@ -12,6 +14,7 @@ import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.psi.LispElementFactory;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispTypes;
 import org.ax1.lisp.usages.LispSexpReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -88,33 +91,15 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
   }
 
   @Override
-  public boolean isFunctionCall() {
-    SymbolDefinition symbolDefinition = getSymbolDefinition();
-    return symbolDefinition != null && symbolDefinition.type == FUNCTION && symbolDefinition.isUsage(this);
-  }
-
-  @Override
   public boolean isFunctionDefinition() {
     SymbolDefinition symbolDefinition = getSymbolDefinition();
     return symbolDefinition != null && symbolDefinition.type == FUNCTION && symbolDefinition.isDefinition(this);
   }
 
   @Override
-  public boolean isVariableReference() {
-    SymbolDefinition symbolDefinition = getSymbolDefinition();
-    return symbolDefinition != null && symbolDefinition.type == VARIABLE && symbolDefinition.isUsage(this);
-  }
-
-  @Override
   public boolean isVariableDefinition() {
     SymbolDefinition symbolDefinition = getSymbolDefinition();
     return symbolDefinition != null && symbolDefinition.type == VARIABLE && symbolDefinition.isDefinition(this);
-  }
-
-  @Override
-  public boolean isLexicalDefinition() {
-    SymbolDefinition symbolDefinition = getSymbolDefinition();
-    return symbolDefinition != null && symbolDefinition.scope == LEXICAL && symbolDefinition.isDefinition(this);
   }
 
   @Override
@@ -126,4 +111,24 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
     return super.getUseScope();
   }
 
+  @Override
+  public boolean isString() {
+    PsiElement firstChild = getFirstChild();
+    if (!(firstChild instanceof LeafPsiElement)) return false;
+    LeafPsiElement leafFirstChild = (LeafPsiElement) firstChild;
+    return leafFirstChild.getElementType() == LispTypes.STRING;
+  }
+
+  /*
+   * getPsiUsageRanges() will only accept a modified range for the target (the declaration symbol) when that target
+   * is a PsiNameIdentifierOwner, and the Identifier is implementing ExternallyAnnotated. So we're doing that.
+   */
+  @Override
+  public @Nullable TextRange getAnnotationRegion() {
+    TextRange range = getTextRange();
+    if (isString()) {
+      return TextRange.create(range.getStartOffset() + 1, range.getEndOffset() - 1);
+    }
+    return range;
+  }
 }
