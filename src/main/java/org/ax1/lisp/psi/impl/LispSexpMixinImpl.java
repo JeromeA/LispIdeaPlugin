@@ -3,6 +3,7 @@ package org.ax1.lisp.psi.impl;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
@@ -14,6 +15,7 @@ import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.psi.LispElementFactory;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbol;
 import org.ax1.lisp.psi.LispTypes;
 import org.ax1.lisp.usages.LispSexpReference;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +35,18 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
   public PsiReference getReference() {
     LispDefinition definition = getDefinition();
     if (definition != null && definition.isUsage(this)) {
-      return new LispSexpReference(this, definition.getDefinition());
+      TextRange range = ElementManipulators.getValueTextRange(this);
+      if (isString()) {
+        range = TextRange.create(range.getStartOffset() + 1, range.getEndOffset() - 1);
+      }
+      if (isSymbol()) {
+        String text = getText();
+        int colonIndex = text.indexOf(':');
+        if (colonIndex >= 0) {
+          range = TextRange.create(range.getStartOffset() + colonIndex + 1, range.getEndOffset());
+        }
+      }
+      return new LispSexpReference(this, definition.getDefinition(), range);
     }
     return null;
   }
@@ -111,12 +124,16 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
     return super.getUseScope();
   }
 
-  @Override
   public boolean isString() {
     PsiElement firstChild = getFirstChild();
     if (!(firstChild instanceof LeafPsiElement)) return false;
     LeafPsiElement leafFirstChild = (LeafPsiElement) firstChild;
     return leafFirstChild.getElementType() == LispTypes.STRING;
+  }
+
+  public boolean isSymbol() {
+    PsiElement firstChild = getFirstChild();
+    return firstChild instanceof LispSymbol;
   }
 
   /*
