@@ -9,11 +9,6 @@ import org.jetbrains.annotations.Nullable;
 public class LispRefactoringSupportProvider extends RefactoringSupportProvider {
 
   @Override
-  public boolean isInplaceRenameAvailable(@NotNull PsiElement element, PsiElement context) {
-    return isLexicalDefinition(element);
-  }
-
-  @Override
   public boolean isMemberInplaceRenameAvailable(@NotNull PsiElement element, @Nullable PsiElement context) {
     return isDefinition(element);
   }
@@ -22,14 +17,6 @@ public class LispRefactoringSupportProvider extends RefactoringSupportProvider {
     if (element instanceof LispSexp) {
       LispSexp symbol = (LispSexp) element;
       return symbol.isFunctionDefinition() || symbol.isVariableDefinition();
-    }
-    return false;
-  }
-
-  private boolean isLexicalDefinition(@NotNull PsiElement element) {
-    if (element instanceof LispSexp) {
-      LispSexp symbol = (LispSexp) element;
-      return symbol.isLexicalDefinition();
     }
     return false;
   }
