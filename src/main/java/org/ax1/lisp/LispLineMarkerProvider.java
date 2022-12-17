@@ -5,8 +5,11 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispTypes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -28,8 +31,8 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
 
   @Override
   public LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement element) {
-    if (element instanceof LispSexp) {
-      LispSexp sexp = (LispSexp) element;
+    if (getTokenType(element) == LispTypes.SYMBOL_TOKEN) {
+      LispSexp sexp = (LispSexp) element.getParent().getParent();
       SymbolDefinition symbolDefinition = sexp.getSymbolDefinition();
       if (symbolDefinition == null) return null;
       if (symbolDefinition.type != SymbolDefinition.Type.FUNCTION) return null;
@@ -47,6 +50,13 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
             null, new DefaultGutterIconNavigationHandler<>(targets, "Implementations"),
             GutterIconRenderer.Alignment.RIGHT, () -> "Go to implementations");
       }
+    }
+    return null;
+  }
+
+  private IElementType getTokenType(PsiElement element) {
+    if (element instanceof LeafPsiElement) {
+      return ((LeafPsiElement) element).getElementType();
     }
     return null;
   }
