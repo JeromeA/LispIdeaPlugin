@@ -116,7 +116,7 @@ public class SyntaxAnalyzer {
       completions.addAll(context.lexicalBindings.getLexicalVariables());
       completions.addAll(getGlobalVariableNames());
     } else {
-      Symbol symbol = context.packageManager.getSymbol(sexp);
+      Symbol symbol = context.getSymbol(sexp);
       if (symbol.isConstant()) {
         context.highlighter.highlightConstant(sexp);
       } else {
@@ -134,7 +134,7 @@ public class SyntaxAnalyzer {
         completions.addAll(context.lexicalBindings.getLexicalFunctions());
         completions.addAll(getGlobalFunctions());
       } else {
-        Symbol symbol = context.packageManager.getSymbol(sexp0);
+        Symbol symbol = context.getSymbol(sexp0);
         getAnalyzer(symbol).analyze(context, form);
       }
     } else {

@@ -69,7 +69,7 @@ public class AnalyzeDefclass implements FormAnalyzer {
         continue;
       }
       context.highlighter.highlightKeyword(slotOption);
-      Symbol option = context.packageManager.getSymbol(slotOption);
+      Symbol option = context.getSymbol(slotOption);
       if (METHOD_GENERATORS.contains(option)) {
         LispSexp name = slotOptions.get(i + 1);
         if (name.getSymbol() == null) {

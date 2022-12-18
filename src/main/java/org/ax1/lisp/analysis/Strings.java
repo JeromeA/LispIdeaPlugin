@@ -12,7 +12,7 @@ public class Strings {
     if (nameDesignator.getList() != null) return null;
     if (nameDesignator.isSymbol()) {
       context.highlighter.highlightConstant(nameDesignator);
-      Symbol symbol = context.packageManager.getSymbol(nameDesignator);
+      Symbol symbol = context.getSymbol(nameDesignator);
       return symbol.getName();
     }
     return getString(nameDesignator);

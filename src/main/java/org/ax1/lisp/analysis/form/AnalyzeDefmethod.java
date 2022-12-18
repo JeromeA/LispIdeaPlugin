@@ -56,7 +56,7 @@ public class AnalyzeDefmethod implements FormAnalyzer {
     }
 
     List<SymbolDefinition> variables = getVariables(context, lambdaList).stream()
-        .map(context.packageManager::getLocatedSymbol)
+        .map(context::getLocatedSymbol)
         .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("DEFMETHOD", locatedSymbol, null))
         .collect(toImmutableList());
     try(LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {
@@ -85,7 +85,7 @@ public class AnalyzeDefmethod implements FormAnalyzer {
       sexp = specialized.get(0);
     }
     if (sexp.isSymbol()) {
-      Symbol symbol = context.packageManager.getSymbol(sexp);
+      Symbol symbol = context.getSymbol(sexp);
       if (KEYWORDS.contains(symbol)) {
         context.highlighter.highlightConstant(sexp);
       } else {

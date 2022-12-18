@@ -28,7 +28,7 @@ public class AnalyzeFunctionCall implements FormAnalyzer {
       context.highlighter.highlightError(functionName, "Function name expected");
       return;
     }
-    Symbol symbol = context.packageManager.getSymbol(functionName);
+    Symbol symbol = context.getSymbol(functionName);
     if (KEYWORDS.contains(symbol)) {
       context.highlighter.highlightKeyword(functionName);
     }

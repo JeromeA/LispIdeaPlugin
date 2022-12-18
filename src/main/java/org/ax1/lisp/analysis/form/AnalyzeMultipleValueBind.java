@@ -30,7 +30,7 @@ public class AnalyzeMultipleValueBind implements FormAnalyzer {
       return;
     }
     List<SymbolDefinition> variables = getVariableSymbols(context, list1.getSexpList()).stream()
-        .map(context.packageManager::getLocatedSymbol)
+        .map(context::getLocatedSymbol)
         .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("MULTIPLE-VALUE-BIND", locatedSymbol, null))
         .collect(toImmutableList());
     try (LexicalBindingManager.LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {

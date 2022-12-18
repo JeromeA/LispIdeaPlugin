@@ -29,7 +29,7 @@ public class AnalyzeWithOutputToString implements FormAnalyzer {
     }
     LispSexp varName = varList.getSexpList().get(0);
     SymbolDefinition symbolDefinition = LexicalVariableHelper.newLexicalVariable("WITH-OUTPUT-TO-STRING",
-        context.packageManager.getLocatedSymbol(varName), null);
+        context.getLocatedSymbol(varName), null);
     context.lexicalBindings.defineLexicalVariables(List.of(symbolDefinition));
     context.analyzer.analyzeForms(list, 2);
     context.lexicalBindings.dropLexicalVariables();

@@ -60,7 +60,7 @@ public class AnalyzeLetStar implements FormAnalyzer {
           initialValue = init.getText();
         }
       }
-      LocatedSymbol locatedSymbol = context.packageManager.getLocatedSymbol(sexp);
+      LocatedSymbol locatedSymbol = context.getLocatedSymbol(sexp);
       SymbolDefinition variable = newLexicalVariable("LET*", locatedSymbol, initialValue);
       context.lexicalBindings.defineLexicalVariables(List.of(variable));
       analyzeLetStarVarList(context, form, varList, startAt + 1);

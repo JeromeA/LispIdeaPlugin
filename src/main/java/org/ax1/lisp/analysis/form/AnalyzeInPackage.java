@@ -22,6 +22,6 @@ public class AnalyzeInPackage implements FormAnalyzer {
       return;
     }
     context.result.addInPackage(packageName, sexp1);
-    context.packageManager.setCurrentPackage(packageName);
+    context.setCurrentPackage(packageName);
   }
 }

@@ -31,7 +31,7 @@ public class LambdaAnalyzer {
       return;
     }
     List<SymbolDefinition> variables = getVariables(context, lambdaList).stream()
-        .map(context.packageManager::getLocatedSymbol)
+        .map(context::getLocatedSymbol)
         .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable(formName, locatedSymbol, null))
         .collect(toImmutableList());
     try(LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {
@@ -44,7 +44,7 @@ public class LambdaAnalyzer {
     List<LispSexp> result = new ArrayList<>();
     for (LispSexp parameterSpecifier : lambdaList.getSexpList()) {
       if (parameterSpecifier.isSymbol()) {
-        Symbol symbol = context.packageManager.getSymbol(parameterSpecifier);
+        Symbol symbol = context.getSymbol(parameterSpecifier);
         if (KEYWORDS.contains(symbol)) {
           context.highlighter.highlightConstant(parameterSpecifier);
         } else {

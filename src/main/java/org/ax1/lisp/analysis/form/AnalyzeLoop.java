@@ -163,7 +163,7 @@ public class AnalyzeLoop implements FormAnalyzer {
     }
 
     SymbolDefinition variable = LexicalVariableHelper.newLexicalVariable("LOOP",
-        context.packageManager.getLocatedSymbol(sexp1), null);
+        context.getLocatedSymbol(sexp1), null);
     try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(List.of(variable))) {
       variableClause(context, form, startAt);
     }
@@ -196,7 +196,7 @@ public class AnalyzeLoop implements FormAnalyzer {
     }
 
     List<SymbolDefinition> locatedVariables = variables.stream()
-        .map(context.packageManager::getLocatedSymbol)
+        .map(context::getLocatedSymbol)
         .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("LOOP", locatedSymbol, null))
         .collect(toImmutableList());
     try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(locatedVariables)) {
@@ -417,7 +417,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       consumed++;
       // We don't support lexical bindings created by accumulations, because their scope is the whole loop.
       SymbolDefinition variable = LexicalVariableHelper.newLexicalVariable("LOOP",
-          context.packageManager.getLocatedSymbol(arg3), null);
+          context.getLocatedSymbol(arg3), null);
       context.lexicalBindings.defineLexicalVariables(List.of(variable)).close();
     }
     return consumed;

@@ -30,7 +30,7 @@ public class AnalyzeDoTimes implements FormAnalyzer {
     }
     context.analyzer.analyzeForms(varList.getSexpList(), 1);
     SymbolDefinition binding = LexicalVariableHelper.newLexicalVariable("DOTIMES",
-        context.packageManager.getLocatedSymbol(varName), null);
+        context.getLocatedSymbol(varName), null);
     context.lexicalBindings.defineLexicalVariables(List.of(binding));
     context.analyzer.analyzeForms(list, 2);
     context.lexicalBindings.dropLexicalVariables();

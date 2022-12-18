@@ -30,7 +30,7 @@ public class AnalyzeDolist implements FormAnalyzer {
     }
     context.analyzer.analyzeForm(varList.getSexpList().get(1));
     SymbolDefinition binding = LexicalVariableHelper.newLexicalVariable("DOLIST",
-        context.packageManager.getLocatedSymbol(varName), null);
+        context.getLocatedSymbol(varName), null);
     context.lexicalBindings.defineLexicalVariables(List.of(binding));
     context.analyzer.analyzeForms(list, 2);
     context.lexicalBindings.dropLexicalVariables();

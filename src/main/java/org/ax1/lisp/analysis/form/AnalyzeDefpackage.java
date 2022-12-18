@@ -54,7 +54,7 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       return;
     }
     context.highlighter.highlightKeyword(optionName);
-    Symbol optionSymbol = context.packageManager.getSymbol(optionName);
+    Symbol optionSymbol = context.getSymbol(optionName);
     switch(optionSymbol.getName()) {
       case "EXPORT":
         analyzeOptionExport(context, definition, list);

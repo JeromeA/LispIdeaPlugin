@@ -38,7 +38,7 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
       return;
     }
     List<SymbolDefinition> variables = getDestructuringBindVariableSymbols(context, list1.getSexpList()).stream()
-        .map(context.packageManager::getLocatedSymbol)
+        .map(context::getLocatedSymbol)
         .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("DESTRUCTURING-BIND", locatedSymbol, null))
         .collect(toImmutableList());
     try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {
@@ -51,7 +51,7 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
     for (LispSexp sexp : lambdaList) {
       LispList list = sexp.getList();
       if (sexp.isSymbol()) {
-        Symbol symbol = context.packageManager.getSymbol(sexp);
+        Symbol symbol = context.getSymbol(sexp);
         if (KEYWORDS.contains(symbol)) {
           context.highlighter.highlightConstant(sexp);
         } else {
