@@ -103,7 +103,8 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
 
   @Override
   public PsiElement setName(@NotNull String newName) {
-    LispSexp newSexp = LispElementFactory.createSymbol(getProject(), newName);
+    String prefix = getText().substring(0, getSymbolNameOffset());
+    LispSexp newSexp = LispElementFactory.createSymbol(getProject(), prefix + newName);
     ASTNode parent = getNode().getTreeParent();
     parent.replaceChild(getNode(), newSexp.getNode());
     return this;
@@ -179,14 +180,17 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
       return TextRange.create(range.getStartOffset() + 1, range.getEndOffset() - 1);
     }
     if (isSymbol()) {
-      String text = getText();
-      int colon = text.indexOf(':');
-      if (colon >= 0) {
-        int doubleColon = text.indexOf("::");
-        int start = doubleColon >= 0 ? doubleColon + 2 : colon + 1;
-        return TextRange.create(range.getStartOffset() + start, range.getEndOffset());
-      }
+      return TextRange.create(range.getStartOffset() + getSymbolNameOffset(), range.getEndOffset());
     }
     return range;
+  }
+
+  private int getSymbolNameOffset() {
+    String text = getText();
+    int doubleColon = text.indexOf("::");
+    if (doubleColon >= 0) return doubleColon + 2;
+    int colon = text.indexOf(':');
+    if (colon >= 0) return colon + 1;
+    return 0;
   }
 }
