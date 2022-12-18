@@ -21,7 +21,7 @@ public class AnalyzeInPackage implements FormAnalyzer {
       context.highlighter.highlightError(sexp1, "Expected name designator");
       return;
     }
-    context.result.addInPackage(packageName, sexp1);
+    context.result.addPackageUsage(packageName, sexp1);
     context.setCurrentPackage(packageName);
   }
 }

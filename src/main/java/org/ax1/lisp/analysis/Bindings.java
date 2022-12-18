@@ -30,7 +30,7 @@ public class Bindings {
     packages.add(definition);
   }
 
-  public void addInPackage(String name, LispSexp sexp) {
+  public void addPackageUsage(String name, LispSexp sexp) {
     PackageDefinition packageDefinition = new PackageDefinition(name);
     packageDefinition.getUsages().add(sexp);
     packages.add(packageDefinition);

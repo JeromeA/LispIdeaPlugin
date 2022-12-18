@@ -65,22 +65,23 @@ public class AnalysisContext {
       return KeywordPackage.INSTANCE.intern(name.substring(1));
     }
     int doubleColon = name.indexOf("::");
+    String packageName = null;
+    String symbolName = null;
     if (doubleColon > 0) {
-      String packageName = name.substring(0, doubleColon);
-      String symbolName = name.substring(doubleColon + 2);
-      LispPackage lispPackage = packageManager.getOrCreatePackage(packageName);
-      // If we were Lisp, we would call findSymbol, which can return null. But we want to be able to manipulate
-      // that unknown symbol, find all its occurrences, etc, so we really want it to exist. If we need to mark it as
-      // invalid, this will have to be done at a later stage.
-      return lispPackage.intern(symbolName);
+      packageName = name.substring(0, doubleColon);
+      symbolName = name.substring(doubleColon + 2);
     }
     int colon = name.indexOf(":");
+    if (colon > 0 && doubleColon < 0) {
+      packageName = name.substring(0, colon);
+      symbolName = name.substring(colon + 1);
+    }
     if (colon > 0) {
-      String packageName = name.substring(0, colon);
-      String symbolName = name.substring(colon + 1);
       LispPackage lispPackage = packageManager.getOrCreatePackage(packageName);
-      // If we were Lisp, we would call findExportedSymbol, which can return null. But we want to be able to manipulate
-      // that unknown symbol, so we really want it to exist.
+      result.addPackageUsage(lispPackage.getName(), sexp);
+      // If we were Lisp, we would call findSymbol or findExportedSymbol, which can return null. But we want to be able
+      // to manipulate that unknown symbol, find all its occurrences, etc, so we really want it to exist. If we need to
+      // mark it as invalid, this will have to be done at a later stage.
       return lispPackage.intern(symbolName);
     }
     return packageManager.getOrCreatePackage(currentPackage).intern(name);

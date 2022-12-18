@@ -20,6 +20,9 @@ import org.ax1.lisp.usages.LispSexpReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Scope.LEXICAL;
 import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Type.FUNCTION;
 import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Type.VARIABLE;
@@ -32,20 +35,51 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
 
   @Override
   public PsiReference getReference() {
-    LispDefinition definition = getDefinition();
+    return getSymbolReference();
+  }
+
+  @Override
+  public PsiReference @NotNull [] getReferences() {
+    return Stream.of(getSymbolReference(), getPackageReference()).filter(Objects::nonNull).toArray(PsiReference[]::new);
+  }
+
+  @Override
+  public PsiReference getSymbolReference() {
+    SymbolDefinition definition = getSymbolDefinition();
     if (definition != null && definition.isUsage(this)) {
       TextRange range = ElementManipulators.getValueTextRange(this);
-      if (isString()) {
-        range = TextRange.create(range.getStartOffset() + 1, range.getEndOffset() - 1);
-      }
-      if (isSymbol()) {
-        String text = getText();
-        int colonIndex = text.indexOf(':');
-        if (colonIndex >= 0) {
-          range = TextRange.create(range.getStartOffset() + colonIndex + 1, range.getEndOffset());
-        }
+      String text = getText();
+      int colonIndex = text.indexOf(':');
+      if (colonIndex >= 0) {
+        range = TextRange.create(range.getStartOffset() + colonIndex + 1, range.getEndOffset());
       }
       return new LispSexpReference(this, definition.getDefinition(), range);
+    }
+    return null;
+  }
+
+  @Override
+  public PsiReference getPackageReference() {
+    PackageDefinition packageDefinition = getPackageDefinition();
+    if (packageDefinition != null && packageDefinition.isUsage(this)) {
+      TextRange range = ElementManipulators.getValueTextRange(this);
+      if (isString()) {
+        return new LispSexpReference(this, packageDefinition.getDefinition(),
+            TextRange.create(range.getStartOffset() + 1, range.getEndOffset() - 1));
+      }
+      String text = getText();
+      int colonIndex = text.indexOf(':');
+      if (getSymbolDefinition() != null) {
+        // Reference to the package part of a symbol.
+        if (colonIndex <= 0 || text.startsWith("#:")) {
+          throw new RuntimeException("No package part in symbol");
+        }
+        return new LispSexpReference(this, packageDefinition.getDefinition(),
+            TextRange.create(range.getStartOffset(), range.getStartOffset() + colonIndex));
+      }
+      // Using a symbol as a string designator.
+      return new LispSexpReference(this, packageDefinition.getDefinition(),
+          TextRange.create(range.getStartOffset() + colonIndex + 1, range.getEndOffset()));
     }
     return null;
   }
@@ -143,6 +177,15 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
     TextRange range = getTextRange();
     if (isString()) {
       return TextRange.create(range.getStartOffset() + 1, range.getEndOffset() - 1);
+    }
+    if (isSymbol()) {
+      String text = getText();
+      int colon = text.indexOf(':');
+      if (colon >= 0) {
+        int doubleColon = text.indexOf("::");
+        int start = doubleColon >= 0 ? doubleColon + 2 : colon + 1;
+        return TextRange.create(range.getStartOffset() + start, range.getEndOffset());
+      }
     }
     return range;
   }
