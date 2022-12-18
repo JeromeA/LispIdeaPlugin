@@ -15,7 +15,6 @@ import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.psi.LispElementFactory;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 import org.ax1.lisp.psi.LispTypes;
 import org.ax1.lisp.usages.LispSexpReference;
 import org.jetbrains.annotations.NotNull;

@@ -9,7 +9,6 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.ax1.lisp.psi.LispFile;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 import org.ax1.lisp.subprocess.LispRunExpressionAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,9 +37,9 @@ public class LispRunLineMarkerContributor extends RunLineMarkerContributor imple
     LispList list = (LispList) element.getParent();
     List<LispSexp> sexpList = list.getSexpList();
     if (sexpList.isEmpty()) return null;
-    LispSymbol symbol = sexpList.get(0).getSymbol();
-    if (symbol == null) return null;
-    return symbol.getText();
+    LispSexp formName = sexpList.get(0);
+    if (!formName.isSymbol()) return null;
+    return formName.getText();
   }
 
   private boolean isTopLevel(PsiElement element) {

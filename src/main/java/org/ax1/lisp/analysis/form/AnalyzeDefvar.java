@@ -1,10 +1,8 @@
 package org.ax1.lisp.analysis.form;
 
-import com.intellij.openapi.util.NlsSafe;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

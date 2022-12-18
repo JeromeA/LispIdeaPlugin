@@ -86,8 +86,7 @@ public class SyntaxAnalyzer {
         context.highlighter.highlightConstant(quoted);
         break;
       case "#'":
-        LispSymbol symbolName = quotedSexp.getSymbol();
-        if (symbolName != null) {
+        if (quotedSexp.isSymbol()) {
           context.addFunctionUsage(quotedSexp);
           return;
         }

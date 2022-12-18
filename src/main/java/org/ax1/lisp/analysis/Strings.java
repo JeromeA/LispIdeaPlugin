@@ -3,7 +3,6 @@ package org.ax1.lisp.analysis;
 import com.intellij.lang.ASTNode;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 
 import static org.ax1.lisp.psi.LispTypes.STRING;
 

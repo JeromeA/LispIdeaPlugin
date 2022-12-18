@@ -5,7 +5,6 @@ import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
 import org.ax1.lisp.analysis.LocatedSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

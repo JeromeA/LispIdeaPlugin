@@ -6,7 +6,6 @@ import org.ax1.lisp.analysis.LexicalVariableHelper;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 import java.util.Set;
@@ -44,12 +43,12 @@ public class AnalyzeLoop implements FormAnalyzer {
    */
   private void nameClause(AnalysisContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
-    LispSymbol symbol = list.get(1).getSymbol();
-    if (symbol == null) {
-      context.highlighter.highlightError(list.get(1), "Loop keyword expected");
+    LispSexp loopKeyword = list.get(1);
+    if (!loopKeyword.isSymbol()) {
+      context.highlighter.highlightError(loopKeyword, "Loop keyword expected");
       return;
     }
-    if (symbol.getText().equals("named")) {
+    if (loopKeyword.getText().equals("named")) {
       if (list.size() <= 2) {
         context.highlighter.highlightError(form, "Name missing");
         return;
@@ -69,12 +68,12 @@ public class AnalyzeLoop implements FormAnalyzer {
   private void variableClause(AnalysisContext context, LispList form, int startAt) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() <= startAt) return;
-    LispSymbol symbol = list.get(startAt).getSymbol();
-    if (symbol == null) {
-      context.highlighter.highlightError(list.get(startAt), "Loop keyword expected");
+    LispSexp loopKeyword = list.get(startAt);
+    if (!loopKeyword.isSymbol()) {
+      context.highlighter.highlightError(loopKeyword, "Loop keyword expected");
       return;
     }
-    switch (symbol.getText()) {
+    switch (loopKeyword.getText()) {
       case "with":
         with(context, form, startAt);
         break;
@@ -372,8 +371,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       return 0;
     }
     LispSexp arg = list.get(startAt + 1);
-    LispSymbol symbol = arg.getSymbol();
-    if (symbol != null && symbol.getText().equals("it")) {
+    if (arg.isSymbol() && arg.getText().equals("it")) {
       context.highlighter.highlightKeyword(arg);
     } else {
       context.analyzer.analyzeForm(arg);
@@ -395,8 +393,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       return 0;
     }
     LispSexp arg = list.get(startAt + 1);
-    LispSymbol symbol = arg.getSymbol();
-    if (symbol != null && symbol.getText().equals("it")) {
+    if (arg.isSymbol() && arg.getText().equals("it")) {
       context.highlighter.highlightKeyword(arg);
     } else {
       context.analyzer.analyzeForm(arg);

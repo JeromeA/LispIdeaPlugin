@@ -2,7 +2,6 @@ package org.ax1.lisp.analysis.symbol;
 
 import org.ax1.lisp.analysis.LocatedSymbol;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.*;
 

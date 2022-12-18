@@ -27,9 +27,9 @@ public class PackageAnalyzer {
     if (form == null) return;
     List<LispSexp> sexpList = form.getSexpList();
     if (sexpList.size() < 1) return;
-    LispSymbol symbol = sexpList.get(0).getSymbol();
-    if (symbol == null) return;
-    if (symbol.getText().equals("defpackage")) {
+    LispSexp formName = sexpList.get(0);
+    if (!formName.isSymbol()) return;
+    if (formName.getText().equals("defpackage")) {
       analyzeDefpackage.analyze(context, form);
     }
   }

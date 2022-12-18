@@ -5,7 +5,6 @@ import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.Strings;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 

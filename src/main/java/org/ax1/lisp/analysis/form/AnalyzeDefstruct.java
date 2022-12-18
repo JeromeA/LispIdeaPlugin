@@ -4,7 +4,6 @@ import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 
@@ -56,11 +55,10 @@ public class AnalyzeDefstruct implements FormAnalyzer {
   }
 
   private void analyzeSlot(AnalysisContext context, Struct struct, LispSexp slot) {
-    LispSymbol simpleSymbol = slot.getSymbol();
-    if (simpleSymbol != null) {
-      Symbol functionSymbol = context.packageManager.getSymbol(struct.name + "-" + simpleSymbol.getText());
+    if (slot.isSymbol()) {
+      Symbol functionSymbol = context.packageManager.getSymbol(struct.name + "-" + slot.getText());
       context.result.addFunctionDefinition(functionSymbol, slot, "");
-      context.highlighter.highlight(simpleSymbol, FUNCTION_DECLARATION);
+      context.highlighter.highlight(slot, FUNCTION_DECLARATION);
       return;
     }
     LispList list = slot.getList();

@@ -4,7 +4,6 @@ import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 import java.util.Set;
@@ -30,8 +29,7 @@ public class AnalyzeDefclass implements FormAnalyzer {
 
     // Class name
     LispSexp nameSexp = list.get(1);
-    LispSymbol symbol = nameSexp.getSymbol();
-    if (symbol == null) {
+    if (!nameSexp.isSymbol()) {
       context.highlighter.highlightError(nameSexp, "Class name expected");
       return;
     }
@@ -55,12 +53,11 @@ public class AnalyzeDefclass implements FormAnalyzer {
   }
 
   private void analyzeSlot(AnalysisContext context, LispSexp slot) {
-    LispSymbol simpleSymbol = slot.getSymbol();
-    if (simpleSymbol != null) {
+    if (slot.isSymbol()) {
       return;
     }
     LispList slotList = slot.getList();
-    if (slotList == null || slotList.getSexpList().size() < 1 || slotList.getSexpList().get(0).getSymbol() == null) {
+    if (slotList == null || slotList.getSexpList().size() < 1 || !slotList.getSexpList().get(0).isSymbol()) {
       context.highlighter.highlightError(slot, "Slot definition expected");
       return;
     }

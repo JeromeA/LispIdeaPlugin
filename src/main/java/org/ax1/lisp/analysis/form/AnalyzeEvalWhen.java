@@ -4,7 +4,6 @@ import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 import java.util.Set;
@@ -33,8 +32,7 @@ public class AnalyzeEvalWhen implements FormAnalyzer {
       return;
     }
     for (LispSexp situation : situationList.getSexpList()) {
-      LispSymbol symbol = situation.getSymbol();
-      if (symbol != null && SITUATIONS.contains(context.packageManager.getSymbol(situation))) {
+      if (situation.isSymbol() && SITUATIONS.contains(context.packageManager.getSymbol(situation))) {
         context.highlighter.highlightKeyword(situation);
       } else {
         context.highlighter.highlightError(situation, "Invalid situation");
