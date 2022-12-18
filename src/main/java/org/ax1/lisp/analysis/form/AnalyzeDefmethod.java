@@ -84,7 +84,7 @@ public class AnalyzeDefmethod implements FormAnalyzer {
       }
       sexp = specialized.get(0);
     }
-    if (sexp.getSymbol() != null) {
+    if (sexp.isSymbol()) {
       Symbol symbol = context.packageManager.getSymbol(sexp);
       if (KEYWORDS.contains(symbol)) {
         context.highlighter.highlightConstant(sexp);

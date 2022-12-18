@@ -41,7 +41,7 @@ public class AnalyzeMultipleValueBind implements FormAnalyzer {
   private List<LispSexp> getVariableSymbols(AnalysisContext context, @NotNull List<LispSexp> lambdaList) {
     List<LispSexp> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
-      if (sexp.getSymbol() != null) {
+      if (sexp.isSymbol()) {
         result.add(sexp);
       } else {
         context.highlighter.highlightError(sexp, "Variable name expected");

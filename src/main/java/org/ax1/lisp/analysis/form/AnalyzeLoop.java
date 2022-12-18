@@ -206,7 +206,7 @@ public class AnalyzeLoop implements FormAnalyzer {
   }
 
   private List<LispSexp> getVariables(AnalysisContext context, LispSexp sexp) {
-    if (sexp.getSymbol() != null) {
+    if (sexp.isSymbol()) {
       if (sexp.getText().equals("nil")) {
         context.highlighter.highlightKeyword(sexp);
         return List.of();
@@ -405,7 +405,7 @@ public class AnalyzeLoop implements FormAnalyzer {
 
     if (list.size() <= startAt + consumed) return consumed;
     LispSexp arg2 = list.get(startAt + consumed);
-    if (arg2.getSymbol() != null && arg2.getText().equals("into")) {
+    if (arg2.isSymbol() && arg2.getText().equals("into")) {
       context.highlighter.highlightKeyword(arg2);
       consumed++;
       if (list.size() <= startAt + consumed) {

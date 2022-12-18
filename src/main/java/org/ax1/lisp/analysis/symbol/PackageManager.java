@@ -54,10 +54,6 @@ public final class PackageManager {
     return getSymbol(parsedSymbol.getText());
   }
 
-  public Symbol getSymbol(LispSymbol parsedSymbol) {
-    return getSymbol(parsedSymbol.getText());
-  }
-
   public LocatedSymbol getLocatedSymbol(LispSexp parsedSymbol) {
     return new LocatedSymbol(getSymbol(parsedSymbol.getText()), parsedSymbol);
   }

@@ -32,12 +32,12 @@ public class AnalyzeEvalWhen implements FormAnalyzer {
       context.highlighter.highlightError(list.get(1), "List of situations expected");
       return;
     }
-    for (LispSexp lispSexp : situationList.getSexpList()) {
-      LispSymbol symbol = lispSexp.getSymbol();
-      if (symbol != null && SITUATIONS.contains(context.packageManager.getSymbol(symbol))) {
-        context.highlighter.highlightKeyword(lispSexp);
+    for (LispSexp situation : situationList.getSexpList()) {
+      LispSymbol symbol = situation.getSymbol();
+      if (symbol != null && SITUATIONS.contains(context.packageManager.getSymbol(situation))) {
+        context.highlighter.highlightKeyword(situation);
       } else {
-        context.highlighter.highlightError(lispSexp, "Invalid situation");
+        context.highlighter.highlightError(situation, "Invalid situation");
       }
     }
 

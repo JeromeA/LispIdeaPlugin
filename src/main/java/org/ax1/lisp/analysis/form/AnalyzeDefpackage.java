@@ -49,9 +49,9 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       return;
     }
     List<LispSexp> list = optionList.getSexpList();
-    LispSymbol optionName = list.get(0).getSymbol();
-    if (optionName == null) {
-      context.highlighter.highlightError(optionList.getSexpList().get(0), "Option name expected");
+    LispSexp optionName = list.get(0);
+    if (optionName.getSymbol() == null) {
+      context.highlighter.highlightError(optionName, "Option name expected");
       return;
     }
     context.highlighter.highlightKeyword(optionName);

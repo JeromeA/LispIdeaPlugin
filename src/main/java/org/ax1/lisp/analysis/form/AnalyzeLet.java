@@ -51,7 +51,7 @@ public class AnalyzeLet implements FormAnalyzer {
     List<SymbolDefinition> result = new ArrayList<>();
     for (LispSexp sexp : varList) {
       LispList list = sexp.getList();
-      if (sexp.getSymbol() != null) {
+      if (sexp.isSymbol()) {
         LocatedSymbol locatedSymbol = context.packageManager.getLocatedSymbol(sexp);
         result.add(newLexicalVariable("LET", locatedSymbol, "nil"));
       } else if (list != null) {

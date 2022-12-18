@@ -15,4 +15,5 @@ public interface LispSexpMixin extends PsiNameIdentifierOwner, PsiQualifiedNamed
   PackageDefinition getPackageDefinition();
   SymbolDefinition getSymbolDefinition();
   LispDefinition getDefinition();
+  boolean isSymbol();
 }

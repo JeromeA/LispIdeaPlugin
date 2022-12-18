@@ -30,7 +30,7 @@ public class AnalyzeDefun implements FormAnalyzer {
       return;
     }
     LispSexp functionName = list.get(1);
-    if (functionName.getSymbol() != null) {
+    if (functionName.isSymbol()) {
       context.highlighter.highlight(functionName, FUNCTION_DECLARATION);
       StringBuilder sb = new StringBuilder();
       sb.append(DocumentationMarkup.DEFINITION_START);

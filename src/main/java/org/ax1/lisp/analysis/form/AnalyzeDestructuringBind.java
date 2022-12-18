@@ -50,7 +50,7 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
     List<LispSexp> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
       LispList list = sexp.getList();
-      if (sexp.getSymbol() != null) {
+      if (sexp.isSymbol()) {
         Symbol symbol = context.packageManager.getSymbol(sexp);
         if (KEYWORDS.contains(symbol)) {
           context.highlighter.highlightConstant(sexp);

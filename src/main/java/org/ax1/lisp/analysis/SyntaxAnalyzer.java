@@ -64,7 +64,7 @@ public class SyntaxAnalyzer {
   }
 
   public void analyzeForm(LispSexp form) {
-    if (form.getSymbol() != null) {
+    if (form.isSymbol()) {
       analyseSymbolForm(form);
     }
     if (form.getList() != null) {
@@ -130,7 +130,7 @@ public class SyntaxAnalyzer {
     List<LispSexp> list = form.getSexpList();
     if (list.isEmpty()) return;
     LispSexp sexp0 = list.get(0);
-    if (sexp0.getSymbol() != null) {
+    if (sexp0.isSymbol()) {
       if (isCompletion(sexp0)) {
         completions.addAll(context.lexicalBindings.getLexicalFunctions());
         completions.addAll(getGlobalFunctions());

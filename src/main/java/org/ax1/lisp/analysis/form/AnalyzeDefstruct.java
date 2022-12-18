@@ -38,7 +38,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
   }
 
   private Struct createStruct(AnalysisContext context, LispSexp nameSexp) {
-    if (nameSexp.getSymbol() != null) {
+    if (nameSexp.isSymbol()) {
       return createStruct(context, nameSexp);
     }
     if (nameSexp.getList() == null
@@ -64,7 +64,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
       return;
     }
     LispList list = slot.getList();
-    if (list != null && list.getSexpList().size() >= 1 && list.getSexpList().get(0).getSymbol() != null) {
+    if (list != null && list.getSexpList().size() >= 1 && list.getSexpList().get(0).isSymbol()) {
       LispSexp sexp = list.getSexpList().get(0);
       Symbol functionSymbol = context.packageManager.getSymbol(struct.name + "-" + sexp.getText());
       context.result.addFunctionDefinition(functionSymbol, sexp, "");

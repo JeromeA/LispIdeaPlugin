@@ -11,10 +11,9 @@ public class Strings {
 
   public static String getStringDesignator(AnalysisContext context, LispSexp nameDesignator) {
     if (nameDesignator.getList() != null) return null;
-    LispSymbol symbolName = nameDesignator.getSymbol();
-    if (symbolName != null) {
-      context.highlighter.highlightConstant(symbolName);
-      Symbol symbol = context.packageManager.getSymbol(symbolName);
+    if (nameDesignator.isSymbol()) {
+      context.highlighter.highlightConstant(nameDesignator);
+      Symbol symbol = context.packageManager.getSymbol(nameDesignator);
       return symbol.getName();
     }
     return getString(nameDesignator);

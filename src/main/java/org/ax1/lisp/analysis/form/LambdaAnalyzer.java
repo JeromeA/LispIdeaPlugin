@@ -43,7 +43,7 @@ public class LambdaAnalyzer {
   private static List<LispSexp> getVariables(AnalysisContext context, LispList lambdaList) {
     List<LispSexp> result = new ArrayList<>();
     for (LispSexp parameterSpecifier : lambdaList.getSexpList()) {
-      if (parameterSpecifier.getSymbol() != null) {
+      if (parameterSpecifier.isSymbol()) {
         Symbol symbol = context.packageManager.getSymbol(parameterSpecifier);
         if (KEYWORDS.contains(symbol)) {
           context.highlighter.highlightConstant(parameterSpecifier);

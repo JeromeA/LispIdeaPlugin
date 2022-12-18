@@ -132,8 +132,7 @@ public abstract class LispSexpMixinImpl extends ASTWrapperPsiElement implements 
   }
 
   public boolean isSymbol() {
-    PsiElement firstChild = getFirstChild();
-    return firstChild instanceof LispSymbol;
+    return getSymbol() != null;
   }
 
   /*
