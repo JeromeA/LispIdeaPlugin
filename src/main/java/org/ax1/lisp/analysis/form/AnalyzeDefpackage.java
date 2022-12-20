@@ -6,12 +6,12 @@ import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbolName;
+import org.ax1.lisp.psi.impl.LispStringDesignator;
 
 import java.util.List;
 
-import static org.ax1.lisp.analysis.Strings.getString;
-import static org.ax1.lisp.analysis.Strings.getStringDesignator;
-import static org.ax1.lisp.psi.LispTypes.STRING;
+import static org.ax1.lisp.analysis.NameDesignators.getLispStringDesignator;
 
 /**
  * This analyzer can be used from three different context:
@@ -30,13 +30,13 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       return;
     }
     LispSexp sexp1 = formList.get(1);
-    String packageName = getStringDesignator(context, sexp1);
+    LispStringDesignator packageName = getLispStringDesignator(context, sexp1);
     if (packageName == null) {
       context.highlighter.highlightError(sexp1, "Package name (as a string designator) expected");
       return;
     }
-    PackageDefinition definition = new PackageDefinition(packageName);
-    definition.setDefinition(sexp1);
+    PackageDefinition definition = new PackageDefinition(packageName.getValue());
+    definition.setDefinition(packageName);
     formList.stream().skip(2).forEach(sexp -> analyzeOption(context, sexp, definition));
     context.result.addDefPackage(definition);
   }
@@ -48,14 +48,14 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       return;
     }
     List<LispSexp> list = optionList.getSexpList();
-    LispSexp optionName = list.get(0);
-    if (optionName.getSymbol() == null) {
-      context.highlighter.highlightError(optionName, "Option name expected");
+    LispSexp sexp0 = list.get(0);
+    if (sexp0.getSymbol() == null) {
+      context.highlighter.highlightError(sexp0, "Option name expected");
       return;
     }
-    context.highlighter.highlightKeyword(optionName);
-    Symbol optionSymbol = context.getSymbol(optionName);
-    switch(optionSymbol.getName()) {
+    LispSymbolName symbolName = sexp0.getSymbolName();
+    context.highlighter.highlightKeyword(symbolName);
+    switch(symbolName.getValue()) {
       case "EXPORT":
         analyzeOptionExport(context, definition, list);
         break;
@@ -75,7 +75,7 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       case "SIZE":
         break;
       default:
-        context.highlighter.highlightError(optionName, "DEFPACKAGE option name expected");
+        context.highlighter.highlightError(sexp0, "DEFPACKAGE option name expected");
     }
   }
 
@@ -85,7 +85,7 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       context.highlighter.highlightError(optionList, "IMPORT-FROM option takes at least 1 argument");
       return;
     }
-    getStringDesignator(context, list.get(1));
+    getLispStringDesignator(context, list.get(1));
     // TODO: parse and use the rest of the form.
   }
 
@@ -95,21 +95,21 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       return;
     }
     LispSexp descriptionSexp = optionList.getSexpList().get(1);
-    if (descriptionSexp.getNode().getFirstChildNode().getElementType() != STRING) {
+    if (descriptionSexp.getString() != null) {
       context.highlighter.highlightError(descriptionSexp, "Description string expected");
       return;
     }
-    definition.setDescription(getString(descriptionSexp));
+    definition.setDescription(descriptionSexp.getString().getStringContent().getValue());
   }
 
   private void analyzeOptionUses(AnalysisContext context, PackageDefinition definition, List<LispSexp> list) {
     for (int i = 1; i < list.size(); i++) {
       LispSexp sexp = list.get(i);
-      String stringDesignator = getStringDesignator(context, sexp);
+      LispStringDesignator stringDesignator = sexp.getStringDesignator();
       if (stringDesignator == null) {
         context.highlighter.highlightError(sexp, "package name (string designator) expected");
       } else {
-        definition.use.put(stringDesignator, sexp);
+        definition.use.put(stringDesignator.getValue(), stringDesignator);
       }
     }
   }
@@ -117,11 +117,11 @@ public class AnalyzeDefpackage implements FormAnalyzer {
   private void analyzeOptionExport(AnalysisContext context, PackageDefinition definition, List<LispSexp> list) {
     for (int i = 1; i < list.size(); i++) {
       LispSexp sexp = list.get(i);
-      String stringDesignator = getStringDesignator(context, sexp);
+      LispStringDesignator stringDesignator = getLispStringDesignator(context, sexp);
       if (stringDesignator == null) {
         context.highlighter.highlightError(sexp, "Symbol name (string designator) expected");
       } else {
-        definition.exports.put(stringDesignator, sexp);
+        definition.exports.put(stringDesignator.getValue(), stringDesignator);
       }
     }
   }

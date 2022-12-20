@@ -6,6 +6,7 @@ import org.ax1.lisp.analysis.LexicalVariableHelper;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 import java.util.Set;
@@ -163,7 +164,7 @@ public class AnalyzeLoop implements FormAnalyzer {
     }
 
     SymbolDefinition variable = LexicalVariableHelper.newLexicalVariable("LOOP",
-        context.getLocatedSymbol(sexp1), null);
+        context.getLocatedSymbol(sexp1.getSymbol()), null);
     try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(List.of(variable))) {
       variableClause(context, form, startAt);
     }
@@ -179,7 +180,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       return;
     }
     LispSexp sexp1 = list.get(startAt);
-    List<LispSexp> variables = getVariables(context, sexp1);
+    List<LispSymbol> variables = getVariables(context, sexp1);
     startAt++;
 
     while (true) {
@@ -204,13 +205,13 @@ public class AnalyzeLoop implements FormAnalyzer {
     }
   }
 
-  private List<LispSexp> getVariables(AnalysisContext context, LispSexp sexp) {
-    if (sexp.isSymbol()) {
+  private List<LispSymbol> getVariables(AnalysisContext context, LispSexp sexp) {
+    if (sexp.getSymbol() != null) {
       if (sexp.getText().equals("nil")) {
         context.highlighter.highlightKeyword(sexp);
         return List.of();
       }
-      return List.of(sexp);
+      return List.of(sexp.getSymbol());
     }
     LispList list = sexp.getList();
     if (list != null) {
@@ -417,7 +418,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       consumed++;
       // We don't support lexical bindings created by accumulations, because their scope is the whole loop.
       SymbolDefinition variable = LexicalVariableHelper.newLexicalVariable("LOOP",
-          context.getLocatedSymbol(arg3), null);
+          context.getLocatedSymbol(arg3.getSymbol()), null);
       context.lexicalBindings.defineLexicalVariables(List.of(variable)).close();
     }
     return consumed;

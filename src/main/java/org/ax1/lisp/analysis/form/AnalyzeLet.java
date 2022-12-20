@@ -52,7 +52,7 @@ public class AnalyzeLet implements FormAnalyzer {
     for (LispSexp sexp : varList) {
       LispList list = sexp.getList();
       if (sexp.isSymbol()) {
-        LocatedSymbol locatedSymbol = context.getLocatedSymbol(sexp);
+        LocatedSymbol locatedSymbol = context.getLocatedSymbol(sexp.getSymbol());
         result.add(newLexicalVariable("LET", locatedSymbol, "nil"));
       } else if (list != null) {
         List<LispSexp> sexpList = list.getSexpList();
@@ -60,7 +60,7 @@ public class AnalyzeLet implements FormAnalyzer {
           context.highlighter.highlightError(list, "Expected var init form");
           continue;
         }
-        LocatedSymbol locatedSymbol = context.getLocatedSymbol(sexpList.get(0));
+        LocatedSymbol locatedSymbol = context.getLocatedSymbol(sexpList.get(0).getSymbol());
         String initialValue = sexpList.size() < 2 ? "nil" : sexpList.get(1).getText();
         result.add(newLexicalVariable("LET", locatedSymbol, initialValue));
       } else {

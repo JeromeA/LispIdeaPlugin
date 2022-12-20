@@ -5,19 +5,17 @@ import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import com.intellij.util.IncorrectOperationException;
-import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class LispSexpReference extends PsiReferenceBase<LispSexp> {
+public class LispStringDesignatorReference extends PsiReferenceBase<LispStringDesignator> {
 
   private final PsiElement definition;
-  private final TextRange textRange;
 
-  public LispSexpReference(@NotNull LispSexp sexp, PsiElement definition, TextRange textRange) {
-    super(sexp);
+  public LispStringDesignatorReference(@NotNull LispStringDesignator stringDesignator, PsiElement definition) {
+    super(stringDesignator);
     this.definition = definition;
-    this.textRange = textRange;
   }
 
   @Override
@@ -27,7 +25,7 @@ public class LispSexpReference extends PsiReferenceBase<LispSexp> {
 
   @Override
   public @NotNull TextRange getRangeInElement() {
-    return textRange;
+    return ElementManipulators.getValueTextRange(myElement);
   }
 
   @Override

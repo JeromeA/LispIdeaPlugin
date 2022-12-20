@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
-import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbolName;
 import org.ax1.lisp.psi.LispTypes;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,17 +32,17 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
   @Override
   public LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement element) {
     if (getTokenType(element) == LispTypes.SYMBOL_TOKEN) {
-      LispSexp sexp = (LispSexp) element.getParent().getParent();
-      SymbolDefinition symbolDefinition = sexp.getSymbolDefinition();
+      LispSymbolName symbolName = (LispSymbolName) element.getParent();
+      SymbolDefinition symbolDefinition = symbolName.getSymbolDefinition();
       if (symbolDefinition == null) return null;
       if (symbolDefinition.type != SymbolDefinition.Type.FUNCTION) return null;
-      if (symbolDefinition.methods.contains(sexp) && !symbolDefinition.getDefinitions().isEmpty()) {
+      if (symbolDefinition.methods.contains(symbolName) && !symbolDefinition.getDefinitions().isEmpty()) {
         NavigatablePsiElement target = (NavigatablePsiElement) symbolDefinition.getDefinition();
         return new LineMarkerInfo<>(element, element.getTextRange(), TO_GENERIC,
             null, new DefaultGutterIconNavigationHandler<>(List.of(target), "Generic Definition"),
             GutterIconRenderer.Alignment.RIGHT, () -> "Go to generic");
       }
-      if (symbolDefinition.isDefinition(sexp) && !symbolDefinition.methods.isEmpty()) {
+      if (symbolDefinition.isDefinition(symbolName) && !symbolDefinition.methods.isEmpty()) {
         Collection<NavigatablePsiElement> targets = symbolDefinition.methods.stream()
             .map(NavigatablePsiElement.class::cast)
             .collect(Collectors.toList());

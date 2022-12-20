@@ -1,18 +1,21 @@
 package org.ax1.lisp.analysis.symbol;
 
-import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
+import org.ax1.lisp.psi.impl.LispStringDesignator;
 
 import java.util.*;
 
-public class PackageDefinition extends LispDefinition {
+public class PackageDefinition {
+
+  // For both in-package and symbol prefixes.
+  protected final Set<LispStringDesignator> usages = new HashSet<>();
+  protected final List<LispStringDesignator> definitions = new ArrayList<>();
   final String name;
   private final Set<String> nicknames = new HashSet<>();
   private String description;
-  public final Map<String, LispSexp> use = new HashMap<>();
-  public final Map<String, LispSexp> exports = new HashMap<>();
-  public final Map<String, LispSexp> shadows = new HashMap<>();
-  public final Map<LispSymbol, Set<LispSymbol>> importFrom = new HashMap<>();
+  public final Map<String, LispStringDesignator> use = new HashMap<>();
+  public final Map<String, LispStringDesignator> exports = new HashMap<>();
+  public final Map<String, LispStringDesignator> shadows = new HashMap<>();
+//  public final Map<LispSymbol, Set<LispSymbol>> importFrom = new HashMap<>();
 
   private boolean isWriteable = true;
 
@@ -38,11 +41,10 @@ public class PackageDefinition extends LispDefinition {
     isWriteable = false;
   }
 
-  public void setDefinition(LispSexp symbol) {
+  public void setDefinition(LispStringDesignator symbol) {
     definitions.add(symbol);
   }
 
-  @Override
   public String getName() {
     return name;
   }
@@ -53,5 +55,26 @@ public class PackageDefinition extends LispDefinition {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public List<LispStringDesignator> getDefinitions() {
+    return definitions;
+  }
+
+  public LispStringDesignator getDefinition() {
+    if (definitions.isEmpty()) return null;
+    return definitions.get(0);
+  }
+
+  public boolean isDefinition(LispStringDesignator packageName) {
+    return definitions.contains(packageName);
+  }
+
+  public Collection<LispStringDesignator> getUsages() {
+    return usages;
+  }
+
+  public boolean isUsage(LispStringDesignator packageName) {
+    return usages.contains(packageName);
   }
 }

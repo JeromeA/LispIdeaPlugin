@@ -103,22 +103,27 @@ position, by calling getTargetSymbols().
 PsiNameIdentifierOwner, not only for packages (the string token includes quotes and escape characters) but also
 for symbols (the token may contain the package name).
 
-## Business code in LispSymbol and LispSexp
+## Business code in PsiElement
 
 A LispSymbol can be a variable name or a function name, and it can be either a definition or a usage.
 
 However, the package management code can't be in LispSymbol, because the same package can be referenced
 by either a symbol or a string.
 
-**Solution 1**: package management code is at LispSexp level, which can contain either a symbol or a string. Problem:
-MemberInplaceRenamer.performRefactoringRename() is skipping our LispSymbol when renaming a symbol, because there
-is a parent (the LispSexp) that is also a PsiNameIdentifierOwner in the renaming range.
+My first solution was to have package management code at LispSexp level, which can contain either a symbol or a string.
+Problem: MemberInplaceRenamer.performRefactoringRename() was skipping our LispSymbol when renaming a symbol, because
+there was a parent (the LispSexp) that was also a PsiNameIdentifierOwner in the renaming range.
 
-**Solution 2**: add package management code at both symbol and string level, and call the same code from there.
+Then I switched to having all the code in LispSexp, for both symbol and package management. It was very convenient
+to have a single class covering all the cases. Unfortunately, I hit another wall when trying to make renaming work:
+having a package name and a symbol name in the same PsiElement means that there was no way to make renaming
+and other symbol feature work properly. In PACKAGE:SYMBOL notation, it's important that the package and the symbol
+are two separate PsiElement, each with its own independent behavior.
 
-**Solution 3**: move all the code to LispSexp, for both symbol and package management.
-
-Conclusion: we switched from Solution 1 to Solution 3.
+So, the new solution is to have the code at a node that exactly matches its name:
+* the symbol management happens at the PsiElement that contains only the symbol name.
+* the package management happens at the PsiElement that contains either the package name in a symbol, or the package
+name in a string.
 
 ## Find usages
 
@@ -142,3 +147,6 @@ In InplaceRefactoring.startTemplate():
 * At the beginning of this method, the myEditor.myDocument contains the original text.
 * Then the names are removed.
 * Then the call to TemplateManager.getInstance(myProject).startTemplate() is inserting an uppercase version of the names.
+
+When startTemplate() is called, myRenameOffset already contains the wrong range [8,25] instead of [16,25].
+Unfortunately, the InplaceRefactoring constructor 

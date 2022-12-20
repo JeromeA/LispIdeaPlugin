@@ -26,7 +26,8 @@ number = -? [0-9]+ ("." [0-9]*)? | "#x" [0-9a-fA-F]+
 character = "#\\" [^\ \r\n\t\f][a-zA-Z]*
 quote = ['`] | "," "@"? | "#'"
 double_quote = \"
-symbol = [^\ \r\n\t\f\"'`,;()]+
+symbol = [^\ \r\n\t\f\"'`,;():]+
+colon = ::?
 
 %state STRING
 
@@ -39,15 +40,16 @@ symbol = [^\ \r\n\t\f\"'`,;()]+
   {number}                       { return LispTypes.NUMBER; }
   {character}                    { return LispTypes.CHARACTER; }
   {quote}                        { return LispTypes.QUOTE; }
-  {double_quote}                 { yybegin(STRING); }
+  {double_quote}                 { yybegin(STRING); return LispTypes.STRING_SEPARATOR; }
   {white_space}+                 { return TokenType.WHITE_SPACE; }
   {sharp_plus} / .*              { return LispTypes.SHARP_PLUS; }
+  {symbol} / :                   { return LispTypes.PACKAGE_TOKEN; }
+  {colon}                        { return LispTypes.COLON_TOKEN; }
   {symbol}                       { return LispTypes.SYMBOL_TOKEN; }
 }
 
 <STRING> {
-  {double_quote}                 { yybegin(YYINITIAL); return LispTypes.STRING; }
-  [^\"\\]+                       { }
-  \\.                            { }
-  <<EOF>>                        { yybegin(YYINITIAL); return LispTypes.STRING; }
+  {double_quote}                 { yybegin(YYINITIAL); return LispTypes.STRING_SEPARATOR; }
+  ([^\"\\] | \\.)+               { return LispTypes.STRING_CONTENT_TOKEN; }
+  <<EOF>>                        { yybegin(YYINITIAL); return LispTypes.STRING_SEPARATOR; }
 }

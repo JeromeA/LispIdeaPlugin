@@ -7,6 +7,8 @@ import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbol;
+import org.ax1.lisp.psi.LispSymbolName;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -38,8 +40,8 @@ public class AnalyzeDefmethod implements FormAnalyzer {
       context.highlighter.highlightError(functionName, "Function name expected");
       return;
     }
-    context.addMethodDefinition(functionName, "");
-    context.highlighter.highlight(functionName, FUNCTION_DECLARATION);
+    context.addMethodDefinition(functionName.getSymbol(), "");
+    context.highlighter.highlight(functionName.getSymbolName(), FUNCTION_DECLARATION);
 
     int arg = 2;
     // Skip method qualifiers.
@@ -65,16 +67,16 @@ public class AnalyzeDefmethod implements FormAnalyzer {
   }
 
   @NotNull
-  private static List<LispSexp> getVariables(AnalysisContext context, LispList lambdaList) {
-    List<LispSexp> result = new ArrayList<>();
+  private static List<LispSymbol> getVariables(AnalysisContext context, LispList lambdaList) {
+    List<LispSymbol> result = new ArrayList<>();
     for (LispSexp lispSexp : lambdaList.getSexpList()) {
-      LispSexp variable = getVariable(context, lispSexp);
+      LispSymbol variable = getVariable(context, lispSexp);
       if (variable != null) result.add(variable);
     }
     return result;
   }
 
-  private static LispSexp getVariable(AnalysisContext context, LispSexp sexp) {
+  private static LispSymbol getVariable(AnalysisContext context, LispSexp sexp) {
     LispList list = sexp.getList();
     if (list != null) {
       List<LispSexp> specialized = list.getSexpList();
@@ -85,11 +87,11 @@ public class AnalyzeDefmethod implements FormAnalyzer {
       sexp = specialized.get(0);
     }
     if (sexp.isSymbol()) {
-      Symbol symbol = context.getSymbol(sexp);
+      Symbol symbol = context.getSymbol(sexp.getSymbol());
       if (KEYWORDS.contains(symbol)) {
         context.highlighter.highlightConstant(sexp);
       } else {
-        return sexp;
+        return sexp.getSymbol();
       }
     }
     return null;

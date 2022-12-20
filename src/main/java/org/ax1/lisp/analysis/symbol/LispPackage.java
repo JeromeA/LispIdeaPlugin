@@ -1,5 +1,7 @@
 package org.ax1.lisp.analysis.symbol;
 
+import org.ax1.lisp.psi.impl.LispStringDesignator;
+
 import java.util.*;
 
 public class LispPackage {

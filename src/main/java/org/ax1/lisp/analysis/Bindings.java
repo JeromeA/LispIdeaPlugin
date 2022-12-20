@@ -3,7 +3,7 @@ package org.ax1.lisp.analysis;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
-import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.impl.LispStringDesignator;
 
 import java.util.*;
 
@@ -14,7 +14,7 @@ public class Bindings {
   public final Collection<SymbolDefinition> definitions = new ArrayList<>();
   private final Collection<SymbolDefinition> conditionDefinitions = new ArrayList<>();
 
-  public void addFunctionDefinition(Symbol functionName, LispSexp location, String description) {
+  public void addFunctionDefinition(Symbol functionName, LispStringDesignator location, String description) {
     definitions.add(newDefinition(Type.FUNCTION, Scope.DYNAMIC, functionName, location, description));
   }
 
@@ -22,7 +22,7 @@ public class Bindings {
     definitions.add(newDefinition(Type.FUNCTION, Scope.DYNAMIC, functionName, description));
   }
 
-  public void addMethodDefinition(Symbol methodName, LispSexp location, String description) {
+  public void addMethodDefinition(Symbol methodName, LispStringDesignator location, String description) {
     definitions.add(newMethod(methodName, location, description));
   }
 
@@ -30,13 +30,13 @@ public class Bindings {
     packages.add(definition);
   }
 
-  public void addPackageUsage(String name, LispSexp sexp) {
-    PackageDefinition packageDefinition = new PackageDefinition(name);
-    packageDefinition.getUsages().add(sexp);
+  public void addPackageUsage(LispStringDesignator packageName) {
+    PackageDefinition packageDefinition = new PackageDefinition(packageName.getValue());
+    packageDefinition.getUsages().add(packageName);
     packages.add(packageDefinition);
   }
 
-  public void addVariableDefinition(Symbol variableName, LispSexp location, String description) {
+  public void addVariableDefinition(Symbol variableName, LispStringDesignator location, String description) {
     definitions.add(newDefinition(Type.VARIABLE, Scope.DYNAMIC, variableName, location, description));
   }
 
@@ -44,11 +44,11 @@ public class Bindings {
     definitions.add(newDefinition(Type.VARIABLE, Scope.DYNAMIC, variableName, description));
   }
 
-  public void addFunctionUsage(Symbol functionName, LispSexp location) {
+  public void addFunctionUsage(Symbol functionName, LispStringDesignator location) {
     definitions.add(newUsage(Type.FUNCTION, Scope.DYNAMIC, functionName, location));
   }
 
-  public void addVariableUsage(Symbol variableName, LispSexp location) {
+  public void addVariableUsage(Symbol variableName, LispStringDesignator location) {
     definitions.add(newUsage(Type.VARIABLE, Scope.DYNAMIC, variableName, location));
   }
 

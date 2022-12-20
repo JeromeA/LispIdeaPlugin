@@ -56,7 +56,7 @@ public class AnalyzeLabels implements FormAnalyzer {
         context.highlighter.highlightError(function, "Function name expected");
         continue;
       }
-      result.add(context.getLocatedSymbol(functionName));
+      result.add(context.getLocatedSymbol(functionName.getSymbol()));
     }
     return result;
   }

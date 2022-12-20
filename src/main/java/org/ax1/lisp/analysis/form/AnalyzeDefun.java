@@ -2,9 +2,9 @@ package org.ax1.lisp.analysis.form;
 
 import com.intellij.lang.documentation.DocumentationMarkup;
 import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.Strings;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispString;
 
 import java.util.List;
 
@@ -30,10 +30,9 @@ public class AnalyzeDefun implements FormAnalyzer {
     }
     LispSexp functionName = list.get(1);
     if (functionName.isSymbol()) {
-      context.highlighter.highlight(functionName, FUNCTION_DECLARATION);
+      context.highlighter.highlight(functionName.getSymbolName(), FUNCTION_DECLARATION);
       StringBuilder sb = new StringBuilder();
       sb.append(DocumentationMarkup.DEFINITION_START);
-      sb.append("(");
       sb.append(functionName.getText());
       LispList lambda = list.get(2).getList();
       if (lambda != null) {
@@ -42,7 +41,6 @@ public class AnalyzeDefun implements FormAnalyzer {
           sb.append(sexp.getText());
         }
       }
-      sb.append(")");
       sb.append(DocumentationMarkup.DEFINITION_END);
       sb.append(DocumentationMarkup.CONTENT_START);
       String docString = getDocString(list);
@@ -53,7 +51,7 @@ public class AnalyzeDefun implements FormAnalyzer {
       }
       sb.append(DocumentationMarkup.CONTENT_END);
       String description = sb.toString();
-      context.addFunctionDefinition(functionName, description);
+      context.addFunctionDefinition(functionName.getSymbol(), description);
     } else {
       // TODO: check DEFUN SETF case.
     }
@@ -62,7 +60,9 @@ public class AnalyzeDefun implements FormAnalyzer {
 
   private String getDocString(List<LispSexp> list) {
     if (list.size() < 4) return null;
-    return Strings.getString(list.get(3));
+    LispString string3 = list.get(3).getString();
+    if (string3 == null) return null;
+    return string3.getStringContent().getValue();
   }
 
   public enum Type {

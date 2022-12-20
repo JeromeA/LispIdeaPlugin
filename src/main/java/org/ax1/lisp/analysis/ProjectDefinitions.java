@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
-import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.impl.LispStringDesignator;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,8 +19,8 @@ public class ProjectDefinitions {
   private final Map<Symbol, SymbolDefinition> variables = new HashMap<>();
   private final Map<String, PackageDefinition> packages = new HashMap<>();
   private final Map<String, String> packageNames = new HashMap<>();
-  private final Map<LispSexp, SymbolDefinition> symbolByReference = new HashMap<>();
-  private final Map<LispSexp, PackageDefinition> packageByReference = new HashMap<>();
+  private final Map<LispStringDesignator, SymbolDefinition> symbolByReference = new HashMap<>();
+  private final Map<LispStringDesignator, PackageDefinition> packageByReference = new HashMap<>();
 
   public ProjectDefinitions(ImmutableList<Bindings> results, Collection<PackageDefinition> packageDefinitions) {
     for (PackageDefinition packageDefinition : packageDefinitions) {
@@ -91,11 +91,11 @@ public class ProjectDefinitions {
     return variables.values();
   }
 
-  public SymbolDefinition getDefinition(LispSexp lispSexp) {
-    return symbolByReference.get(lispSexp);
+  public SymbolDefinition getSymbolDefinition(LispStringDesignator symbolName) {
+    return symbolByReference.get(symbolName);
   }
 
-  public PackageDefinition getPackage(LispSexp lispSexp) {
-    return packageByReference.get(lispSexp);
+  public PackageDefinition getPackageDefinition(LispStringDesignator packageName) {
+    return packageByReference.get(packageName);
   }
 }

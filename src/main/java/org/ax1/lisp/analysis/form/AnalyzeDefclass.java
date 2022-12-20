@@ -4,6 +4,8 @@ import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbol;
+import org.ax1.lisp.psi.LispSymbolName;
 
 import java.util.List;
 import java.util.Set;
@@ -68,15 +70,16 @@ public class AnalyzeDefclass implements FormAnalyzer {
         context.highlighter.highlightError(slotOptions.get(i), "Slot option expected");
         continue;
       }
-      context.highlighter.highlightKeyword(slotOption);
-      Symbol option = context.getSymbol(slotOption);
+      LispSymbol slotOptionName = slotOption.getSymbol();
+      Symbol option = context.getSymbol(slotOptionName);
       if (METHOD_GENERATORS.contains(option)) {
+        context.highlighter.highlightKeyword(slotOption);
         LispSexp name = slotOptions.get(i + 1);
         if (name.getSymbol() == null) {
           context.highlighter.highlightError(slotOptions.get(i + 1), "Method name expected");
           continue;
         }
-        context.addFunctionDefinition(name, "");
+        context.addFunctionDefinition(name.getSymbol(), "");
         context.highlighter.highlight(name, FUNCTION_DECLARATION);
       } else if (!OTHER_OPTIONS.contains(option)) {
         context.highlighter.highlightError(slotOption, "Slot option expected");

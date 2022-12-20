@@ -87,7 +87,7 @@ public class SyntaxAnalyzer {
         break;
       case "#'":
         if (quotedSexp.isSymbol()) {
-          context.addFunctionUsage(quotedSexp);
+          context.addFunctionUsage(quotedSexp.getSymbol());
           return;
         }
         LispList list = quotedSexp.getList();
@@ -116,11 +116,11 @@ public class SyntaxAnalyzer {
       completions.addAll(context.lexicalBindings.getLexicalVariables());
       completions.addAll(getGlobalVariableNames());
     } else {
-      Symbol symbol = context.getSymbol(sexp);
+      Symbol symbol = context.getSymbol(sexp.getSymbol());
       if (symbol.isConstant()) {
         context.highlighter.highlightConstant(sexp);
       } else {
-        context.addVariableUsage(sexp);
+        context.addVariableUsage(sexp.getSymbol());
       }
     }
   }
@@ -134,7 +134,7 @@ public class SyntaxAnalyzer {
         completions.addAll(context.lexicalBindings.getLexicalFunctions());
         completions.addAll(getGlobalFunctions());
       } else {
-        Symbol symbol = context.getSymbol(sexp0);
+        Symbol symbol = context.getSymbol(sexp0.getSymbol());
         getAnalyzer(symbol).analyze(context, form);
       }
     } else {

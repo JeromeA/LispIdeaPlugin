@@ -3,8 +3,7 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-
-import static org.ax1.lisp.analysis.Strings.getStringDesignator;
+import org.ax1.lisp.psi.impl.LispStringDesignator;
 
 public class AnalyzeInPackage implements FormAnalyzer {
 
@@ -16,12 +15,12 @@ public class AnalyzeInPackage implements FormAnalyzer {
       return;
     }
     LispSexp sexp1 = form.getSexpList().get(1);
-    String packageName = getStringDesignator(context, sexp1);
-    if (packageName == null) {
+    LispStringDesignator stringDesignator = sexp1.getStringDesignator();
+    if (stringDesignator == null) {
       context.highlighter.highlightError(sexp1, "Expected name designator");
       return;
     }
-    context.result.addPackageUsage(packageName, sexp1);
-    context.setCurrentPackage(packageName);
+    context.result.addPackageUsage(stringDesignator);
+    context.setCurrentPackage(stringDesignator.getValue());
   }
 }

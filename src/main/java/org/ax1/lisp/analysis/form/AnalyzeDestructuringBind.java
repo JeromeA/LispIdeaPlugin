@@ -6,6 +6,7 @@ import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -46,16 +47,17 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
     }
   }
 
-  private List<LispSexp> getDestructuringBindVariableSymbols(AnalysisContext context, @NotNull List<LispSexp> lambdaList) {
-    List<LispSexp> result = new ArrayList<>();
+  private List<LispSymbol> getDestructuringBindVariableSymbols(AnalysisContext context, @NotNull List<LispSexp> lambdaList) {
+    List<LispSymbol> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
       LispList list = sexp.getList();
       if (sexp.isSymbol()) {
-        Symbol symbol = context.getSymbol(sexp);
+        LispSymbol fullSymbol = sexp.getSymbol();
+        Symbol symbol = context.getSymbol(fullSymbol);
         if (KEYWORDS.contains(symbol)) {
-          context.highlighter.highlightConstant(sexp);
+          context.highlighter.highlightConstant(fullSymbol);
         } else {
-          result.add(sexp);
+          result.add(fullSymbol);
         }
       } else if (list != null) {
         result.addAll(getDestructuringBindVariableSymbols(context, list.getSexpList()));

@@ -1,22 +1,10 @@
 package org.ax1.lisp.psi.impl;
 
-import com.intellij.psi.ExternallyAnnotated;
-import com.intellij.psi.PsiNameIdentifierOwner;
-import com.intellij.psi.PsiQualifiedNamedElement;
-import com.intellij.psi.PsiReference;
-import org.ax1.lisp.analysis.symbol.LispDefinition;
-import org.ax1.lisp.analysis.symbol.SymbolDefinition;
-import org.ax1.lisp.analysis.symbol.PackageDefinition;
-import org.ax1.lisp.psi.LispSexp;
+import com.intellij.psi.PsiElement;
+import org.ax1.lisp.psi.LispSymbolName;
 
-public interface LispSexpMixin extends PsiNameIdentifierOwner, PsiQualifiedNamedElement, ExternallyAnnotated {
-
-  boolean isFunctionDefinition();
-  boolean isVariableDefinition();
-  PackageDefinition getPackageDefinition();
-  SymbolDefinition getSymbolDefinition();
-  LispDefinition getDefinition();
+public interface LispSexpMixin extends PsiElement {
   boolean isSymbol();
-  PsiReference getSymbolReference();
-  PsiReference getPackageReference();
+  LispStringDesignator getStringDesignator();
+  LispSymbolName getSymbolName();
 }

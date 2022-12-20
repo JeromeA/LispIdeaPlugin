@@ -31,7 +31,7 @@ public class AnalyzeDefvar implements FormAnalyzer {
       return;
     }
     if (sexpList.size() >= 3) context.analyzer.analyzeForm(sexpList.get(2));
-    context.addVariableDefinition(varName, getDescription(sexpList, varName.getText()));
+    context.addVariableDefinition(varName.getSymbol(), getDescription(sexpList, varName.getText()));
   }
 
   @NotNull

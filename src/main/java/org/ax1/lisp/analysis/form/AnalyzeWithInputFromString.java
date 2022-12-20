@@ -26,7 +26,7 @@ public class AnalyzeWithInputFromString implements FormAnalyzer {
     context.analyzer.analyzeForms(varList.getSexpList(), 1);
     LispSexp varName = varList.getSexpList().get(0);
     SymbolDefinition symbolDefinition = LexicalVariableHelper.newLexicalVariable("WITH-INPUT-FROM-STRING",
-        context.getLocatedSymbol(varName), null);
+        context.getLocatedSymbol(varName.getSymbol()), null);
     context.lexicalBindings.defineLexicalVariables(List.of(symbolDefinition));
     context.analyzer.analyzeForms(list, 2);
     context.lexicalBindings.dropLexicalVariables();

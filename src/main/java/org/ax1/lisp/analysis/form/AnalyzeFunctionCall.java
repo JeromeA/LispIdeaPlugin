@@ -28,11 +28,11 @@ public class AnalyzeFunctionCall implements FormAnalyzer {
       context.highlighter.highlightError(functionName, "Function name expected");
       return;
     }
-    Symbol symbol = context.getSymbol(functionName);
+    Symbol symbol = context.getSymbol(functionName.getSymbol());
     if (KEYWORDS.contains(symbol)) {
       context.highlighter.highlightKeyword(functionName);
     }
-    context.addFunctionUsage(functionName);
+    context.addFunctionUsage(functionName.getSymbol());
     context.analyzer.analyzeForms(form.getSexpList(), 1);
   }
 }

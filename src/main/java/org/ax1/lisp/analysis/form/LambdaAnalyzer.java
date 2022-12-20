@@ -6,6 +6,7 @@ import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -40,15 +41,15 @@ public class LambdaAnalyzer {
   }
 
   @NotNull
-  private static List<LispSexp> getVariables(AnalysisContext context, LispList lambdaList) {
-    List<LispSexp> result = new ArrayList<>();
+  private static List<LispSymbol> getVariables(AnalysisContext context, LispList lambdaList) {
+    List<LispSymbol> result = new ArrayList<>();
     for (LispSexp parameterSpecifier : lambdaList.getSexpList()) {
       if (parameterSpecifier.isSymbol()) {
-        Symbol symbol = context.getSymbol(parameterSpecifier);
+        Symbol symbol = context.getSymbol(parameterSpecifier.getSymbol());
         if (KEYWORDS.contains(symbol)) {
           context.highlighter.highlightConstant(parameterSpecifier);
         } else {
-          result.add(parameterSpecifier);
+          result.add(parameterSpecifier.getSymbol());
         }
         continue;
       }
@@ -60,7 +61,7 @@ public class LambdaAnalyzer {
           context.highlighter.highlightError(varName, "Variable name expected");
           continue;
         }
-        result.add(varName);
+        result.add(varName.getSymbol());
         if (varInit.size() > 1) {
           // TODO: this should happen inside the lexical env of the previous variables.
           context.analyzer.analyzeForm(varInit.get(1));

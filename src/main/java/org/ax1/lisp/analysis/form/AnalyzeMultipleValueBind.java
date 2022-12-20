@@ -6,6 +6,7 @@ import org.ax1.lisp.analysis.LexicalVariableHelper;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbol;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -38,11 +39,11 @@ public class AnalyzeMultipleValueBind implements FormAnalyzer {
     }
   }
 
-  private List<LispSexp> getVariableSymbols(AnalysisContext context, @NotNull List<LispSexp> lambdaList) {
-    List<LispSexp> result = new ArrayList<>();
+  private List<LispSymbol> getVariableSymbols(AnalysisContext context, @NotNull List<LispSexp> lambdaList) {
+    List<LispSymbol> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
       if (sexp.isSymbol()) {
-        result.add(sexp);
+        result.add(sexp.getSymbol());
       } else {
         context.highlighter.highlightError(sexp, "Variable name expected");
       }

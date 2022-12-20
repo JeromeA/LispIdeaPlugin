@@ -15,6 +15,12 @@
 
   implements("sexp")="org.ax1.lisp.psi.impl.LispSexpMixin"
   mixin("sexp")="org.ax1.lisp.psi.impl.LispSexpMixinImpl"
+  implements("symbol_name")="org.ax1.lisp.psi.impl.LispStringDesignator"
+  mixin("symbol_name")="org.ax1.lisp.psi.impl.LispStringDesignatorImpl"
+  implements("package_prefix")="org.ax1.lisp.psi.impl.LispStringDesignator"
+  mixin("package_prefix")="org.ax1.lisp.psi.impl.LispStringDesignatorImpl"
+  implements("string_content")="org.ax1.lisp.psi.impl.LispStringDesignator"
+  mixin("string_content")="org.ax1.lisp.psi.impl.LispStringDesignatorImpl"
 
 }
 
@@ -22,8 +28,13 @@ lispFile ::= topLevelUnit_*
 private topLevelUnit_ ::= syntaxUnit_ | invalidClose
 private syntaxUnit_ ::= COMMENT | sharpPlusExp_ | sexp
 private sharpPlusExp_ ::= SHARP_PLUS sexp
-sexp ::= STRING | NUMBER | CHARACTER | symbol | list | quoted
+sexp ::= string | NUMBER | CHARACTER | symbol | list | quoted
+string ::= STRING_SEPARATOR string_content STRING_SEPARATOR
+string_content ::= STRING_CONTENT_TOKEN
 list ::= LPAREN syntaxUnit_* RPAREN?
-symbol ::= SYMBOL_TOKEN
+symbol ::= (package_prefix? colon)? symbol_name
+colon ::= COLON_TOKEN
+package_prefix ::= PACKAGE_TOKEN
+symbol_name ::= SYMBOL_TOKEN
 invalidClose ::= RPAREN
 quoted ::= QUOTE sexp
