@@ -13,6 +13,7 @@ import org.ax1.lisp.psi.LispStringContent;
 import org.ax1.lisp.psi.LispSymbolName;
 import org.ax1.lisp.usages.LispStringDesignatorReference;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Type.FUNCTION;
 import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Type.VARIABLE;
@@ -81,19 +82,12 @@ public abstract class LispStringDesignatorImpl extends ASTWrapperPsiElement impl
   }
 
   @Override
-  public boolean isFunctionDefinition() {
-    SymbolDefinition symbolDefinition = getSymbolDefinition();
-    return symbolDefinition != null && symbolDefinition.type == FUNCTION && symbolDefinition.isDefinition(this);
-  }
-
-  @Override
-  public boolean isVariableDefinition() {
-    SymbolDefinition symbolDefinition = getSymbolDefinition();
-    return symbolDefinition != null && symbolDefinition.type == VARIABLE && symbolDefinition.isDefinition(this);
-  }
-
-  @Override
   public PackageDefinition getPackageDefinition() {
     return ProjectComputedData.getInstance(getProject()).getProjectAnalysis().getPackageDefinition(this);
+  }
+
+  @Override
+  public @Nullable PsiElement getNameIdentifier() {
+    return this;
   }
 }

@@ -141,12 +141,14 @@ Summary:
 
 Several classes are involved:
 * RenameElementAction. This is the main entry point, triggered by shift-F6
-* VariableInplaceRenamer and MemberInplaceRenamer, but only of these two makes sense in Lisp. Which one?
+* VariableInplaceRenamer has several limitations, one of them is that it reverts to a dialog as soon as
+  * one of the references is in a different file (see InplaceRefactoring.performInplaceRefactoring()).
+  * or the scope is not a local one (same place)
+* MemberInplaceRenamer is the one we want to use. But MemberInplaceRenameHandler.isAvailable() will only work on
+  PsiNameIdentifierOwner instances.
 
 In InplaceRefactoring.startTemplate():
 * At the beginning of this method, the myEditor.myDocument contains the original text.
 * Then the names are removed.
-* Then the call to TemplateManager.getInstance(myProject).startTemplate() is inserting an uppercase version of the names.
-
-When startTemplate() is called, myRenameOffset already contains the wrong range [8,25] instead of [16,25].
-Unfortunately, the InplaceRefactoring constructor 
+* Then the call to TemplateManager.getInstance(myProject).startTemplate() is inserting the getName() version of the
+names, which is why getName() should not return the upper case version.
