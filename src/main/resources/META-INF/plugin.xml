@@ -39,6 +39,7 @@
     <lang.namesValidator
         language="Lisp"
         implementationClass="org.ax1.lisp.refactoring.LispNamesValidator"/>
+    <quoteHandler fileType="Lisp" className="org.ax1.lisp.LispQuoteHandler"/>
     <lang.formatter
         language="Lisp"
         implementationClass="org.ax1.lisp.formatting.LispFormattingModelBuilder"/>

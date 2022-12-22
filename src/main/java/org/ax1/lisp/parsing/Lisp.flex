@@ -40,7 +40,7 @@ colon = ::?
   {number}                       { return LispTypes.NUMBER; }
   {character}                    { return LispTypes.CHARACTER; }
   {quote}                        { return LispTypes.QUOTE; }
-  {double_quote}                 { yybegin(STRING); return LispTypes.STRING_SEPARATOR; }
+  {double_quote}                 { yybegin(STRING); return LispTypes.STRING_QUOTE; }
   {white_space}+                 { return TokenType.WHITE_SPACE; }
   {sharp_plus} / .*              { return LispTypes.SHARP_PLUS; }
   {symbol} / :                   { return LispTypes.PACKAGE_TOKEN; }
@@ -49,7 +49,7 @@ colon = ::?
 }
 
 <STRING> {
-  {double_quote}                 { yybegin(YYINITIAL); return LispTypes.STRING_SEPARATOR; }
+  {double_quote}                 { yybegin(YYINITIAL); return LispTypes.STRING_QUOTE; }
   ([^\"\\] | \\.)+               { return LispTypes.STRING_CONTENT_TOKEN; }
-  <<EOF>>                        { yybegin(YYINITIAL); return LispTypes.STRING_SEPARATOR; }
+  <<EOF>>                        { yybegin(YYINITIAL); return LispTypes.STRING_QUOTE; }
 }
