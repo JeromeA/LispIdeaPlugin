@@ -33,7 +33,6 @@ public class LispCompletionContributor extends CompletionContributor {
         syntaxAnalyzer.setContext(analysisContext);
         syntaxAnalyzer.analyze();
         syntaxAnalyzer.completions.stream()
-            .map(String::toLowerCase)
             .forEach(name -> result.addElement(LookupElementBuilder.create(name)));
       }
     });
