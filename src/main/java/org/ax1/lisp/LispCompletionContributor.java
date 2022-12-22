@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.patterns.PlatformPatterns;
+import com.intellij.patterns.StandardPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
 import org.ax1.lisp.analysis.AnalysisContext;
@@ -14,12 +15,13 @@ import org.ax1.lisp.psi.LispFile;
 import org.jetbrains.annotations.NotNull;
 
 import static org.ax1.lisp.analysis.LispAnnotator.EMPTY_HIGHLIGHTER;
+import static org.ax1.lisp.psi.LispTypes.STRING_CONTENT_TOKEN;
 import static org.ax1.lisp.psi.LispTypes.SYMBOL_TOKEN;
 
 public class LispCompletionContributor extends CompletionContributor {
 
   public LispCompletionContributor() {
-    extend(CompletionType.BASIC, PlatformPatterns.psiElement(SYMBOL_TOKEN), new CompletionProvider<>() {
+    extend(CompletionType.BASIC, StandardPatterns.or(PlatformPatterns.psiElement(SYMBOL_TOKEN), PlatformPatterns.psiElement(STRING_CONTENT_TOKEN)), new CompletionProvider<>() {
       @Override
       protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet result) {
         PsiElement symbolToken = parameters.getPosition();

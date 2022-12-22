@@ -162,8 +162,14 @@ public class SyntaxAnalyzer {
         .collect(Collectors.toList());
   }
 
-  private boolean isCompletion(LispSexp sexp) {
-    return sexp.getText().endsWith(DUMMY_IDENTIFIER_TRIMMED);
+  public static boolean isCompletion(LispSexp sexp) {
+    return sexp.getText().contains(DUMMY_IDENTIFIER_TRIMMED);
+  }
+
+  public static String getCompletionPrefix(LispSexp sexp) {
+    String text = sexp.getText();
+    int index = text.indexOf(DUMMY_IDENTIFIER_TRIMMED);
+    return text.substring(0, index);
   }
 
   public void setContext(AnalysisContext context) {
