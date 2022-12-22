@@ -9,6 +9,7 @@ import org.ax1.lisp.psi.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
 import static org.ax1.lisp.analysis.symbol.Symbol.clSymbol;
 
@@ -113,8 +114,8 @@ public class SyntaxAnalyzer {
 
   private void analyseSymbolForm(LispSexp sexp) {
     if (isCompletion(sexp)) {
-      completions.addAll(context.lexicalBindings.getLexicalVariables());
-      completions.addAll(getGlobalVariableNames());
+      completions.addAll(toLowerCase(context.lexicalBindings.getLexicalVariables()));
+      completions.addAll(toLowerCase(getGlobalVariableNames()));
     } else {
       Symbol symbol = context.getSymbol(sexp.getSymbol());
       if (symbol.isConstant()) {
@@ -131,8 +132,8 @@ public class SyntaxAnalyzer {
     LispSexp sexp0 = list.get(0);
     if (sexp0.isSymbol()) {
       if (isCompletion(sexp0)) {
-        completions.addAll(context.lexicalBindings.getLexicalFunctions());
-        completions.addAll(getGlobalFunctions());
+        completions.addAll(toLowerCase(context.lexicalBindings.getLexicalFunctions()));
+        completions.addAll(toLowerCase(getGlobalFunctions()));
       } else {
         Symbol symbol = context.getSymbol(sexp0.getSymbol());
         getAnalyzer(symbol).analyze(context, form);
@@ -140,6 +141,12 @@ public class SyntaxAnalyzer {
     } else {
       // TODO: handle lambda expression case.
     }
+  }
+
+  private static Collection<String> toLowerCase(Collection<String> strings) {
+    return strings.stream()
+        .map(String::toLowerCase)
+        .collect(toImmutableList());
   }
 
   private static synchronized FormAnalyzer getAnalyzer(Symbol symbol) {

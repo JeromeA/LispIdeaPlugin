@@ -32,7 +32,7 @@ public class LispCompletionContributor extends CompletionContributor {
         AnalysisContext analysisContext = new AnalysisContext(EMPTY_HIGHLIGHTER, new PackageManager(projectComputedData.getPackageDefinitions()), syntaxAnalyzer);
         syntaxAnalyzer.setContext(analysisContext);
         syntaxAnalyzer.analyze();
-        syntaxAnalyzer.completions.stream()
+        syntaxAnalyzer.completions
             .forEach(name -> result.addElement(LookupElementBuilder.create(name)));
       }
     });
