@@ -1,6 +1,6 @@
 
 (defpackage "PACKAGE1"
-            (:use "CL"))
+    (:use "CL"))
 
 (in-package :package1)
 (in-package #:package1)
@@ -13,3 +13,5 @@
 (defun package1:function2 () nil)
 (function2)
 (package1:function2)
+
+(format t "Hello!~%")
