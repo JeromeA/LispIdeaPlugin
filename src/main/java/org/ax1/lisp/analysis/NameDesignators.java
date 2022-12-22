@@ -13,7 +13,7 @@ public class NameDesignators {
       lispPackageName = sexp.getSymbol().getSymbolName();
     }
     if (lispPackageName != null) {
-      context.highlighter.highlightConstant(sexp);
+      context.highlighter.highlightDeclaration(lispPackageName);
     }
     return lispPackageName;
   }

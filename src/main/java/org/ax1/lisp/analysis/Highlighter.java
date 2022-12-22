@@ -9,6 +9,7 @@ import org.ax1.lisp.psi.LispList;
 
 import static com.intellij.lang.annotation.HighlightSeverity.INFORMATION;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.CONSTANT;
+import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.FUNCTION_DECLARATION;
 import static com.intellij.openapi.editor.colors.CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES;
 import static com.intellij.openapi.editor.colors.CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES;
 import static org.ax1.lisp.parsing.LispSyntaxHighlighter.KEYWORD;
@@ -43,8 +44,12 @@ public class Highlighter {
     annotate(psiElement, HighlightSeverity.WARNING, message, NOT_USED_ELEMENT_ATTRIBUTES);
   }
 
-  public void highlight(PsiElement psiElement, TextAttributesKey constant) {
-    silentlyAnnotate(psiElement, INFORMATION, constant);
+  public void highlight(PsiElement psiElement, TextAttributesKey attributes) {
+    silentlyAnnotate(psiElement, INFORMATION, attributes);
+  }
+
+  public void highlightDeclaration(PsiElement psiElement) {
+    silentlyAnnotate(psiElement, INFORMATION, FUNCTION_DECLARATION);
   }
 
   public void highlightError(PsiElement psiElement, String message) {
