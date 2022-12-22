@@ -26,8 +26,8 @@ intellij {
 
 patchPluginXml {
     changeNotes = """
-      Initial release.<br>
-      <em>It's not doing much yet.</em>"""
+      This is a very early release.<br>
+      Don't use it."""
 }
 
 test {

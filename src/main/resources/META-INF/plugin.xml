@@ -1,10 +1,11 @@
 <idea-plugin>
   <id>org.ax1.LispIdeaPlugin</id>
-  <name>AX1 Lisp Support</name>
+  <name>Common Lisp Support</name>
   <vendor email="support@ax1.org" url="http://www.ax1.org">AX1</vendor>
 
   <description><![CDATA[
-    Add support for Lisp language, or at least a subset of it.<br>
+    Add support for Common Lisp language. This is still very experimental, and will crash
+    left and right unless you are working on the exact same lisp project as I do.<br>
     ]]></description>
 
   <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
