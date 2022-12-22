@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
+import org.ax1.lisp.psi.LispString;
 import org.ax1.lisp.psi.LispSymbolName;
 import org.ax1.lisp.psi.LispTypes;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +33,7 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
   @Override
   public LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement element) {
     if (getTokenType(element) == LispTypes.SYMBOL_TOKEN) {
+      if (!(element.getParent() instanceof LispSymbolName)) return null;
       LispSymbolName symbolName = (LispSymbolName) element.getParent();
       SymbolDefinition symbolDefinition = symbolName.getSymbolDefinition();
       if (symbolDefinition == null) return null;
