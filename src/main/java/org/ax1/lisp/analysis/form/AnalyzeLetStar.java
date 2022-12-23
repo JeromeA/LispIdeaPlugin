@@ -45,7 +45,7 @@ public class AnalyzeLetStar implements FormAnalyzer {
       }
       if (symbol == null) {
         List<LispSexp> varWithInitList = varWithInit.getSexpList();
-        if (varWithInitList.size() > 2) {
+        if (varWithInitList.isEmpty() || varWithInitList.size() > 2) {
           context.highlighter.highlightError(varWithInit, "Variable binding expected");
           return;
         }
