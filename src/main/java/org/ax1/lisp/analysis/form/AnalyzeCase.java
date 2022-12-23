@@ -26,6 +26,5 @@ public class AnalyzeCase implements FormAnalyzer {
       context.highlighter.highlightConstant(clause.getSexpList().get(0));
       context.analyzer.analyzeForms(clause.getSexpList(), 1);
     }
-
   }
 }
