@@ -49,13 +49,13 @@ public class AnalyzeDefpackage implements FormAnalyzer {
     }
     List<LispSexp> list = optionList.getSexpList();
     LispSexp sexp0 = list.get(0);
-    if (sexp0.getSymbol() == null) {
+    if (sexp0.getSymbol() == null || !sexp0.getText().startsWith(":")) {
       context.highlighter.highlightError(sexp0, "Option name expected");
       return;
     }
-    LispSymbolName symbolName = sexp0.getSymbolName();
-    context.highlighter.highlightKeyword(symbolName);
-    switch(symbolName.getValue()) {
+    Symbol symbol = context.getSymbol(sexp0.getSymbol());
+    context.highlighter.highlightKeyword(sexp0);
+    switch(symbol.getName()) {
       case "EXPORT":
         analyzeOptionExport(context, definition, list);
         break;
