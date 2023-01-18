@@ -19,7 +19,7 @@ public class InteractionListView extends JBScrollPane {
     contentPanel = new JPanel();
     contentPanel.setBackground(JBColor.PanelBackground);
     contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-    contentPanel.add(createVerticalGlue());
+    contentPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
     setViewportView(contentPanel);
     interactionList.addListener(l -> invokeLater(this::updateChildren));
     updateChildren();
@@ -28,8 +28,8 @@ public class InteractionListView extends JBScrollPane {
   private void updateChildren() {
     List<Interaction> interactions = interactionList.getInteractions();
     for (int index = contentPanel.getComponentCount() / 2; index < interactions.size() ; index++) {
-      contentPanel.add(new InteractionView(interactions.get(index)), index * 2);
-      contentPanel.add(Box.createVerticalStrut(4), index * 2 + 1);
+      contentPanel.add(new InteractionView(interactions.get(index)));
+      contentPanel.add(Box.createVerticalStrut(4));
     }
     validate();
     JScrollBar scrollBar = getVerticalScrollBar();
