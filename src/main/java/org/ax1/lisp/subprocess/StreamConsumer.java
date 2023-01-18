@@ -23,7 +23,7 @@ public class StreamConsumer extends Thread {
         e.printStackTrace();
         return;
       }
-      consumer.accept(data);
+      consumer.accept(data + "\n");
     }
   }
 }

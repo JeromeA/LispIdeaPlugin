@@ -1,15 +1,16 @@
 package org.ax1.lisp.subprocess;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class Interaction {
   private final String expression;
-  private final List<String> result = new ArrayList<>();
-  private final List<String> error = new ArrayList<>();
-  private final List<String> stdout = new ArrayList<>();
-  private final List<String> stderr = new ArrayList<>();
+  private String result = "";
+  private String error = "";
+  private String stdout = "";
+  private String stderr = "";
   private final List<ChangeListener> listeners = new ArrayList<>();
 
   public Interaction(String expression) {
@@ -20,25 +21,40 @@ public class Interaction {
     return expression;
   }
 
-  public Collection<String> getResult() {
+  public String getResult() {
     return result;
   }
 
+  public String getError() {
+    return error;
+  }
+
+  public String getStdout() {
+    return stdout;
+  }
+
+  public String getStderr() {
+    return stderr;
+  }
+
   public void addResult(String line) {
-    result.add(line);
+    result += line;
     fireChanged();
   }
 
   public void addError(String line) {
-    error.add(line);
+    error += line;
+    fireChanged();
   }
 
   public void addStdout(String line) {
-    stdout.add(line);
+    stdout += line;
+    fireChanged();
   }
 
   public void addStderr(String line) {
-    stderr.add(line);
+    stderr += line;
+    fireChanged();
   }
 
   public void addListener(ChangeListener listener) {

@@ -38,7 +38,7 @@ public final class LispServer {
       String executable = LispSettingsState.getInstance().selectedBinaryPath;
       process = Runtime.getRuntime().exec(executable);
       StreamConsumer stdout = new StreamConsumer("Lisp process stdout stream", process.getInputStream(), line -> {
-        if (line.endsWith("Server is ready")) {
+        if (line.endsWith("Server is ready\n")) {
           synchronized (serverReady) {
             serverReady.set(true);
             serverReady.notify();
@@ -107,22 +107,22 @@ public final class LispServer {
   private void lineReceived(String line) {
     if (line.startsWith("--")) {
       currentSection = line;
-      if (line.equals("--")) {
+      if (line.equals("--\n")) {
         currentInteraction = null;
       }
       return;
     }
     switch (currentSection) {
-      case "--Result--":
+      case "--Result--\n":
         currentInteraction.addResult(line);
         break;
-      case "--Error--":
+      case "--Error--\n":
         currentInteraction.addError(line);
         break;
-      case "--stdout--":
+      case "--stdout--\n":
         currentInteraction.addStdout(line);
         break;
-      case "--stderr--":
+      case "--stderr--\n":
         currentInteraction.addStderr(line);
         break;
       default:

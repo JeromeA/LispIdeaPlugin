@@ -1,7 +1,8 @@
 package org.ax1.lisp.subprocess;
 
-import com.intellij.openapi.util.text.Strings;
+import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -10,27 +11,39 @@ import static javax.swing.SwingUtilities.invokeLater;
 public class InteractionView extends JPanel {
 
   private final Interaction interaction;
+  private final FullWidthTextArea expression;
+  private final FullWidthTextArea stdout;
+  private final FullWidthTextArea stderr;
+  private final FullWidthTextArea error;
+  private final FullWidthTextArea result;
 
   public InteractionView(Interaction interaction) {
     this.interaction = interaction;
+    setBorder(BorderFactory.createLineBorder(JBColor.lightGray, 1));
     setBackground(JBColor.PanelBackground);
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    expression = createTextArea();
+    expression.setBorder(BorderFactory.createLineBorder(JBColor.gray));
+    expression.setText(interaction.getExpression());
+    stdout = createTextArea();
+    stderr = createTextArea();
+    stderr.setBackground(Gray._245);
+    error = createTextArea();
+    error.setBackground(Gray._235);
+    result = createTextArea();
     interaction.addListener(i -> invokeLater(this::updateChildren));
     updateChildren();
   }
 
   private void updateChildren() {
-    if (getComponentCount() == 0) {
-      add(new FullWidthTextArea(interaction.getExpression()));
-      add(Box.createVerticalStrut(1));
-    }
-    if (getComponentCount() == 2 && !interaction.getResult().isEmpty()) {
-      add(new FullWidthTextArea());
-      add(Box.createVerticalStrut(1));
-    }
-    if (!interaction.getResult().isEmpty()) {
-      FullWidthTextArea textArea = (FullWidthTextArea) getComponent(2);
-      textArea.setText(Strings.join(interaction.getResult(), "\n"));
-    }
+    stdout.setText(interaction.getStdout());
+    stderr.setText(interaction.getStderr());
+    error.setText(interaction.getError());
+    result.setText(interaction.getResult());
+  }
+
+  @NotNull
+  private FullWidthTextArea createTextArea() {
+    return (FullWidthTextArea) add(new FullWidthTextArea());
   }
 }
