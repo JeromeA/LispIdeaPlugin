@@ -13,5 +13,3 @@
 (defun package1:function2 () nil)
 (function2)
 (package1:function2)
-
-(format t "Hello!~%")

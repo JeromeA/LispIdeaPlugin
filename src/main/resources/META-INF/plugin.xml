@@ -5,7 +5,7 @@
 
   <description><![CDATA[
     Add support for Common Lisp language. This is still very experimental, and will crash
-    left and right unless you are working on the exact same lisp project as I do.<br>
+    left and right unless you are working on the exact same lisp projects as I do.<br>
     ]]></description>
 
   <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
@@ -64,6 +64,12 @@
     <codeInsight.lineMarkerProvider
         language="Lisp"
         implementationClass="org.ax1.lisp.LispLineMarkerProvider"/>
+    <toolWindow
+        factoryClass="org.ax1.lisp.subprocess.LispToolWindowFactory"
+        id="Lisp"
+        icon="org.ax1.lisp.LispIcons.FILE"
+        anchor="bottom"
+        secondary="false"/>
   </extensions>
   <actions>
     <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction" use-shortcut-of="RunClass"/>

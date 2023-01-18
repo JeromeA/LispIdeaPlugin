@@ -18,7 +18,7 @@ public class LispRunExpressionAction extends DumbAwareAction {
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
     System.err.println("Evaluating Lisp Expression...");
-    LispConsole.getInstance(e.getProject()).evaluate(getLispList(e).getText());
+    LispServer.getInstance(e.getProject()).evaluate(getLispList(e).getText());
   }
 
   @Nullable
