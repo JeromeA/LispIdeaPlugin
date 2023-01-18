@@ -33,7 +33,12 @@ public class LispFindUsagesHandler extends FindUsagesHandler {
       PackageDefinition packageDefinition = stringDesignator.getPackageDefinition();
       if (packageDefinition != null && packageDefinition.isDefinition(stringDesignator)) {
         return packageDefinition.getUsages().stream()
-            .filter(usage -> searchScope.contains(usage.getContainingFile().getVirtualFile()))
+            .filter(usage -> {
+              // Got a null pointer while navigating between files.
+              if (usage == null) throw new RuntimeException("usage null");
+              if (usage.getContainingFile() == null) throw new RuntimeException("containing file null");
+              return searchScope.contains(usage.getContainingFile().getVirtualFile());
+            })
             .map(LispStringDesignator::getPackageReference)
             .collect(toImmutableList());
       }
