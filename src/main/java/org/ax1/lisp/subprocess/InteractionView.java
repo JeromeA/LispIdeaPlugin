@@ -23,8 +23,8 @@ public class InteractionView extends JPanel {
     setBackground(JBColor.PanelBackground);
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     expression = createTextArea();
-    expression.setBorder(BorderFactory.createLineBorder(JBColor.gray));
     expression.setText(interaction.getExpression());
+    expression.setBackground(new JBColor(0xf0fff0, 0xf0fff0));
     stdout = createTextArea();
     stderr = createTextArea();
     stderr.setBackground(Gray._245);
