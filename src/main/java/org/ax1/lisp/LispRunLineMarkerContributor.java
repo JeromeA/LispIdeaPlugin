@@ -6,16 +6,15 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import org.ax1.lisp.psi.LispFile;
-import org.ax1.lisp.psi.LispList;
-import org.ax1.lisp.psi.LispSexp;
+import com.intellij.psi.tree.IElementType;
+import org.ax1.lisp.psi.*;
 import org.ax1.lisp.subprocess.LispRunExpressionAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static org.ax1.lisp.psi.LispTypes.LPAREN;
+import static org.ax1.lisp.psi.LispTypes.*;
 
 public class LispRunLineMarkerContributor extends RunLineMarkerContributor implements DumbAware {
 
@@ -28,27 +27,60 @@ public class LispRunLineMarkerContributor extends RunLineMarkerContributor imple
   }
 
   private String getToolTip(PsiElement element) {
-    String name = getFormName(element);
-    if (name == null) return "Evaluate form";
-    return "Evaluate " + name + " form";
+    LeafPsiElement leafPsiElement = (LeafPsiElement) element;
+    IElementType elementType = leafPsiElement.getElementType();
+    if (elementType == SYMBOL_TOKEN) {
+      return "Evaluate symbol " + element.getText();
+    }
+    if (elementType == NUMBER) {
+      return "Evaluate number " + element.getText();
+    }
+    if (elementType == CHARACTER) {
+      return "Evaluate character " + element.getText();
+    }
+    if (elementType == STRING_QUOTE) {
+      return "Evaluate string " + element.getParent().getText();
+    }
+    if (elementType == QUOTE) {
+      return "Evaluate QUOTE form";
+    }
+    if (elementType == LPAREN) {
+      LispList list = (LispList) element.getParent();
+      List<LispSexp> sexpList = list.getSexpList();
+      if (sexpList.isEmpty()) return "Evaluate NIL";
+      LispSexp sexp0 = sexpList.get(0);
+      LispSymbol symbol0 = sexp0.getSymbol();
+      if (symbol0 != null) return "Evaluate " + symbol0.getText() + " form";
+      return "Evaluate form";
+    }
+    return "Invalid form";
   }
 
-  private String getFormName(PsiElement element) {
-    LispList list = (LispList) element.getParent();
-    List<LispSexp> sexpList = list.getSexpList();
-    if (sexpList.isEmpty()) return null;
-    LispSexp formName = sexpList.get(0);
-    if (!formName.isSymbol()) return null;
-    return formName.getText();
-  }
-
+  /**
+   * The options are:
+   * Sexp -> Symbol -> SymbolName -> SYMBOL_TOKEN
+   * Sexp -> List -> LPAREN
+   * Sexp -> Quoted -> QUOTE
+   * Sexp -> String -> STRING_QUOTE
+   * Sexp -> NUMBER | CHARACTER
+   */
   private boolean isTopLevel(PsiElement element) {
     if (!(element instanceof LeafPsiElement)) return false;
     LeafPsiElement leafPsiElement = (LeafPsiElement) element;
-    if (leafPsiElement.getElementType() != LPAREN) return false;
-    // - parent 1 is a List.
-    // - parent 2 is a Sexp.
-    // - parent 3 is a ListFile.
-    return element.getParent().getParent().getParent() instanceof LispFile;
+    IElementType elementType = leafPsiElement.getElementType();
+    if (elementType == SYMBOL_TOKEN) {
+      return element.getParent().getParent().getParent().getParent() instanceof LispFile;
+    }
+    if (elementType == LPAREN || elementType == QUOTE) {
+      return element.getParent().getParent().getParent() instanceof LispFile;
+    }
+    if (elementType == STRING_QUOTE) {
+      LispString string = (LispString) element.getParent();
+      return string.getFirstChild() == element && string.getParent().getParent() instanceof LispFile;
+    }
+    if (elementType == NUMBER || elementType == CHARACTER) {
+      return element.getParent().getParent() instanceof LispFile;
+    }
+    return false;
   }
 }
