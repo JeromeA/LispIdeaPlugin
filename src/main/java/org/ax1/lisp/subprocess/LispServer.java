@@ -87,7 +87,7 @@ public final class LispServer {
       ensureConnection();
       currentInteraction = interaction;
       interactionList.add(interaction);
-      socket.getOutputStream().write((interaction.getExpression() + "\n").getBytes());
+      socket.getOutputStream().write((interaction.getExpression() + "\n--\n").getBytes());
     } catch (IOException e) {
       e.printStackTrace();
     }

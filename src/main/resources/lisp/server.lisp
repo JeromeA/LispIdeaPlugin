@@ -16,8 +16,14 @@
     "Accept a connection from the given socket and return it as a stream."
     (sb-bsd-sockets:socket-make-stream (sb-bsd-sockets:socket-accept socket) :input t :output t :buffering :none))
 
+(defun read-until-separator (stream separator)
+    (format nil "~{~a~%~}"
+            (loop for line = (read-line stream)
+                  while (not (equal line separator))
+                  collect line)))
+
 (defun repl (stream)
-    (loop (write-string (evaluate-expression (read-line stream))
+    (loop (write-string (evaluate-expression (read-until-separator stream "--"))
                         stream)))
 
 (defun run-server ()
