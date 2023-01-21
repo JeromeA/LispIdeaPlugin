@@ -3,9 +3,9 @@ package org.ax1.lisp.subprocess;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
+import org.ax1.lisp.subprocess.interaction.InteractionListView;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

@@ -1,6 +1,4 @@
-package org.ax1.lisp.subprocess;
-
-import org.jetbrains.annotations.NotNull;
+package org.ax1.lisp.subprocess.interaction;
 
 import java.util.ArrayList;
 import java.util.List;

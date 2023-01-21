@@ -1,11 +1,11 @@
-package org.ax1.lisp.subprocess;
+package org.ax1.lisp.subprocess.interaction;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class InteractionList {
 
-  private List<Interaction> interactions = new ArrayList<>();
+  private final List<Interaction> interactions = new ArrayList<>();
   private final List<ChangeListener> listeners = new ArrayList<>();
 
   public void add(Interaction interaction) {

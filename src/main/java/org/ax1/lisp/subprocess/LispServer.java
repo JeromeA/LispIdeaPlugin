@@ -5,6 +5,9 @@ import com.intellij.ide.plugins.cl.PluginClassLoader;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import org.ax1.lisp.settings.LispSettingsState;
+import org.ax1.lisp.subprocess.interaction.Interaction;
+import org.ax1.lisp.subprocess.interaction.InteractionList;
+import org.ax1.lisp.subprocess.interaction.InteractionRunner;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -23,13 +26,12 @@ public final class LispServer {
   private Socket socket;
   private final AtomicBoolean serverReady = new AtomicBoolean();
   private final InteractionList interactionList = new InteractionList();
-  private Interaction currentInteraction;
-  private String currentSection;
 
   public static LispServer getInstance(Project project) {
     return project.getService(LispServer.class);
   }
 
+  /** Start the subprocess server if necessary, and block until it's ready. */
   @SuppressWarnings("UnstableApiUsage")
   private void ensureProcessRunning() {
     if (process != null && process.isAlive()) return;
@@ -61,7 +63,7 @@ public final class LispServer {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    System.err.println("Waiting for the server to be ready");
+    System.err.println("Waiting for the server to be ready.");
     synchronized (serverReady) {
       while (!serverReady.get()) {
         try {
@@ -71,26 +73,22 @@ public final class LispServer {
         }
       }
     }
-    System.err.println("Server ready!!!");
+    System.err.println("Server is ready.");
   }
 
   public void evaluate(String expression) {
-    evaluate(new Interaction(expression));
+    Interaction interaction = new Interaction(expression);
+    interactionList.add(interaction);
+    evaluate(interaction);
   }
 
   public InteractionList getInteractionList() {
     return interactionList;
   }
 
-  private void evaluate(Interaction interaction) {
-    try {
-      ensureConnection();
-      currentInteraction = interaction;
-      interactionList.add(interaction);
-      socket.getOutputStream().write((interaction.getExpression() + "\n--\n").getBytes());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public void evaluate(Interaction interaction) {
+    ensureConnection();
+    InteractionRunner.run(socket, interaction);
   }
 
   private void ensureConnection() {
@@ -98,35 +96,8 @@ public final class LispServer {
     try {
       if (socket != null && socket.isConnected()) return;
       socket = new Socket(InetAddress.getLoopbackAddress(), LISP_SERVER_PORT);
-      new StreamConsumer("Lisp server stdout stream", socket.getInputStream(), this::lineReceived).start();
     } catch (IOException e) {
       e.printStackTrace();
-    }
-  }
-
-  private void lineReceived(String line) {
-    if (line.startsWith("--")) {
-      currentSection = line;
-      if (line.equals("--\n")) {
-        currentInteraction = null;
-      }
-      return;
-    }
-    switch (currentSection) {
-      case "--Result--\n":
-        currentInteraction.addResult(line);
-        break;
-      case "--Error--\n":
-        currentInteraction.addError(line);
-        break;
-      case "--stdout--\n":
-        currentInteraction.addStdout(line);
-        break;
-      case "--stderr--\n":
-        currentInteraction.addStderr(line);
-        break;
-      default:
-        throw new RuntimeException("Invalid section");
     }
   }
 }

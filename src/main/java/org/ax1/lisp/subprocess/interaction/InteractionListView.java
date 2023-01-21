@@ -1,4 +1,4 @@
-package org.ax1.lisp.subprocess;
+package org.ax1.lisp.subprocess.interaction;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;

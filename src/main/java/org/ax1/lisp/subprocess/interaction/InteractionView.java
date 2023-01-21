@@ -1,8 +1,10 @@
-package org.ax1.lisp.subprocess;
+package org.ax1.lisp.subprocess.interaction;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
+import org.ax1.lisp.subprocess.FullWidthTextArea;
+import org.ax1.lisp.subprocess.LispTextField;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
