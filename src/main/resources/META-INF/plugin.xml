@@ -67,7 +67,7 @@
     <toolWindow
         factoryClass="org.ax1.lisp.subprocess.LispToolWindowFactory"
         id="Lisp"
-        icon="org.ax1.lisp.LispIcons.FILE"
+        icon="org.ax1.lisp.LispIcons.RUN"
         anchor="bottom"
         secondary="false"/>
   </extensions>
