@@ -4,6 +4,7 @@ import com.google.common.io.Resources;
 import com.intellij.ide.plugins.cl.PluginClassLoader;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindowManager;
 import org.ax1.lisp.settings.LispSettingsState;
 import org.ax1.lisp.subprocess.interaction.Interaction;
 import org.ax1.lisp.subprocess.interaction.InteractionManager;
@@ -25,12 +26,14 @@ public final class LispServer {
   private Socket socket;
   private final AtomicBoolean serverReady = new AtomicBoolean();
   private final InteractionManager interactionManager;
+  private Project project;
 
   public static LispServer getInstance(Project project) {
     return project.getService(LispServer.class);
   }
 
   public LispServer(Project project) {
+    this.project = project;
     interactionManager = new InteractionManager(project);
   }
 
@@ -82,6 +85,7 @@ public final class LispServer {
   public void evaluate(String expression) {
     Interaction interaction = new Interaction(expression);
     interactionManager.add(interaction);
+    ToolWindowManager.getInstance(project).getToolWindow("Lisp").show();
   }
 
   public InteractionManager getInteractionManager() {
