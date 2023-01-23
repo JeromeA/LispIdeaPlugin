@@ -1,44 +1,10 @@
 
-## Parsing
-
-A few problems with the current implementation:
-* The PackageManager mixes two roles: the parsing context (currentPackage, and logic to resolve symbols), and the 
-reference package storage. The current package should be part of the parsing context, while the package map should
-part of the project level information.
-* The parsing is trying to be too smart. For example, whenever we see a function definition or a function usage, we
-fetch the current function data structure, and add the new finding to that structure. This makes any future change
-difficult to track precisely. We should just store the fact that we saw a definition of a function usage in this
-file, and these pieces of information will be merged into a global project level at a later stage. This way,
-when a file changes, we can just scratch its information without leaving any traces of the previous state.
-
-The context should have:
-* A highlighter, which can be a dummy one in case we're analyzing a closed file.
-* A symbol resolver, which knows the current package, and the project ones.
-* A SyntaxAnalyzer to call for analyzing sub forms.
-
-A symbol always belongs to a package, we still have a lot of code that wrongly assumes that a symbol can be a String.
-
-## Packages
-
-I have trouble deciding between two modes:
-* A package definition knows the other packages it relies on, but then it's a mess when a Package object has to
-be rebuilt, or when we only have a partial set of packages parsed, as we still have to know the other packages by
-name for some time.
-* A package definition only knows other packages by name. This means that resolving symbols requires knowing the
-PackageManager. And then there are two options again:
-  * The package knows the PackageManager.
-  * The resolve function is given the PackageManager on each call.
-
-There could be reasons to pass the PackageManager on each call (if the PackageManager can change over time, of if we
-need multiple PackageManager to co-exist), but I can't find a valid one at the moment, so the current decision is that
-all packages know the PackageManager.
-
 ## Multiple passes for parsing
 
 To parse a file, we need to know everything about the packages they use.
 
-From the point of view of multi-passes parsing, there are 3 categories of project:
-* Trivial projects, that only use CL-USER package, or packages which in turn only use CL.
+From the point of view of multi-passes parsing, there are 3 categories of projects:
+* Trivial projects, that only use CL-USER package, or packages which in turn only use the CL package.
 Super easy to parse in one single pass as we know everything about the packages, even if we didn't see them yet.
 But they are just test projects, this never happens for real.
 * Projects with packages. If we parse a file without knowing the package definition, we will have to parse it again.
@@ -53,7 +19,7 @@ So, we're optimizing for the second case: a quick pass is checking for DEFPACKAG
 ## Name resolution
 
 The algorithm for name resolution should be:
-* If the symbol is specified as PACKAGE:NAME, use findExportedSymbol() in that package, and check it's exported.
+* If the symbol is specified as PACKAGE:NAME, use findExportedSymbol() in that package.
 * If the symbol is specified as PACKAGE::NAME, use findSymbol() in that package, which may do recursive calls into other
 packages;
 * Otherwise, use intern() on the default package.
@@ -110,20 +76,24 @@ A LispSymbol can be a variable name or a function name, and it can be either a d
 However, the package management code can't be in LispSymbol, because the same package can be referenced
 by either a symbol or a string.
 
-My first solution was to have package management code at LispSexp level, which can contain either a symbol or a string.
+The first solution was to have symbol management code at LispSymbol level, and package management code at LispSexp level,
+so that it can contain either a symbol or a string.
 Problem: MemberInplaceRenamer.performRefactoringRename() was skipping our LispSymbol when renaming a symbol, because
 there was a parent (the LispSexp) that was also a PsiNameIdentifierOwner in the renaming range.
 
-Then I switched to having all the code in LispSexp, for both symbol and package management. It was very convenient
+The second solution was to have all the code in LispSexp, for both symbol and package management. It was very convenient
 to have a single class covering all the cases. Unfortunately, I hit another wall when trying to make renaming work:
 having a package name and a symbol name in the same PsiElement means that there was no way to make renaming
 and other symbol feature work properly. In PACKAGE:SYMBOL notation, it's important that the package and the symbol
 are two separate PsiElement, each with its own independent behavior.
 
-So, the new solution is to have the code at a node that exactly matches its name:
-* the symbol management happens at the PsiElement that contains only the symbol name.
-* the package management happens at the PsiElement that contains either the package name in a symbol, or the package
-name in a string.
+So, the new solution is to have the code at a node that exactly matches its name. The code is located in
+LispStringDesignatorImpl interface, which is a Mixin added to:
+* SYMBOL_NAME, which is the symbol part in package:symbol syntax, or the whole symbol if there is no package prefix.
+* PACKAGE_PREFIX, which is the package part in package:symbol syntax.
+* STRING_CONTENT, which can contain a package, and occasionally a symbol (like in the export section of a DEFPACKAGE).
+This way, the code or package managerment happens exactly at the PsiElement that contains exactly the token
+which is either a package name or a symbol name.
 
 ## Find usages
 
@@ -141,9 +111,9 @@ Summary:
 
 Several classes are involved:
 * RenameElementAction. This is the main entry point, triggered by shift-F6
-* VariableInplaceRenamer has several limitations, one of them is that it reverts to a dialog as soon as
+* VariableInplaceRenamer has several limitations, one of them is that it reverts to a dialog as soon as:
   * one of the references is in a different file (see InplaceRefactoring.performInplaceRefactoring()).
-  * or the scope is not a local one (same place)
+  * or the scope is not a local one (same place).
 * MemberInplaceRenamer is the one we want to use. But MemberInplaceRenameHandler.isAvailable() will only work on
   PsiNameIdentifierOwner instances.
 
@@ -151,4 +121,4 @@ In InplaceRefactoring.startTemplate():
 * At the beginning of this method, the myEditor.myDocument contains the original text.
 * Then the names are removed.
 * Then the call to TemplateManager.getInstance(myProject).startTemplate() is inserting the getName() version of the
-names, which is why getName() should not return the upper case version.
+names, which is why getName() should not return the upper case version, as canonical as it is.
