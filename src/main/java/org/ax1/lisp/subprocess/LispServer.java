@@ -6,8 +6,7 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import org.ax1.lisp.settings.LispSettingsState;
 import org.ax1.lisp.subprocess.interaction.Interaction;
-import org.ax1.lisp.subprocess.interaction.InteractionList;
-import org.ax1.lisp.subprocess.interaction.InteractionRunner;
+import org.ax1.lisp.subprocess.interaction.InteractionManager;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -25,10 +24,14 @@ public final class LispServer {
   private Process process;
   private Socket socket;
   private final AtomicBoolean serverReady = new AtomicBoolean();
-  private final InteractionList interactionList = new InteractionList();
+  private final InteractionManager interactionManager;
 
   public static LispServer getInstance(Project project) {
     return project.getService(LispServer.class);
+  }
+
+  public LispServer(Project project) {
+    interactionManager = new InteractionManager(project);
   }
 
   /** Start the subprocess server if necessary, and block until it's ready. */
@@ -78,26 +81,22 @@ public final class LispServer {
 
   public void evaluate(String expression) {
     Interaction interaction = new Interaction(expression);
-    interactionList.add(interaction);
-    evaluate(interaction);
+    interactionManager.add(interaction);
   }
 
-  public InteractionList getInteractionList() {
-    return interactionList;
+  public InteractionManager getInteractionManager() {
+    return interactionManager;
   }
 
-  public void evaluate(Interaction interaction) {
-    ensureConnection();
-    InteractionRunner.run(socket, interaction);
-  }
-
-  private void ensureConnection() {
+  public Socket getSocket() {
     ensureProcessRunning();
     try {
-      if (socket != null && socket.isConnected()) return;
-      socket = new Socket(InetAddress.getLoopbackAddress(), LISP_SERVER_PORT);
+      if (socket == null || !socket.isConnected()) {
+        socket = new Socket(InetAddress.getLoopbackAddress(), LISP_SERVER_PORT);
+      }
+      return socket;
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new RuntimeException("Fatal: could not get Lisp Server socket.");
     }
   }
 }

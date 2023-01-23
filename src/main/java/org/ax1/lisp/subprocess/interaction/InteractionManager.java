@@ -1,15 +1,23 @@
 package org.ax1.lisp.subprocess.interaction;
 
+import com.intellij.openapi.project.Project;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class InteractionList {
+public class InteractionManager {
 
   private final List<Interaction> interactions = new ArrayList<>();
   private final List<ChangeListener> listeners = new ArrayList<>();
+  private final InteractionRunner runner;
+
+  public InteractionManager(Project project) {
+    runner = new InteractionRunner(project);
+  }
 
   public void add(Interaction interaction) {
     interactions.add(interaction);
+    runner.queue(interaction);
     fireChanged();
   }
 
@@ -18,7 +26,7 @@ public class InteractionList {
   }
 
   private void fireChanged() {
-    listeners.forEach(l -> l.interactionChanged(this));
+    listeners.forEach(ChangeListener::interactionChanged);
   }
 
   public List<Interaction> getInteractions() {
@@ -26,6 +34,6 @@ public class InteractionList {
   }
 
   interface ChangeListener {
-    void interactionChanged(InteractionList interactionList);
+    void interactionChanged();
   }
 }

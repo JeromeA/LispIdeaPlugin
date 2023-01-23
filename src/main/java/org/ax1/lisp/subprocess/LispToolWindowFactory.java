@@ -21,6 +21,6 @@ public class LispToolWindowFactory implements ToolWindowFactory {
 
   @NotNull
   private JComponent createComponent(@NotNull Project project) {
-    return new InteractionListView(project, LispServer.getInstance(project).getInteractionList());
+    return new InteractionListView(project, LispServer.getInstance(project).getInteractionManager());
   }
 }
