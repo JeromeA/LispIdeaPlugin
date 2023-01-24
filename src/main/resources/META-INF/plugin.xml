@@ -1,6 +1,6 @@
 <idea-plugin>
   <id>org.ax1.LispIdeaPlugin</id>
-  <name>Common Lisp Support</name>
+  <name>Common Lisp</name>
   <vendor email="support@ax1.org" url="http://www.ax1.org">AX1</vendor>
 
   <description><![CDATA[
@@ -72,9 +72,10 @@
         secondary="false"/>
   </extensions>
   <actions>
-    <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction" use-shortcut-of="RunClass"/>
-    <action id="StartLispConsole" class="org.ax1.lisp.subprocess.action.StartLispConsole">
+    <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction"/>
+    <group text="Lisp" icon="/icons/lambda.svg" popup="true">
+      <action id="UpdateDocumentation" class="org.ax1.lisp.subprocess.action.UpdateDocumentation" />
       <add-to-group group-id="ToolsMenu" anchor="last"/>
-    </action>
+    </group>
   </actions>
 </idea-plugin>

@@ -87,12 +87,13 @@ public final class LispServer {
     System.err.println("Server is ready.");
   }
 
-  public void evaluate(String expression, boolean visible) {
+  public Interaction evaluate(String expression, boolean visible) {
     Interaction interaction = new Interaction(expression, visible);
     interactionManager.add(interaction);
     if (visible) {
       ToolWindowManager.getInstance(project).getToolWindow("Lisp").show();
     }
+    return interaction;
   }
 
   public InteractionManager getInteractionManager() {
