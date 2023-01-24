@@ -4,17 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Interaction {
+
+  private static final int MAXIMUM_SIZE = 10000;
+
   private final String expression;
   private String result = "";
   private String error = "";
   private String stdout = "";
   private String stderr = "";
+  private final boolean visible;
   private final List<ChangeListener> listeners = new ArrayList<>();
 
-  public Interaction(String expression) {
+  public Interaction(String expression, boolean visible) {
     this.expression = expression;
+    this.visible = visible;
   }
-
   public String getExpression() {
     return expression;
   }
@@ -28,7 +32,7 @@ public class Interaction {
   }
 
   public String getStdout() {
-    return stdout;
+    return stdout + (stdout.length() < MAXIMUM_SIZE ? "" : "[truncated]\n");
   }
 
   public String getStderr() {
@@ -46,7 +50,9 @@ public class Interaction {
   }
 
   public void addStdout(String line) {
-    stdout += line;
+    if (stdout.length() < MAXIMUM_SIZE) {
+      stdout += line;
+    }
     fireChanged();
   }
 
@@ -61,6 +67,10 @@ public class Interaction {
 
   private void fireChanged() {
     listeners.forEach(l -> l.interactionChanged(this));
+  }
+
+  public boolean isVisible() {
+    return visible;
   }
 
   interface ChangeListener {

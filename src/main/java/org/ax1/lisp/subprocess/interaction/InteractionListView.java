@@ -6,7 +6,9 @@ import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static javax.swing.SwingUtilities.invokeLater;
 
@@ -15,6 +17,7 @@ public class InteractionListView extends JBScrollPane {
   private final Project project;
   private final JPanel contentPanel;
   private final InteractionManager interactionManager;
+  private final Set<Interaction> displayed = new HashSet<>();
 
   public InteractionListView(@NotNull Project project, InteractionManager interactionManager) {
     this.project = project;
@@ -30,8 +33,10 @@ public class InteractionListView extends JBScrollPane {
 
   private void updateChildren() {
     List<Interaction> interactions = interactionManager.getInteractions();
-    for (int index = contentPanel.getComponentCount() / 2; index < interactions.size() ; index++) {
-      contentPanel.add(new InteractionView(project, interactions.get(index)));
+    for (Interaction interaction : interactions) {
+      if (!interaction.isVisible() || displayed.contains(interaction)) continue;
+      displayed.add(interaction);
+      contentPanel.add(new InteractionView(project, interaction));
       contentPanel.add(Box.createVerticalStrut(4));
     }
     validate();

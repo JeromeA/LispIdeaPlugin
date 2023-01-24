@@ -23,7 +23,7 @@ public class LispRunExpressionAction extends DumbAwareAction {
 
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
-    LispServer.getInstance(e.getProject()).evaluate(getTopLevelExpression(getPsiElement(e)));
+    LispServer.getInstance(e.getProject()).evaluate(getTopLevelExpression(getPsiElement(e)), true);
   }
 
   private String getTopLevelExpression(PsiElement element) {
