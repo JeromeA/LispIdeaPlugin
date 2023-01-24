@@ -2,7 +2,10 @@
 (in-package #:lisp-idea-plugin)
 
 (defparameter *server-address* '(127 0 0 1))
-(defparameter *server-port* 8080)
+(defparameter *server-port* 0)
+
+(defun get-tcp-port (socket)
+    (nth-value 1 (sb-bsd-sockets:socket-name socket)))
 
 (defun make-server-socket ()
     (let ((socket (make-instance 'sb-bsd-sockets:inet-socket
@@ -10,6 +13,7 @@
         (setf (sb-bsd-sockets:sockopt-reuse-address socket) t)
         (sb-bsd-sockets:socket-bind socket *server-address* *server-port*)
         (sb-bsd-sockets:socket-listen socket 1)
+        (format t "Server is listening on port ~A~%" (get-tcp-port socket))
         socket))
 
 (defun accept-stream (socket)
@@ -28,7 +32,6 @@
 
 (defun run-server ()
     (let ((socket (make-server-socket)))
-        (format t "Server is ready~%")
         (loop (let ((stream (accept-stream socket)))
                   (format t "Handling incoming stream~%")
                   (handler-case

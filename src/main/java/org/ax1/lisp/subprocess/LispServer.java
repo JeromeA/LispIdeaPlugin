@@ -14,6 +14,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.intellij.openapi.components.Service.Level.PROJECT;
 
@@ -21,9 +23,9 @@ import static com.intellij.openapi.components.Service.Level.PROJECT;
 public final class LispServer {
 
   private static final String[] LISP_SERVER_SOURCES = { "lisp/package.lisp", "lisp/evaluate.lisp", "lisp/server.lisp" };
-  private static final int LISP_SERVER_PORT = 8080;
   private Process process;
   private Socket socket;
+  private int serverPort;
   private final AtomicBoolean serverReady = new AtomicBoolean();
   private final InteractionManager interactionManager;
   private Project project;
@@ -45,9 +47,12 @@ public final class LispServer {
       System.err.println("Starting Lisp process");
       String executable = LispSettingsState.getInstance().selectedBinaryPath;
       process = Runtime.getRuntime().exec(executable);
+      Pattern portPattern = Pattern.compile(".* listening on port (\\d+)\n");
       StreamConsumer stdout = new StreamConsumer("Lisp process stdout stream", process.getInputStream(), line -> {
-        if (line.endsWith("Server is ready\n")) {
+        Matcher portMatcher = portPattern.matcher(line);
+        if (portMatcher.matches()) {
           synchronized (serverReady) {
+            serverPort = Integer.parseInt(portMatcher.group(1));
             serverReady.set(true);
             serverReady.notify();
           }
@@ -96,7 +101,7 @@ public final class LispServer {
     ensureProcessRunning();
     try {
       if (socket == null || !socket.isConnected()) {
-        socket = new Socket(InetAddress.getLoopbackAddress(), LISP_SERVER_PORT);
+        socket = new Socket(InetAddress.getLoopbackAddress(), serverPort);
       }
       return socket;
     } catch (IOException e) {
