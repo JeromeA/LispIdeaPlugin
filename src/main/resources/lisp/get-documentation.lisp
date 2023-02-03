@@ -6,5 +6,4 @@
     (do-external-symbols (symbol :cl)
         (let ((description (with-output-to-string (*standard-output*)
                                (describe symbol))))
-            (when (search "names a compiled function:" description)
-                (format t "~A~%====~%" description)))))
+            (format t "~A~%====~%" description))))

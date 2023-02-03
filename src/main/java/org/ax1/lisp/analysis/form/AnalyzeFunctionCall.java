@@ -27,7 +27,6 @@ public class AnalyzeFunctionCall implements FormAnalyzer {
     if (KEYWORDS.contains(symbol)) {
       context.highlighter.highlightKeyword(functionName);
     }
-    context.addFunctionUsage(functionName.getSymbol());
     context.analyzer.analyzeForms(form.getSexpList(), 1);
   }
 }
