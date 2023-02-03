@@ -139,6 +139,7 @@ public class SyntaxAnalyzer {
         completions.addAll(toLowerCase(context.lexicalBindings.getLexicalFunctions()));
         completions.addAll(toLowerCase(getGlobalFunctions()));
       } else {
+        context.highlighter.highlightKeyword(form);
         Symbol symbol = context.getSymbol(sexp0.getSymbol());
         getAnalyzer(symbol).analyze(context, form);
       }

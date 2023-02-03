@@ -22,7 +22,6 @@ public class AnalyzeDefclass implements FormAnalyzer {
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
-    context.highlighter.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 4) {
       context.highlighter.highlightError(form, "DEFCLASS needs at least 3 arguments");

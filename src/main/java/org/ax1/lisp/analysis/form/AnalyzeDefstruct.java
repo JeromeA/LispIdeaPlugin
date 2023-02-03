@@ -15,7 +15,6 @@ public class AnalyzeDefstruct implements FormAnalyzer {
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
-    context.highlighter.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
       context.highlighter.highlightError(form, "DEFSTRUCT needs at least 1 argument");

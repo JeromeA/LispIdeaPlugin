@@ -22,12 +22,7 @@ public class AnalyzeFunctionCall implements FormAnalyzer {
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
-    context.highlighter.highlightKeyword(form);
     LispSexp functionName = form.getSexpList().get(0);
-    if (functionName.getSymbol() == null) {
-      context.highlighter.highlightError(functionName, "Function name expected");
-      return;
-    }
     Symbol symbol = context.getSymbol(functionName.getSymbol());
     if (KEYWORDS.contains(symbol)) {
       context.highlighter.highlightKeyword(functionName);

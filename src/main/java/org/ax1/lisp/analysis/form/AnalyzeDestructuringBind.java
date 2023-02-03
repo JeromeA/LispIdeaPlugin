@@ -26,7 +26,6 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
-    context.highlighter.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
       context.highlighter.highlightError(form, "DESTRUCTURING-BIND needs at least 2 arguments.");

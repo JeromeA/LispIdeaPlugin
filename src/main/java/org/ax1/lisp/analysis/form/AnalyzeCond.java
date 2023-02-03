@@ -11,7 +11,6 @@ public class AnalyzeCond implements FormAnalyzer {
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
-    context.highlighter.highlightKeyword(form);
     List<LispSexp> sexpList = form.getSexpList();
     for (LispSexp sexp : sexpList.stream().skip(1).collect(Collectors.toList())) {
       LispList condCase = sexp.getList();

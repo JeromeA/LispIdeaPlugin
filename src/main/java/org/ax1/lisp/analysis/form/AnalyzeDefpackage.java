@@ -23,7 +23,6 @@ public class AnalyzeDefpackage implements FormAnalyzer {
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
-    context.highlighter.highlightKeyword(form);
     List<LispSexp> formList = form.getSexpList();
     if (formList.size() < 2) {
       context.highlighter.highlightError(form, "DEFPACKAGE needs at least 1 argument");

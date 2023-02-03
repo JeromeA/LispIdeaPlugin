@@ -10,7 +10,6 @@ public class AnalyzeEcase implements FormAnalyzer {
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
-    context.highlighter.highlightKeyword(form);
     List<LispSexp> sexpList = form.getSexpList();
     if (sexpList.size() < 2) {
       context.highlighter.highlightError(form, "ECASE needs at least 1 argument");

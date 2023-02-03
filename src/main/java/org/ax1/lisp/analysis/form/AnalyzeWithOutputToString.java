@@ -12,7 +12,6 @@ public class AnalyzeWithOutputToString implements FormAnalyzer {
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
-    context.highlighter.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
       context.highlighter.highlightError(form, "WITH-OUTPUT-TO-STRING needs at least 1 argument");

@@ -15,7 +15,6 @@ public class AnalyzeLet implements FormAnalyzer {
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
-    context.highlighter.highlightKeyword(form);
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
       context.highlighter.highlightError(form, "LET needs at least 1 argument");

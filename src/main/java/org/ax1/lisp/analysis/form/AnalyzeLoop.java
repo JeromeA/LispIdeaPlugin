@@ -29,7 +29,6 @@ public class AnalyzeLoop implements FormAnalyzer {
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
-    context.highlighter.highlightKeyword(form.getSexpList().get(0));
     if (form.getSexpList().size() == 1) return;
     LispSexp firstSexp = form.getSexpList().get(1);
     if (firstSexp.getList() != null) {
