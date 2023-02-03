@@ -13,39 +13,40 @@ public class SymbolDefinition {
   public final Set<LispStringDesignator> methods = new HashSet<>(); // For the methods of a generic.
   public final Type type;
   public final Scope scope;
-  public String description; // Whatever should be in the tooltip.
+  private String description; // Whatever should be in the tooltip.
+  private String lambda;
   public LispSexp container;
+  public boolean hasExternalDefinition;
 
-  private SymbolDefinition(Type type, Scope scope, Symbol symbol, String description) {
+  private SymbolDefinition(Type type, Scope scope, Symbol symbol) {
     this.symbol = symbol;
     this.type = type;
     this.scope = scope;
-    this.description = description;
   }
 
   public static SymbolDefinition newDefinition(
-      Type type, Scope scope, Symbol symbol, LispStringDesignator definition, String description) {
-    SymbolDefinition symbolDefinition = new SymbolDefinition(type, scope, symbol, description);
+      Type type, Scope scope, Symbol symbol, LispStringDesignator definition) {
+    SymbolDefinition symbolDefinition = new SymbolDefinition(type, scope, symbol);
     symbolDefinition.definitions.add(definition);
     return symbolDefinition;
   }
 
-  public static SymbolDefinition newDefinition(Type type, Scope scope, LocatedSymbol locatedSymbol, String description) {
-    return newDefinition(type, scope, locatedSymbol.symbol, locatedSymbol.location, description);
+  public static SymbolDefinition newDefinition(Type type, Scope scope, LocatedSymbol locatedSymbol) {
+    return newDefinition(type, scope, locatedSymbol.symbol, locatedSymbol.location);
   }
 
-  public static SymbolDefinition newDefinition(Type type, Scope scope, Symbol symbol, String description) {
-    return new SymbolDefinition(type, scope, symbol, description);
+  public static SymbolDefinition newDefinition(Type type, Scope scope, Symbol symbol) {
+    return new SymbolDefinition(type, scope, symbol);
   }
 
-  public static SymbolDefinition newMethod(Symbol symbol, LispStringDesignator definition, String description) {
-    SymbolDefinition symbolDefinition = new SymbolDefinition(Type.FUNCTION, Scope.DYNAMIC, symbol, description);
+  public static SymbolDefinition newMethod(Symbol symbol, LispStringDesignator definition) {
+    SymbolDefinition symbolDefinition = new SymbolDefinition(Type.FUNCTION, Scope.DYNAMIC, symbol);
     symbolDefinition.methods.add(definition);
     return symbolDefinition;
   }
 
   public static SymbolDefinition newUsage(Type type, Scope scope, Symbol symbol, LispStringDesignator usage) {
-    SymbolDefinition symbolDefinition = new SymbolDefinition(type, scope, symbol, null);
+    SymbolDefinition symbolDefinition = new SymbolDefinition(type, scope, symbol);
     symbolDefinition.usages.add(usage);
     return symbolDefinition;
   }
@@ -73,6 +74,32 @@ public class SymbolDefinition {
 
   public String getName() {
     return symbol.getName();
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setLambda(String lambda) {
+    this.lambda = lambda;
+  }
+
+  public boolean isDefined() {
+    return !definitions.isEmpty() || hasExternalDefinition;
+  }
+
+  public SymbolDefinition merge(SymbolDefinition def2) {
+    getDefinitions().addAll(def2.getDefinitions());
+    methods.addAll(def2.methods);
+    getUsages().addAll(def2.getUsages());
+    if (def2.description != null) description = def2.description;
+    if (def2.hasExternalDefinition) hasExternalDefinition = true;
+    if (def2.lambda != null) lambda = def2.lambda;
+    return this;
   }
 
   public enum Type {

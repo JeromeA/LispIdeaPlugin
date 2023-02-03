@@ -39,7 +39,7 @@ public class LexicalBindingManager {
   public LexicalScope defineLexicalFunctions(List<LocatedSymbol> functionList) {
     Map<Symbol, SymbolDefinition> newDictionary = new HashMap<>();
     for (LocatedSymbol function : functionList) {
-      newDictionary.put(function.symbol, newDefinition(Type.FUNCTION, LEXICAL, function, ""));
+      newDictionary.put(function.symbol, newDefinition(Type.FUNCTION, LEXICAL, function));
     }
     functions.push(newDictionary);
     return this::dropLexicalFunctions;

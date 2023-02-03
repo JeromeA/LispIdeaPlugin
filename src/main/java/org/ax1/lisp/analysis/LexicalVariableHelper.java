@@ -12,8 +12,9 @@ public class LexicalVariableHelper {
 
   @NotNull
   public static SymbolDefinition newLexicalVariable(String formName, LocatedSymbol locatedSymbol, String initialValue) {
-    return newDefinition(SymbolDefinition.Type.VARIABLE, LEXICAL, locatedSymbol,
-        getDescription(formName, locatedSymbol.symbol, initialValue));
+    SymbolDefinition symbolDefinition = newDefinition(SymbolDefinition.Type.VARIABLE, LEXICAL, locatedSymbol);
+    symbolDefinition.setDescription(getDescription(formName, locatedSymbol.symbol, initialValue));
+    return symbolDefinition;
   }
 
   @NotNull

@@ -3,8 +3,8 @@ package org.ax1.lisp.subprocess.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
-import org.ax1.lisp.subprocess.LispServer;
-import org.ax1.lisp.subprocess.interaction.Interaction;
+import com.intellij.openapi.project.Project;
+import org.ax1.lisp.subprocess.ExternalDocumentation;
 import org.jetbrains.annotations.NotNull;
 
 public class UpdateDocumentation extends AnAction implements DumbAware {
@@ -14,9 +14,16 @@ public class UpdateDocumentation extends AnAction implements DumbAware {
   }
 
   @Override
+  public void update(@NotNull AnActionEvent e) {
+    super.update(e);
+  }
+
+  @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
-    Interaction interaction = LispServer.getInstance(e.getProject()).evaluate("(lisp-idea-plugin:get-documentation)", false);
-    System.err.println("UpdateDocumentation Interaction: " + interaction);
+    Project project = e.getProject();
+    if (project != null) {
+      ExternalDocumentation.getInstance(project).updateDocumentation();
+    }
   }
 
 }

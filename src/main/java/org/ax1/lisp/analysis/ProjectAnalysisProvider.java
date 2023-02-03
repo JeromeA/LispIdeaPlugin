@@ -9,9 +9,9 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.PsiModificationTracker;
 import org.ax1.lisp.LispFileType;
-import org.ax1.lisp.analysis.symbol.CommonLispPackage;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.psi.LispFile;
+import org.ax1.lisp.subprocess.ExternalDocumentation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -23,9 +23,11 @@ class ProjectAnalysisProvider implements CachedValueProvider<ProjectDefinitions>
   private final Project project;
   private final ProjectComputedData projectComputedData;
   private final PsiManager psiManager;
+  private final ExternalDocumentation externalDocumentation;
 
   public ProjectAnalysisProvider(Project project) {
     this.project = project;
+    externalDocumentation = ExternalDocumentation.getInstance(project);
     projectComputedData = ProjectComputedData.getInstance(project);
     psiManager = PsiManager.getInstance(project);
   }
@@ -34,13 +36,14 @@ class ProjectAnalysisProvider implements CachedValueProvider<ProjectDefinitions>
   public @Nullable Result<ProjectDefinitions> compute() {
     ImmutableList<Bindings> bindings = Streams.concat(
             getFileDefinitions().stream(),
-            getDependencyDefinitions().stream())
+            getExternalDocumentation().stream())
         .collect(toImmutableList());
-    return new Result<>(new ProjectDefinitions(bindings, getPackageDefinitions()), PsiModificationTracker.MODIFICATION_COUNT);
+    return new Result<>(new ProjectDefinitions(bindings, getPackageDefinitions()),
+        PsiModificationTracker.MODIFICATION_COUNT, externalDocumentation.getModificationTracker());
   }
 
-  private ImmutableList<Bindings> getDependencyDefinitions() {
-    return ImmutableList.of(CommonLispPackage.INSTANCE.bindings);
+  private ImmutableList<Bindings> getExternalDocumentation() {
+    return ImmutableList.of(externalDocumentation.getBindings());
   }
 
   private Collection<PackageDefinition> getPackageDefinitions() {

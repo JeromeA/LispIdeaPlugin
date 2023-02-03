@@ -33,7 +33,7 @@ public class PackageBindingProvider implements CachedValueProvider<Collection<Pa
         .map(psiManager::findFile)
         .map(f -> (LispFile) f)
         .map(projectComputedData::getPackageBindings)
-        .flatMap(fileBindings -> fileBindings.packages.stream())
+        .flatMap(fileBindings -> fileBindings.getPackages().stream())
         .collect(Collectors.toList());
     return new Result<>(definitions, PsiModificationTracker.MODIFICATION_COUNT);
   }

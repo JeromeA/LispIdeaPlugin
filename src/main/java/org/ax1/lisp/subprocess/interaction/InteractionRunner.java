@@ -39,6 +39,7 @@ public class InteractionRunner extends Thread {
   public void queue(Interaction interaction) {
     interactionsToRun.add(interaction);
   }
+
   public void runInteraction(Interaction interaction) {
     try {
       Socket socket = LispServer.getInstance(project).getSocket();
@@ -72,6 +73,8 @@ public class InteractionRunner extends Thread {
       }
     } catch (IOException e) {
       e.printStackTrace();
+    } finally {
+      interaction.markAsComplete();
     }
   }
 }

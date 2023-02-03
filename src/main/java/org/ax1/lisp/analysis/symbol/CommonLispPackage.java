@@ -1000,13 +1000,16 @@ public class CommonLispPackage extends LispPackage {
 
   public static CommonLispPackage INSTANCE = new CommonLispPackage();
 
-  public final Bindings bindings = new Bindings();
-
   private CommonLispPackage() {
     super(null, createDefinition());
-    COMMON_LISP_FUNCTIONS.forEach(this::addFunction);
-    COMMON_LISP_VARIABLES.forEach(this::addVariable);
-    COMMON_LISP_LAMBDA_KEYWORDS.forEach(this::addKeyword);
+    COMMON_LISP_FUNCTIONS.forEach(this::addExport);
+    COMMON_LISP_VARIABLES.forEach(this::addExport);
+    COMMON_LISP_LAMBDA_KEYWORDS.forEach(this::addExport);
+  }
+
+  private void addExport(String name) {
+    getDefinition().addExport(name);
+    intern(name);
   }
 
   private static PackageDefinition createDefinition() {
@@ -1014,22 +1017,5 @@ public class CommonLispPackage extends LispPackage {
     definition.addNickname("CL");
     definition.setReadOnly();
     return definition;
-  }
-
-  private void addFunction(String name) {
-    getDefinition().addExport(name);
-    Symbol symbol = intern(name);
-    bindings.addFunctionDefinition(symbol, "Standard function.");
-  }
-
-  private void addVariable(String name) {
-    getDefinition().addExport(name);
-    Symbol symbol = intern(name);
-    bindings.addVariableDefinition(symbol, "Standard variable.");
-  }
-
-  private void addKeyword(String name) {
-    getDefinition().addExport(name);
-    intern(name);
   }
 }

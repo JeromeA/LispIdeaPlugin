@@ -22,7 +22,7 @@ public class AnalysisContext {
   }
 
   public void addFunctionDefinition(LispSymbol symbol, String description) {
-    result.addFunctionDefinition(getSymbol(symbol), symbol.getSymbolName(), description);
+    result.addFunctionDefinition(getSymbol(symbol), symbol.getSymbolName());
   }
 
   public void addMethodDefinition(LispSymbol symbol, String description) {
@@ -30,7 +30,7 @@ public class AnalysisContext {
   }
 
   public void addVariableDefinition(LispSymbol symbol, String description) {
-    result.addVariableDefinition(getSymbol(symbol), symbol.getSymbolName(), description);
+    result.addVariableDefinition(getSymbol(symbol), symbol.getSymbolName());
   }
 
   public void addFunctionUsage(LispSymbol fullSymbolName) {

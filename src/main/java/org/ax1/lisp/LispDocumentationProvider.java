@@ -13,7 +13,7 @@ public class LispDocumentationProvider extends AbstractDocumentationProvider {
   public @Nullable @Nls String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
     if (element instanceof LispSymbolName) {
       SymbolDefinition symbolDefinition = ((LispSymbolName) element).getSymbolDefinition();
-      if (symbolDefinition != null) return symbolDefinition.description;
+      if (symbolDefinition != null) return symbolDefinition.getDescription();
     }
     return null;
   }

@@ -8,17 +8,19 @@ public class Interaction {
   private static final int MAXIMUM_SIZE = 10000;
 
   private final String expression;
-  private String result = "";
   private String error = "";
-  private String stdout = "";
   private String stderr = "";
+  private String stdout = "";
+  private String result = "";
   private final boolean visible;
   private final List<ChangeListener> listeners = new ArrayList<>();
+  private boolean completed;
 
   public Interaction(String expression, boolean visible) {
     this.expression = expression;
     this.visible = visible;
   }
+
   public String getExpression() {
     return expression;
   }
@@ -32,7 +34,7 @@ public class Interaction {
   }
 
   public String getStdout() {
-    return stdout + (stdout.length() < MAXIMUM_SIZE ? "" : "[truncated]\n");
+    return stdout + (isVisible() || stdout.length() < MAXIMUM_SIZE ? "" : "[truncated]\n");
   }
 
   public String getStderr() {
@@ -50,7 +52,7 @@ public class Interaction {
   }
 
   public void addStdout(String line) {
-    if (stdout.length() < MAXIMUM_SIZE) {
+    if (stdout.length() < MAXIMUM_SIZE || !isVisible()) {
       stdout += line;
     }
     fireChanged();
@@ -75,5 +77,25 @@ public class Interaction {
 
   interface ChangeListener {
     void interactionChanged(Interaction interaction);
+  }
+
+  public synchronized void markAsComplete() {
+    completed = true;
+    notify();
+  }
+
+  public synchronized void waitUntilComplete() {
+    while (!completed) {
+      try {
+        wait();
+      } catch (InterruptedException ignored) {
+      }
+    }
+  }
+
+  @Override
+  public String toString() {
+    return String.format("[expression=\"%.10000s\", error=\"%.10000s\", stderr=\"%.10000s\", stdout=\"%.10000s\", result=\"%.10000s\"]",
+        expression, error, stderr, stdout, result);
   }
 }

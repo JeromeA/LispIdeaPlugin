@@ -38,7 +38,7 @@ public class LispAnnotator implements Annotator {
   }
 
   private void checkNoDefinition(SymbolDefinition symbolDefinition, Highlighter annotations) {
-    if (symbolDefinition.getDefinitions().isEmpty() && symbolDefinition.description == null) {
+    if (!symbolDefinition.isDefined()) {
       String message = symbolDefinition.type == FUNCTION ? "Function '%s' does not exist" : "Variable '%s' is not defined";
       symbolDefinition.getUsages().forEach(usage ->
           annotations.highlightUnknown(usage, String.format(message, symbolDefinition.symbol)));

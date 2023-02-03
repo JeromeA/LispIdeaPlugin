@@ -22,13 +22,15 @@ import static com.intellij.openapi.components.Service.Level.PROJECT;
 @Service(PROJECT)
 public final class LispServer {
 
-  private static final String[] LISP_SERVER_SOURCES = { "lisp/package.lisp", "lisp/evaluate.lisp", "lisp/server.lisp" };
+  private static final String[] LISP_SERVER_SOURCES = {
+      "lisp/package.lisp", "lisp/evaluate.lisp", "lisp/server.lisp", "lisp/get-documentation.lisp"
+  };
   private Process process;
   private Socket socket;
   private int serverPort;
   private final AtomicBoolean serverReady = new AtomicBoolean();
   private final InteractionManager interactionManager;
-  private Project project;
+  private final Project project;
 
   public static LispServer getInstance(Project project) {
     return project.getService(LispServer.class);

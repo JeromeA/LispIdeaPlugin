@@ -30,14 +30,14 @@ public class ProjectDefinitions {
       packages.put(name, packageDefinition);
     }
     for (Bindings result : results) {
-      for (SymbolDefinition symbolDefinition : result.definitions) {
+      for (SymbolDefinition symbolDefinition : result.getDefinitions()) {
         if (symbolDefinition.scope == LEXICAL) {
           addSymbolReferences(symbolDefinition);
         } else {
           merge(symbolDefinition.type == VARIABLE ? variables : functions, symbolDefinition);
         }
       }
-      for (PackageDefinition packageDefinition : result.packages) {
+      for (PackageDefinition packageDefinition : result.getPackages()) {
         merge(packageDefinition);
       }
     }
@@ -72,15 +72,7 @@ public class ProjectDefinitions {
   }
 
   private void merge(Map<Symbol, SymbolDefinition> definitionMap, SymbolDefinition definition) {
-    definitionMap.merge(definition.symbol, definition, ProjectDefinitions::mergeDefinitions);
-  }
-
-  private static SymbolDefinition mergeDefinitions(SymbolDefinition def1, SymbolDefinition def2) {
-    def1.getDefinitions().addAll(def2.getDefinitions());
-    def1.methods.addAll(def2.methods);
-    def1.getUsages().addAll(def2.getUsages());
-    if (def2.description != null) def1.description = def2.description;
-    return def1;
+    definitionMap.merge(definition.symbol, definition, SymbolDefinition::merge);
   }
 
   public Collection<SymbolDefinition> getFunctions() {

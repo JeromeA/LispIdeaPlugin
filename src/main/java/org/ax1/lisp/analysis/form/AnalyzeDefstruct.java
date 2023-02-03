@@ -5,7 +5,6 @@ import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
-import org.ax1.lisp.psi.LispSymbolName;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
     Struct struct = createStruct(context, structName);
     if (struct == null) return;
     Symbol symbol = context.getSymbol(struct.fullSymbolName, "MAKE-" + struct.symbol.getName());
-    context.result.addFunctionDefinition(symbol, struct.fullSymbolName.getSymbolName(), "");
+    context.result.addFunctionDefinition(symbol, struct.fullSymbolName.getSymbolName());
 
     // Skip documentation.
     int arg = 2;
@@ -60,7 +59,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
   private void analyzeSlot(AnalysisContext context, Struct struct, LispSexp slot) {
     if (slot.getSymbol() != null) {
       Symbol functionSymbol = context.getSymbol(slot.getSymbol(), struct.symbol.getName() + "-" + slot.getText());
-      context.result.addFunctionDefinition(functionSymbol, slot.getSymbolName(), "");
+      context.result.addFunctionDefinition(functionSymbol, slot.getSymbolName());
       context.highlighter.highlight(slot, FUNCTION_DECLARATION);
       return;
     }
@@ -68,7 +67,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
     if (list != null && list.getSexpList().size() >= 1 && list.getSexpList().get(0).isSymbol()) {
       LispSexp sexp = list.getSexpList().get(0);
       Symbol functionSymbol = context.getSymbol(sexp.getSymbol(), struct.symbol.getName() + "-" + sexp.getText());
-      context.result.addFunctionDefinition(functionSymbol, sexp.getSymbolName(), "");
+      context.result.addFunctionDefinition(functionSymbol, sexp.getSymbolName());
       context.highlighter.highlight(sexp, FUNCTION_DECLARATION);
       // TODO: analyze slot options.
       return;
