@@ -1,7 +1,6 @@
 package org.ax1.lisp.subprocess;
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
-import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SimpleModificationTracker;
@@ -10,10 +9,7 @@ import org.ax1.lisp.analysis.symbol.CommonLispPackage;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.subprocess.interaction.Interaction;
-import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,24 +44,9 @@ public final class ExternalDocumentation {
     return modificationTracker;
   }
 
-  @NotNull
-  private Path getDocumentationPath() {
-    return Paths.get(PathManager.getSystemPath(), "lisp", "documentation");
-  }
-
   public Bindings getBindings() {
-    if (bindings == null) readFromCache();
+    if (bindings == null) updateDocumentation();
     return bindings;
-  }
-
-  private void readFromCache() {
-    // TODO: Read cache from PathManager.getSystemPath()/lisp/doc
-    Path documentationPath = getDocumentationPath();
-    bindings = new Bindings();
-  }
-
-  private void writeToCache() {
-    // TODO: Write to cache in PathManager.getSystemPath()/lisp/doc
   }
 
   public void updateDocumentation() {
