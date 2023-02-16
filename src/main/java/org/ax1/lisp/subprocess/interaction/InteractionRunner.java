@@ -41,6 +41,7 @@ public class InteractionRunner extends Thread {
   }
 
   public void runInteraction(Interaction interaction) {
+    String separator = null;
     try {
       Socket socket = LispServer.getInstance(project).getSocket();
       socket.getOutputStream().write((interaction.getExpression() + "\n--\n").getBytes());
@@ -48,23 +49,26 @@ public class InteractionRunner extends Thread {
       while (true) {
         String line = bufferedReader.readLine();
         if (line == null) throw new IOException("Unexpected EOF");
-        line = line + "\n";
-        if (line.startsWith("--")) {
-          currentSection = line;
-          if (line.equals("--\n")) return;
+        if (separator == null) {
+          separator = line.substring(0, line.indexOf("Result"));
+        }
+        if (line.startsWith(separator)) {
+          currentSection = line.substring(separator.length());
+          if (currentSection.isEmpty()) return;
           continue;
         }
+        line = line + "\n";
         switch (currentSection) {
-          case "--Result--\n":
+          case "Result":
             interaction.addResult(line);
             break;
-          case "--Error--\n":
+          case "Error":
             interaction.addError(line);
             break;
-          case "--stdout--\n":
+          case "stdout":
             interaction.addStdout(line);
             break;
-          case "--stderr--\n":
+          case "stderr":
             interaction.addStderr(line);
             break;
           default:

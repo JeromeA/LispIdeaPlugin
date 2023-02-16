@@ -11,4 +11,6 @@
                     (setf result (multiple-value-list (handler-case (eval (read input-stream))
                                                           (error (e) (setf error e)
                                                                      "")))))))))
-        (format nil "--Result--~%~{~A~%~}--Error--~%~A~%--stdout--~%~A~%--stderr--~%~A~%--~%" result error stdout stderr)))
+        (let ((separator (random 1000000)))
+            (format nil "--~A--Result~%~{~A~%~}--~A--Error~%~A~%--~A--stdout~%~A~%--~A--stderr~%~A~%--~A--~%"
+                    separator result separator error separator stdout separator stderr separator))))
