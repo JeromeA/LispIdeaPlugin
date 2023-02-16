@@ -2,15 +2,17 @@ package org.ax1.lisp.analysis.form;
 
 import com.intellij.lang.documentation.DocumentationMarkup;
 import org.ax1.lisp.analysis.AnalysisContext;
+import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispString;
+import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 
 import static com.intellij.lang.documentation.DocumentationMarkup.GRAYED_ELEMENT;
-import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.FUNCTION_DECLARATION;
 import static org.ax1.lisp.analysis.form.LambdaAnalyzer.analyzeLambda;
+import static org.ax1.lisp.analysis.symbol.SymbolDefinition.newDefinition;
 
 public class AnalyzeDefun implements FormAnalyzer {
 
@@ -29,28 +31,18 @@ public class AnalyzeDefun implements FormAnalyzer {
     }
     LispSexp functionName = list.get(1);
     if (functionName.isSymbol()) {
+      LispSymbol symbol = functionName.getSymbol();
+      SymbolDefinition symbolDefinition = newDefinition(SymbolDefinition.Type.FUNCTION, SymbolDefinition.Scope.DYNAMIC, context.getSymbol(symbol), symbol.getSymbolName());
       context.highlighter.highlightDeclaration(functionName.getSymbolName());
-      StringBuilder sb = new StringBuilder();
-      sb.append(DocumentationMarkup.DEFINITION_START);
-      sb.append(functionName.getText());
       LispList lambda = list.get(2).getList();
       if (lambda != null) {
-        for (LispSexp sexp : lambda.getSexpList()) {
-          sb.append(" ");
-          sb.append(sexp.getText());
-        }
+        symbolDefinition.setLambda(lambda.getText());
       }
-      sb.append(DocumentationMarkup.DEFINITION_END);
-      sb.append(DocumentationMarkup.CONTENT_START);
       String docString = getDocString(list);
-      if (docString == null) {
-        sb.append(GRAYED_ELEMENT.addText("No doc string."));
-      } else {
-        sb.append(docString);
+      if (docString != null) {
+        symbolDefinition.setDescriptionString(docString);
       }
-      sb.append(DocumentationMarkup.CONTENT_END);
-      String description = sb.toString();
-      context.addFunctionDefinition(functionName.getSymbol(), description);
+      context.result.addDefinition(symbolDefinition);
     } else {
       // TODO: check DEFUN SETF case.
     }

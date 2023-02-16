@@ -1,21 +1,25 @@
 package org.ax1.lisp.analysis.symbol;
 
 import org.ax1.lisp.analysis.LocatedSymbol;
-import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 
 import java.util.*;
+
+import static com.intellij.lang.documentation.DocumentationMarkup.*;
+import static com.intellij.lang.documentation.DocumentationMarkup.SECTIONS_END;
 
 public class SymbolDefinition {
   protected final Set<LispStringDesignator> usages = new HashSet<>();
   protected final Set<LispStringDesignator> definitions = new HashSet<>();
   public final Symbol symbol;
   public final Set<LispStringDesignator> methods = new HashSet<>(); // For the methods of a generic.
-  public final Type type;
+  public Type type;
   public final Scope scope;
-  private String description; // Whatever should be in the tooltip.
+  private String descriptionString; // Whatever should be in the tooltip.
   private String lambda;
-  public LispSexp container;
+
+  public String bindingSite;
+  public String initialValue;
   public boolean hasExternalDefinition;
 
   private SymbolDefinition(Type type, Scope scope, Symbol symbol) {
@@ -76,12 +80,33 @@ public class SymbolDefinition {
     return symbol.getName();
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public void setDescriptionString(String descriptionString) {
+    this.descriptionString = descriptionString;
   }
 
   public String getDescription() {
-    return description;
+    StringBuilder sb = new StringBuilder();
+    sb.append(DEFINITION_ELEMENT.addText(type.getName() + " " + symbol.getQualifiedName()));
+    sb.append(SECTIONS_START);
+    if (lambda != null) {
+      sb.append(SECTION_HEADER_CELL.addText("Lambda:"));
+      sb.append(SECTION_CONTENT_CELL.addText(lambda));
+      sb.append("</tr>");
+    }
+    if (bindingSite != null) {
+      sb.append(SECTION_HEADER_CELL.addText("Binding site:"));
+      sb.append(SECTION_CONTENT_CELL.addText(bindingSite));
+      sb.append("</tr>");
+    }
+    if (initialValue != null) {
+      sb.append(SECTION_HEADER_CELL.addText("Initial value:"));
+      sb.append(SECTION_CONTENT_CELL.addText(initialValue));
+      sb.append("</tr>");
+    }
+    sb.append(SECTION_HEADER_CELL.addText("Documentation:"));
+    sb.append(SECTION_CONTENT_CELL.addText(descriptionString == null ? "--" : descriptionString));
+    sb.append(SECTIONS_END);
+    return sb.toString();
   }
 
   public void setLambda(String lambda) {
@@ -96,15 +121,36 @@ public class SymbolDefinition {
     getDefinitions().addAll(def2.getDefinitions());
     methods.addAll(def2.methods);
     getUsages().addAll(def2.getUsages());
-    if (def2.description != null) description = def2.description;
+    if (def2.descriptionString != null) descriptionString = def2.descriptionString;
     if (def2.hasExternalDefinition) hasExternalDefinition = true;
     if (def2.lambda != null) lambda = def2.lambda;
+    type = def2.type;
     return this;
   }
 
+  public void setBindingSite(String bindingSite) {
+    this.bindingSite = bindingSite;
+  }
+
+  public void setInitialValue(String initialValue) {
+    this.initialValue = initialValue;
+  }
+
   public enum Type {
-    FUNCTION,
-    VARIABLE
+    FUNCTION("Function"),
+    MACRO("Macro"),
+    SPECIAL_OPERATOR("Special operator"),
+    VARIABLE("Variable");
+
+    private final String name;
+
+    Type(String name) {
+      this.name = name;
+    }
+
+    public String getName() {
+      return name;
+    }
   }
 
   public enum Scope {

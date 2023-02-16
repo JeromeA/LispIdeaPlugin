@@ -21,7 +21,7 @@ public class AnalysisContext {
     currentPackage = CommonLispUserPackage.COMMON_LISP_USER;
   }
 
-  public void addFunctionDefinition(LispSymbol symbol, String description) {
+  public void addFunctionDefinition(LispSymbol symbol) {
     result.addFunctionDefinition(getSymbol(symbol), symbol.getSymbolName());
   }
 

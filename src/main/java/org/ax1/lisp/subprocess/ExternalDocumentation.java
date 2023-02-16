@@ -64,9 +64,11 @@ public final class ExternalDocumentation {
       String name = nameMatcher.group(1).toUpperCase();
       if (name.startsWith("(SETF")) continue;
       Symbol symbol = CommonLispPackage.INSTANCE.intern(name);
-      SymbolDefinition symbolDefinition = newDefinition(SymbolDefinition.Type.FUNCTION, SymbolDefinition.Scope.DYNAMIC, symbol);
+      SymbolDefinition symbolDefinition = newDefinition(toType(type), SymbolDefinition.Scope.DYNAMIC, symbol);
       Matcher docMatcher = docPattern.matcher(singleFunctionBlock);
-      String doc = docMatcher.matches() ? docMatcher.group(1) : null;
+      if (docMatcher.matches()) {
+        symbolDefinition.setDescriptionString(docMatcher.group(1));
+      }
       Matcher lambdaMatcher = lambdaPattern.matcher(singleFunctionBlock);
       if (!lambdaMatcher.matches()) {
         throw new RuntimeException("Lambda no found");
@@ -74,7 +76,6 @@ public final class ExternalDocumentation {
       String lambda = lambdaMatcher.group(1);
       symbolDefinition.setLambda(lambda);
       symbolDefinition.hasExternalDefinition = true;
-      symbolDefinition.setDescription(getDescription(type, symbol, lambda, doc));
       newBindings.addDefinition(symbolDefinition);
     }
     bindings = newBindings;
@@ -82,24 +83,11 @@ public final class ExternalDocumentation {
     DaemonCodeAnalyzer.getInstance(project).restart();
   }
 
-  private static String getDescription(String type, Symbol symbol, String lambda, String documentation) {
-      StringBuilder sb = new StringBuilder();
-      sb.append(DEFINITION_ELEMENT.addText(renameType(type) + " " + symbol.getQualifiedName()));
-      sb.append(SECTIONS_START);
-      sb.append(SECTION_HEADER_CELL.addText("Lambda:"));
-      sb.append(SECTION_CONTENT_CELL.addText(lambda));
-      sb.append("</tr>");
-      sb.append(SECTION_HEADER_CELL.addText("Documentation:"));
-      sb.append(SECTION_CONTENT_CELL.addText(documentation == null ? "--" : documentation));
-      sb.append(SECTIONS_END);
-      return sb.toString();
-  }
-
-  private static String renameType(String type) {
+  private static SymbolDefinition.Type toType(String type) {
     switch (type) {
-      case "compiled function": return "Function";
-      case "macro": return "Macro";
-      case "special operator": return "Special operator";
+      case "compiled function": return SymbolDefinition.Type.FUNCTION;
+      case "macro": return SymbolDefinition.Type.MACRO;
+      case "special operator": return SymbolDefinition.Type.SPECIAL_OPERATOR;
       default:
         throw new IllegalStateException("Unexpected value: " + type);
     }
