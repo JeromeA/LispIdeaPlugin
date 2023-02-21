@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
-import com.intellij.lang.documentation.DocumentationMarkup;
 import org.ax1.lisp.analysis.AnalysisContext;
+import org.ax1.lisp.analysis.symbol.Lambda;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -10,7 +10,6 @@ import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 
-import static com.intellij.lang.documentation.DocumentationMarkup.GRAYED_ELEMENT;
 import static org.ax1.lisp.analysis.form.LambdaAnalyzer.analyzeLambda;
 import static org.ax1.lisp.analysis.symbol.SymbolDefinition.newDefinition;
 
@@ -36,7 +35,7 @@ public class AnalyzeDefun implements FormAnalyzer {
       context.highlighter.highlightDeclaration(functionName.getSymbolName());
       LispList lambda = list.get(2).getList();
       if (lambda != null) {
-        symbolDefinition.setLambda(lambda.getText());
+        symbolDefinition.setLambda(Lambda.from(lambda));
       }
       String docString = getDocString(list);
       if (docString != null) {

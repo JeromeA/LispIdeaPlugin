@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SimpleModificationTracker;
 import org.ax1.lisp.analysis.Bindings;
 import org.ax1.lisp.analysis.symbol.CommonLispPackage;
+import org.ax1.lisp.analysis.symbol.Lambda;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.subprocess.interaction.Interaction;
@@ -13,7 +14,6 @@ import org.ax1.lisp.subprocess.interaction.Interaction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.intellij.lang.documentation.DocumentationMarkup.*;
 import static com.intellij.openapi.components.Service.Level.PROJECT;
 import static org.ax1.lisp.analysis.symbol.SymbolDefinition.newDefinition;
 
@@ -74,7 +74,7 @@ public final class ExternalDocumentation {
         throw new RuntimeException("Lambda no found");
       }
       String lambda = lambdaMatcher.group(1);
-      symbolDefinition.setLambda(lambda);
+      symbolDefinition.setLambda(Lambda.from(project, lambda));
       symbolDefinition.hasExternalDefinition = true;
       newBindings.addDefinition(symbolDefinition);
     }

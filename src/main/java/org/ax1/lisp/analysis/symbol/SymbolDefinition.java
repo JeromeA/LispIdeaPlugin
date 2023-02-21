@@ -16,8 +16,7 @@ public class SymbolDefinition {
   public Type type;
   public final Scope scope;
   private String descriptionString; // Whatever should be in the tooltip.
-  private String lambda;
-
+  private Lambda lambda;
   public String bindingSite;
   public String initialValue;
   public boolean hasExternalDefinition;
@@ -90,7 +89,7 @@ public class SymbolDefinition {
     sb.append(SECTIONS_START);
     if (lambda != null) {
       sb.append(SECTION_HEADER_CELL.addText("Lambda:"));
-      sb.append(SECTION_CONTENT_CELL.addText(lambda));
+      sb.append(SECTION_CONTENT_CELL.addText(lambda.string));
       sb.append("</tr>");
     }
     if (bindingSite != null) {
@@ -107,10 +106,6 @@ public class SymbolDefinition {
     sb.append(SECTION_CONTENT_CELL.addText(descriptionString == null ? "--" : descriptionString));
     sb.append(SECTIONS_END);
     return sb.toString();
-  }
-
-  public void setLambda(String lambda) {
-    this.lambda = lambda;
   }
 
   public boolean isDefined() {
@@ -134,6 +129,10 @@ public class SymbolDefinition {
 
   public void setInitialValue(String initialValue) {
     this.initialValue = initialValue;
+  }
+
+  public void setLambda(Lambda lambda) {
+    this.lambda = lambda;
   }
 
   public enum Type {
