@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis;
 
+import com.intellij.psi.PsiElement;
 import org.ax1.lisp.analysis.symbol.Lambda;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
@@ -24,7 +25,10 @@ public class ArgumentChecker {
   public void checkArguments(LispStringDesignator usage) {
     // The StringDesignator is a SymbolName, the first parent is a Symbol, the second parent is a Sexp, and the third
     // parent is the list we are looking for.
-    LispList form = (LispList) usage.getParent().getParent().getParent();
+    PsiElement container = usage.getParent().getParent().getParent();
+    // If the container is a #', we are not interested in checking arguments.
+    if (!(container instanceof LispList)) return;
+    LispList form = (LispList) container;
     List<LispSexp> sexpList = form.getSexpList();
     if (sexpList.size() - 1 < lambda.requiredCount) {
       highlighter.highlightError(form, String.format("%s requires %d arguments", symbol.getQualifiedName(), lambda.requiredCount));
