@@ -39,7 +39,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
 
   private Struct createStruct(AnalysisContext context, LispSexp nameSexp) {
     if (nameSexp.isSymbol()) {
-      return createStruct(context, nameSexp);
+      return newStruct(context, nameSexp.getSymbol());
     }
     if (nameSexp.getList() == null
         || nameSexp.getList().getSexpList().isEmpty()
