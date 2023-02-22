@@ -135,6 +135,10 @@ public class SymbolDefinition {
     this.lambda = lambda;
   }
 
+  public Lambda getLambda() {
+    return lambda;
+  }
+
   public enum Type {
     FUNCTION("Function"),
     MACRO("Macro"),

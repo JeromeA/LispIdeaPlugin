@@ -24,10 +24,6 @@ public class Highlighter {
     this.holder = holder;
   }
 
-  public void highlightKeyword(LispList form) {
-    highlightKeyword(form.getSexpList().get(0));
-  }
-
   public void highlightKeyword(PsiElement psiElement) {
     highlight(psiElement, KEYWORD);
   }
@@ -58,6 +54,7 @@ public class Highlighter {
         .range(psiElement)
         .create();
   }
+
   private void silentlyAnnotate(PsiElement psiElement, HighlightSeverity severity, TextAttributesKey attributes) {
     if (holder == null || psiElement.getContainingFile() != lispFile) return;
     holder.newSilentAnnotation(severity)

@@ -1,11 +1,8 @@
 package org.ax1.lisp.analysis;
 
 import com.intellij.psi.util.CachedValueProvider;
-import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.psi.LispFile;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 import static org.ax1.lisp.analysis.LispAnnotator.EMPTY_HIGHLIGHTER;
 
