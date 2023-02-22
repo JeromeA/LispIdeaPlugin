@@ -90,4 +90,8 @@ public class ProjectDefinitions {
   public PackageDefinition getPackageDefinition(LispStringDesignator packageName) {
     return packageByReference.get(packageName);
   }
+
+  public SymbolDefinition getFunction(Symbol symbol) {
+    return functions.get(symbol);
+  }
 }

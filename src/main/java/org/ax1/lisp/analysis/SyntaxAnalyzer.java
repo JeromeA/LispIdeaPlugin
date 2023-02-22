@@ -120,6 +120,7 @@ public class SyntaxAnalyzer {
     if (isCompletion(sexp)) {
       completions.addAll(toLowerCase(context.lexicalBindings.getLexicalVariables()));
       completions.addAll(toLowerCase(getGlobalVariableNames()));
+      completions.addAll(getParentKeywords(sexp));
     } else {
       Symbol symbol = context.getSymbol(sexp.getSymbol());
       if (symbol.isConstant()) {
@@ -128,6 +129,20 @@ public class SyntaxAnalyzer {
         context.addVariableUsage(sexp.getSymbol());
       }
     }
+  }
+
+  private Collection<String> getParentKeywords(LispSexp sexp) {
+    PsiElement parent = sexp.getParent();
+    if (!(parent instanceof LispList)) return List.of();
+    LispList form = (LispList) parent;
+    LispSexp sexp0 = form.getSexpList().get(0);
+    Symbol symbol = context.getSymbol(sexp0.getSymbol());
+    SymbolDefinition symbolDefinition = ProjectComputedData.getInstance(lispFile.getProject()).getProjectAnalysis()
+        .getFunction(symbol);
+    if (symbolDefinition == null) return List.of();
+    Lambda lambda = symbolDefinition.getLambda();
+    if (lambda == null) return List.of();
+    return lambda.keys.stream().map(name -> ":" + name).collect(Collectors.toUnmodifiableList());
   }
 
   private void analyzeCompoundForm(LispList form) {

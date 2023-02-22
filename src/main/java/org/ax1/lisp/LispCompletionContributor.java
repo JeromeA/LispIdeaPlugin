@@ -14,6 +14,8 @@ import org.ax1.lisp.analysis.symbol.PackageManager;
 import org.ax1.lisp.psi.LispFile;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 import static org.ax1.lisp.analysis.LispAnnotator.EMPTY_HIGHLIGHTER;
 import static org.ax1.lisp.psi.LispTypes.STRING_CONTENT_TOKEN;
 import static org.ax1.lisp.psi.LispTypes.SYMBOL_TOKEN;
@@ -21,21 +23,28 @@ import static org.ax1.lisp.psi.LispTypes.SYMBOL_TOKEN;
 public class LispCompletionContributor extends CompletionContributor {
 
   public LispCompletionContributor() {
-    extend(CompletionType.BASIC, StandardPatterns.or(PlatformPatterns.psiElement(SYMBOL_TOKEN), PlatformPatterns.psiElement(STRING_CONTENT_TOKEN)), new CompletionProvider<>() {
-      @Override
-      protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet result) {
-        PsiElement symbolToken = parameters.getPosition();
-        Project project = symbolToken.getProject();
-        ProjectComputedData projectComputedData = ProjectComputedData.getInstance(project);
-        LispFile lispFile = (LispFile) symbolToken.getContainingFile();
-        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lispFile);
-        AnalysisContext analysisContext = new AnalysisContext(EMPTY_HIGHLIGHTER, new PackageManager(projectComputedData.getPackageDefinitions()), syntaxAnalyzer);
-        syntaxAnalyzer.setContext(analysisContext);
-        syntaxAnalyzer.analyze();
-        syntaxAnalyzer.completions
-            .forEach(name -> result.addElement(LookupElementBuilder.create(name)));
-      }
-    });
+    extend(CompletionType.BASIC, StandardPatterns.or(PlatformPatterns.psiElement(SYMBOL_TOKEN), PlatformPatterns.psiElement(STRING_CONTENT_TOKEN)), new LispCompletionProvider());
   }
 
+  private static class LispCompletionProvider extends CompletionProvider<CompletionParameters> {
+    @Override
+    protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet result) {
+      PsiElement symbolToken = parameters.getPosition();
+      getSyntaxAnalyzerCompletions(symbolToken)
+          .stream().map(LookupElementBuilder::create)
+          .forEach(result::addElement);
+    }
+
+    private List<String> getSyntaxAnalyzerCompletions(PsiElement symbolToken) {
+      Project project = symbolToken.getProject();
+      ProjectComputedData projectComputedData = ProjectComputedData.getInstance(project);
+      LispFile lispFile = (LispFile) symbolToken.getContainingFile();
+      SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lispFile);
+      AnalysisContext analysisContext = new AnalysisContext(EMPTY_HIGHLIGHTER, new PackageManager(projectComputedData.getPackageDefinitions()), syntaxAnalyzer);
+      syntaxAnalyzer.setContext(analysisContext);
+      syntaxAnalyzer.analyze();
+      List<String> syntaxAnalyzerCompletions = syntaxAnalyzer.completions;
+      return syntaxAnalyzerCompletions;
+    }
+  }
 }
