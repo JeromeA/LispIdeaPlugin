@@ -75,6 +75,8 @@ public class LispRunLineMarkerContributor extends RunLineMarkerContributor imple
       return element.getParent().getParent().getParent() instanceof LispFile;
     }
     if (elementType == STRING_QUOTE) {
+      // When opening metering.lisp in slime, the parent is a weird dummy object.
+      if (!(element.getParent() instanceof LispString)) return false;
       LispString string = (LispString) element.getParent();
       return string.getFirstChild() == element && string.getParent().getParent() instanceof LispFile;
     }
