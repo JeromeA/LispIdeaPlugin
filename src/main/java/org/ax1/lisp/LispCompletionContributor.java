@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
 import static org.ax1.lisp.analysis.LispAnnotator.EMPTY_HIGHLIGHTER;
 import static org.ax1.lisp.psi.LispTypes.STRING_CONTENT_TOKEN;
 import static org.ax1.lisp.psi.LispTypes.SYMBOL_TOKEN;
@@ -30,6 +31,8 @@ public class LispCompletionContributor extends CompletionContributor {
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet result) {
       PsiElement symbolToken = parameters.getPosition();
+      String tokenText = symbolToken.getText();
+      result = result.withPrefixMatcher(tokenText.substring(0, tokenText.length() - DUMMY_IDENTIFIER_TRIMMED.length()));
       getSyntaxAnalyzerCompletions(symbolToken)
           .stream().map(LookupElementBuilder::create)
           .forEach(result::addElement);
