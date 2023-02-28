@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ax1.lisp.parsing.LispFeatureExpressions.filterOptionalSexpList;
+
 public class LispFile extends PsiFileBase {
 
   public LispFile(@NotNull FileViewProvider viewProvider) {
@@ -29,6 +31,10 @@ public class LispFile extends PsiFileBase {
   }
 
   public List<LispSexp> getSexpList() {
-    return Arrays.stream(getChildren()).filter(psi -> psi instanceof LispSexp).map(psi -> (LispSexp)psi).collect(Collectors.toList());
+    return filterOptionalSexpList(
+        Arrays.stream(getChildren())
+            .filter(x -> x instanceof LispOptionalSexp)
+            .map(x -> (LispOptionalSexp)x)
+            .collect(Collectors.toUnmodifiableList()));
   }
 }

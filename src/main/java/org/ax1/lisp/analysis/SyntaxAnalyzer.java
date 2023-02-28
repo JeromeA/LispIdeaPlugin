@@ -4,6 +4,7 @@ import com.intellij.psi.PsiElement;
 import org.apache.groovy.util.Maps;
 import org.ax1.lisp.analysis.form.*;
 import org.ax1.lisp.analysis.symbol.*;
+import org.ax1.lisp.parsing.LispFeatureExpressions;
 import org.ax1.lisp.psi.*;
 
 import java.util.*;
@@ -12,6 +13,8 @@ import java.util.stream.Collectors;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
 import static org.ax1.lisp.analysis.symbol.Symbol.clSymbol;
+import static org.ax1.lisp.parsing.LispSyntaxHighlighter.COMMENT;
+import static org.ax1.lisp.parsing.LispSyntaxHighlighter.FEATURE;
 
 public class SyntaxAnalyzer {
 
@@ -72,11 +75,26 @@ public class SyntaxAnalyzer {
     if (form.isSymbol()) {
       analyseSymbolForm(form);
     }
-    if (form.getList() != null) {
-      analyzeCompoundForm(form.getList());
+    LispList list = form.getList();
+    if (list != null) {
+      analyzeFeatureExpressions(list);
+      analyzeCompoundForm(list);
     }
     if (form.getQuoted() != null) {
       analyseQuotedForm(form.getQuoted());
+    }
+  }
+
+  private void analyzeFeatureExpressions(LispList list) {
+    list.getOptionalSexpList().forEach(this::analyseFeatureExpression);
+  }
+
+  private void analyseFeatureExpression(LispOptionalSexp optionalSexp) {
+    LispFeatureExp featureExp = optionalSexp.getFeatureExp();
+    if (featureExp == null) return;
+    context.highlighter.highlight(featureExp, FEATURE);
+    if (!LispFeatureExpressions.eval(featureExp)) {
+      context.highlighter.highlight(optionalSexp.getSexp(), COMMENT);
     }
   }
 

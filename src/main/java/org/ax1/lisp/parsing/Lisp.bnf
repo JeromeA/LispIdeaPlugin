@@ -15,6 +15,10 @@
 
   implements("sexp")="org.ax1.lisp.psi.impl.LispSexpMixin"
   mixin("sexp")="org.ax1.lisp.psi.impl.LispSexpMixinImpl"
+
+  implements("list")="org.ax1.lisp.psi.impl.LispListMixin"
+  mixin("list")="org.ax1.lisp.psi.impl.LispListMixinImpl"
+
   implements("symbol_name")="org.ax1.lisp.psi.impl.LispStringDesignator"
   mixin("symbol_name")="org.ax1.lisp.psi.impl.LispStringDesignatorImpl"
   implements("package_prefix")="org.ax1.lisp.psi.impl.LispStringDesignator"
@@ -26,8 +30,11 @@
 
 lispFile ::= topLevelUnit_*
 private topLevelUnit_ ::= syntaxUnit_ | invalidClose
-private syntaxUnit_ ::= COMMENT | sharpPlusExp_ | sexp
-private sharpPlusExp_ ::= SHARP_PLUS sexp
+private syntaxUnit_ ::= COMMENT | optional_sexp
+optional_sexp ::= feature_exp? sexp
+feature_exp ::= SHARP_PLUS (simple_feature_exp | compound_feature_exp)
+simple_feature_exp ::= symbol_name
+compound_feature_exp ::= LPAREN symbol_name* RPAREN
 sexp ::= string | NUMBER | CHARACTER | symbol | list | quoted
 string ::= STRING_QUOTE string_content STRING_QUOTE
 string_content ::= STRING_CONTENT_TOKEN?
