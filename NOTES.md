@@ -1,7 +1,9 @@
+# Dev notes
 
 ## Multiple passes for parsing
 
-To parse a file, we need to know everything about the packages they use.
+To parse a file, we need to know everything about the packages being used in that file. But to know all the packages
+of a project, we need to parse all the files.
 
 From the point of view of multi-passes parsing, there are 3 categories of projects:
 * Trivial projects, that only use CL-USER package, or packages which in turn only use the CL package.
@@ -46,7 +48,7 @@ I am going for the second solution for now.
 ## Usage highlighting
 
 Usage highlighting relies on many assumptions that a plugin can easily break. I broke it multiple times already,
-and I pledge to write down the reasons whenever it happens again.
+and I pledge to write down the reasons here whenever it happens again.
 
 For the feature to work, the symbols have to provide a reference, and this reference must resolve to the
 definition.
@@ -92,7 +94,7 @@ LispStringDesignatorImpl interface, which is a Mixin added to:
 * SYMBOL_NAME, which is the symbol part in package:symbol syntax, or the whole symbol if there is no package prefix.
 * PACKAGE_PREFIX, which is the package part in package:symbol syntax.
 * STRING_CONTENT, which can contain a package, and occasionally a symbol (like in the export section of a DEFPACKAGE).
-This way, the code or package managerment happens exactly at the PsiElement that contains exactly the token
+This way, the code or package management happens at the PsiElement that contains exactly the token
 which is either a package name or a symbol name.
 
 ## Find usages
@@ -115,7 +117,8 @@ Several classes are involved:
   * one of the references is in a different file (see InplaceRefactoring.performInplaceRefactoring()).
   * or the scope is not a local one (same place).
 * MemberInplaceRenamer is the one we want to use. But MemberInplaceRenameHandler.isAvailable() will only work on
-  PsiNameIdentifierOwner instances.
+  PsiNameIdentifierOwner instances. This is the reason why the LispStringDesignator mixin extends
+  PsiNameIdentifierOwner.
 
 In InplaceRefactoring.startTemplate():
 * At the beginning of this method, the myEditor.myDocument contains the original text.
