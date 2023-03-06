@@ -66,22 +66,24 @@ public class LispRunLineMarkerContributor extends RunLineMarkerContributor imple
    */
   private boolean isTopLevel(PsiElement element) {
     if (!(element instanceof LeafPsiElement)) return false;
+    // TODO: rewrite this. Just find the nearest parent SEXP, and make sure that its parent is a LispFile.
+    //   Only STRING_QUOTE needs an extra check.
     LeafPsiElement leafPsiElement = (LeafPsiElement) element;
     IElementType elementType = leafPsiElement.getElementType();
     if (elementType == SYMBOL_TOKEN) {
-      return element.getParent().getParent().getParent().getParent() instanceof LispFile;
+      return element.getParent().getParent().getParent().getParent().getParent() instanceof LispFile;
     }
     if (elementType == LPAREN || elementType == QUOTE) {
-      return element.getParent().getParent().getParent() instanceof LispFile;
+      return element.getParent().getParent().getParent().getParent() instanceof LispFile;
     }
     if (elementType == STRING_QUOTE) {
       // When opening metering.lisp in slime, the parent is a weird dummy object.
       if (!(element.getParent() instanceof LispString)) return false;
       LispString string = (LispString) element.getParent();
-      return string.getFirstChild() == element && string.getParent().getParent() instanceof LispFile;
+      return string.getFirstChild() == element && string.getParent().getParent().getParent() instanceof LispFile;
     }
     if (elementType == NUMBER || elementType == CHARACTER) {
-      return element.getParent().getParent() instanceof LispFile;
+      return element.getParent().getParent().getParent() instanceof LispFile;
     }
     return false;
   }

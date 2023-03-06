@@ -1,7 +1,7 @@
 (+
-    12
-    #+sbcl 13
-    #+clisp 14
-    #-sbcl 15
-    #+(not clisp) 16
-    #+(or sbcl clisp) 17)
+    1
+    #+sbcl 10
+    #+clisp 100
+    #-sbcl 1000
+    #+(not clisp) 10000
+    #+(or sbcl clisp) 100000)

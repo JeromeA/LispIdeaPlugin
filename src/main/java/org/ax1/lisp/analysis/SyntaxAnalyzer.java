@@ -4,8 +4,8 @@ import com.intellij.psi.PsiElement;
 import org.apache.groovy.util.Maps;
 import org.ax1.lisp.analysis.form.*;
 import org.ax1.lisp.analysis.symbol.*;
-import org.ax1.lisp.parsing.LispFeatureExpressions;
 import org.ax1.lisp.psi.*;
+import org.ax1.lisp.subprocess.SubprocessFeatures;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -93,7 +93,7 @@ public class SyntaxAnalyzer {
     LispFeatureExp featureExp = optionalSexp.getFeatureExp();
     if (featureExp == null) return;
     context.highlighter.highlight(featureExp, FEATURE);
-    if (!LispFeatureExpressions.eval(featureExp)) {
+    if (!SubprocessFeatures.getInstance(lispFile.getProject()).eval(featureExp)) {
       context.highlighter.highlight(optionalSexp.getSexp(), COMMENT);
     }
   }

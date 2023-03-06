@@ -3,11 +3,10 @@ package org.ax1.lisp.psi.impl;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import org.ax1.lisp.psi.*;
+import org.ax1.lisp.subprocess.SubprocessFeatures;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-
-import static org.ax1.lisp.parsing.LispFeatureExpressions.filterOptionalSexpList;
 
 public abstract class LispListMixinImpl extends ASTWrapperPsiElement implements LispList {
 
@@ -17,6 +16,6 @@ public abstract class LispListMixinImpl extends ASTWrapperPsiElement implements 
 
   @NotNull
   public List<LispSexp> getSexpList() {
-    return filterOptionalSexpList(getOptionalSexpList());
+    return SubprocessFeatures.getInstance(getProject()).filterOptionalSexpList(getOptionalSexpList());
   }
 }

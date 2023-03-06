@@ -20,12 +20,13 @@ import static org.ax1.lisp.analysis.symbol.SymbolDefinition.newDefinition;
 @Service(PROJECT)
 public final class ExternalDocumentation {
 
-  private static final Pattern describePattern =
+  private static final Pattern DESCRIBE_PATTERN =
       Pattern.compile("^[^\n]+ names a (compiled function|special operator|macro):.*?\n\n", Pattern.MULTILINE | Pattern.DOTALL);
-  private static final Pattern namePattern = Pattern.compile("^([^\n]+) names a (compiled function|special operator|macro):.*", Pattern.DOTALL);
-  private static final Pattern docPattern =
+  private static final Pattern NAME_PATTERN =
+      Pattern.compile("^([^\n]+) names a (compiled function|special operator|macro):.*", Pattern.DOTALL);
+  private static final Pattern DOC_PATTERN =
       Pattern.compile(".*\n  Documentation:\n(.*?)\n(  [^ ]|\n).*", Pattern.DOTALL);
-  private static final Pattern lambdaPattern =
+  private static final Pattern LAMBDA_PATTERN =
       Pattern.compile(".*\n  Lambda-list: (.*?)\n(  [^ ]).*", Pattern.DOTALL);
 
   private Bindings bindings;
@@ -44,19 +45,19 @@ public final class ExternalDocumentation {
     return modificationTracker;
   }
 
-  public Bindings getBindings() {
+  public synchronized Bindings getBindings() {
     if (bindings == null) updateDocumentation();
     return bindings;
   }
 
-  public void updateDocumentation() {
+  private void updateDocumentation() {
     Interaction interaction = LispServer.getInstance(project).evaluate("(lisp-idea-plugin:get-documentation)", false);
     interaction.waitUntilComplete();
     Bindings newBindings = new Bindings();
-    Matcher matcher = describePattern.matcher(interaction.getStdout());
+    Matcher matcher = DESCRIBE_PATTERN.matcher(interaction.getStdout());
     while(matcher.find()) {
       String singleFunctionBlock = matcher.group();
-      Matcher nameMatcher = namePattern.matcher(singleFunctionBlock);
+      Matcher nameMatcher = NAME_PATTERN.matcher(singleFunctionBlock);
       if (!nameMatcher.matches()) {
         throw new RuntimeException("Name not found");
       }
@@ -65,11 +66,11 @@ public final class ExternalDocumentation {
       if (name.startsWith("(SETF")) continue;
       Symbol symbol = CommonLispPackage.INSTANCE.intern(name);
       SymbolDefinition symbolDefinition = newDefinition(toType(type), SymbolDefinition.Scope.DYNAMIC, symbol);
-      Matcher docMatcher = docPattern.matcher(singleFunctionBlock);
+      Matcher docMatcher = DOC_PATTERN.matcher(singleFunctionBlock);
       if (docMatcher.matches()) {
         symbolDefinition.setDescriptionString(docMatcher.group(1));
       }
-      Matcher lambdaMatcher = lambdaPattern.matcher(singleFunctionBlock);
+      Matcher lambdaMatcher = LAMBDA_PATTERN.matcher(singleFunctionBlock);
       if (!lambdaMatcher.matches()) {
         throw new RuntimeException("Lambda no found");
       }

@@ -104,7 +104,7 @@ public class Lambda {
   }
 
   private static LispList toLispList(Project project, String lambdaString) {
-    LispSexp topSexp = (LispSexp) LispElementFactory.createFile(project, lambdaString).getFirstChild();
-    return topSexp.getList();
+    LispOptionalSexp topOptionalSexp = (LispOptionalSexp) LispElementFactory.createFile(project, lambdaString).getFirstChild();
+    return topOptionalSexp.getSexp().getList();
   }
 }
