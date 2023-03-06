@@ -57,34 +57,17 @@ public class LispRunLineMarkerContributor extends RunLineMarkerContributor imple
   }
 
   /**
-   * The options are:
-   * Sexp -> Symbol -> SymbolName -> SYMBOL_TOKEN
-   * Sexp -> List -> LPAREN
-   * Sexp -> Quoted -> QUOTE
-   * Sexp -> String -> STRING_QUOTE
-   * Sexp -> NUMBER | CHARACTER
+   * Whether this element is the first token of a top-level sexp.
    */
   private boolean isTopLevel(PsiElement element) {
     if (!(element instanceof LeafPsiElement)) return false;
-    // TODO: rewrite this. Just find the nearest parent SEXP, and make sure that its parent is a LispFile.
-    //   Only STRING_QUOTE needs an extra check.
-    LeafPsiElement leafPsiElement = (LeafPsiElement) element;
-    IElementType elementType = leafPsiElement.getElementType();
-    if (elementType == SYMBOL_TOKEN) {
-      return element.getParent().getParent().getParent().getParent().getParent() instanceof LispFile;
+    while(true) {
+      PsiElement parent = element.getParent();
+      if (parent.getFirstChild() != element) return false;
+      element = parent;
+      if (element instanceof LispSexp) {
+        return element.getParent().getParent() instanceof LispFile;
+      }
     }
-    if (elementType == LPAREN || elementType == QUOTE) {
-      return element.getParent().getParent().getParent().getParent() instanceof LispFile;
-    }
-    if (elementType == STRING_QUOTE) {
-      // When opening metering.lisp in slime, the parent is a weird dummy object.
-      if (!(element.getParent() instanceof LispString)) return false;
-      LispString string = (LispString) element.getParent();
-      return string.getFirstChild() == element && string.getParent().getParent().getParent() instanceof LispFile;
-    }
-    if (elementType == NUMBER || elementType == CHARACTER) {
-      return element.getParent().getParent().getParent() instanceof LispFile;
-    }
-    return false;
   }
 }
