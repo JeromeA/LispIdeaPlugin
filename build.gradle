@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'org.ax1'
-version '0.1'
+version '0.1.1'
 
 repositories {
     mavenCentral()
@@ -28,6 +28,8 @@ patchPluginXml {
     changeNotes = """
       This is a very early release.<br>
       Don't use it."""
+    sinceBuild = "211"
+    untilBuild = "223.*"
 }
 
 test {
