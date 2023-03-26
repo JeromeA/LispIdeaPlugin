@@ -21,9 +21,9 @@ import static org.ax1.lisp.analysis.symbol.SymbolDefinition.newDefinition;
 public final class ExternalDocumentation {
 
   private static final Pattern DESCRIBE_PATTERN =
-      Pattern.compile("^[^\n]+ names a (compiled function|special operator|macro):.*?\n\n", Pattern.MULTILINE | Pattern.DOTALL);
+      Pattern.compile("^[^\n]+ names a (compiled function|special operator|macro|special variable):.*?\n\n", Pattern.MULTILINE | Pattern.DOTALL);
   private static final Pattern NAME_PATTERN =
-      Pattern.compile("^([^\n]+) names a (compiled function|special operator|macro):.*", Pattern.DOTALL);
+      Pattern.compile("^([^\n]+) names a (compiled function|special operator|macro|special variable):.*", Pattern.DOTALL);
   private static final Pattern DOC_PATTERN =
       Pattern.compile(".*\n  Documentation:\n(.*?)\n(  [^ ]|\n).*", Pattern.DOTALL);
   private static final Pattern LAMBDA_PATTERN =
@@ -61,21 +61,23 @@ public final class ExternalDocumentation {
       if (!nameMatcher.matches()) {
         throw new RuntimeException("Name not found");
       }
-      String type = nameMatcher.group(2);
+      SymbolDefinition.Type type = toType(nameMatcher.group(2));
       String name = nameMatcher.group(1).toUpperCase();
       if (name.startsWith("(SETF")) continue;
       Symbol symbol = CommonLispPackage.INSTANCE.intern(name);
-      SymbolDefinition symbolDefinition = newDefinition(toType(type), SymbolDefinition.Scope.DYNAMIC, symbol);
+      SymbolDefinition symbolDefinition = newDefinition(type, SymbolDefinition.Scope.DYNAMIC, symbol);
       Matcher docMatcher = DOC_PATTERN.matcher(singleFunctionBlock);
       if (docMatcher.matches()) {
         symbolDefinition.setDescriptionString(docMatcher.group(1));
       }
-      Matcher lambdaMatcher = LAMBDA_PATTERN.matcher(singleFunctionBlock);
-      if (!lambdaMatcher.matches()) {
-        throw new RuntimeException("Lambda no found");
+      if (type != SymbolDefinition.Type.VARIABLE) {
+        Matcher lambdaMatcher = LAMBDA_PATTERN.matcher(singleFunctionBlock);
+        if (!lambdaMatcher.matches()) {
+          throw new RuntimeException("Lambda not found");
+        }
+        String lambda = lambdaMatcher.group(1);
+        symbolDefinition.setLambda(Lambda.from(project, lambda));
       }
-      String lambda = lambdaMatcher.group(1);
-      symbolDefinition.setLambda(Lambda.from(project, lambda));
       symbolDefinition.hasExternalDefinition = true;
       newBindings.addDefinition(symbolDefinition);
     }
@@ -89,6 +91,7 @@ public final class ExternalDocumentation {
       case "compiled function": return SymbolDefinition.Type.FUNCTION;
       case "macro": return SymbolDefinition.Type.MACRO;
       case "special operator": return SymbolDefinition.Type.SPECIAL_OPERATOR;
+      case "special variable": return SymbolDefinition.Type.VARIABLE;
       default:
         throw new IllegalStateException("Unexpected value: " + type);
     }
