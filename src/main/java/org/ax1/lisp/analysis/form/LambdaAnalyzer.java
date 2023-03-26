@@ -7,6 +7,7 @@ import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
+import org.ax1.lisp.psi.LispSymbolName;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -24,20 +25,39 @@ public class LambdaAnalyzer {
   /**
    * Analyze a lambda function, starting from the lambda list at the specified index in the form.
    */
-  public static void analyzeLambda(String formName, AnalysisContext context, LispList form, int lambdaListIndex) {
+  public static void analyzeLambda(String formName, AnalysisContext context, LispList form, int index) {
     List<LispSexp> list = form.getSexpList();
-    LispList lambdaList = list.get(lambdaListIndex).getList();
+    LispList lambdaList = list.get(index).getList();
     if (lambdaList == null) {
-      context.highlighter.highlightError(list.get(lambdaListIndex), "Lambda list expected");
+      context.highlighter.highlightError(list.get(index), "Lambda list expected");
       return;
     }
     List<SymbolDefinition> variables = getVariables(context, lambdaList).stream()
         .map(context::getLocatedSymbol)
         .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable(formName, locatedSymbol, null))
         .collect(toImmutableList());
+
+    index++;
+    if (index >= list.size()) return;
+    // Skip documentation.
+    if (list.get(index).getString() != null && index + 1 < list.size()) index++;
+    // Skip declaration.
+    if (isDeclaration(list.get(index))) index++;
+
     try(LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {
-      context.analyzer.analyzeForms(list, lambdaListIndex + 1);
+      context.analyzer.analyzeForms(list, index);
     }
+  }
+
+  private static boolean isDeclaration(LispSexp sexp) {
+    LispList list = sexp.getList();
+    if (list == null) return false;
+    List<LispSexp> sexpList = list.getSexpList();
+    if (sexpList.isEmpty()) return false;
+    LispSexp firstSexp = sexpList.get(0);
+    LispSymbolName firstSymbolName = firstSexp.getSymbolName();
+    if (firstSymbolName == null) return false;
+    return firstSymbolName.getValue().equals("DECLARE");
   }
 
   @NotNull

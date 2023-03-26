@@ -34,6 +34,7 @@ public class AnalyzeDefun implements FormAnalyzer {
       SymbolDefinition symbolDefinition = newDefinition(SymbolDefinition.Type.FUNCTION, SymbolDefinition.Scope.DYNAMIC, context.getSymbol(symbol), symbol.getSymbolName());
       context.highlighter.highlightDeclaration(functionName.getSymbolName());
       LispList lambda = list.get(2).getList();
+      // No need to check for the null case, it will be handled in analyzeLambda().
       if (lambda != null) {
         symbolDefinition.setLambda(Lambda.from(lambda));
       }
