@@ -24,8 +24,8 @@ public class LispSyntaxHighlighter extends SyntaxHighlighterBase {
       createTextAttributesKey("LISP_KEYWORD", DefaultLanguageHighlighterColors.KEYWORD);
   public static final TextAttributesKey NUMBER =
       createTextAttributesKey("LISP_NUMBER", DefaultLanguageHighlighterColors.NUMBER);
-  public static final TextAttributesKey FEATURE =
-      createTextAttributesKey("LISP_FEATURE", DefaultLanguageHighlighterColors.METADATA);
+  public static final TextAttributesKey READER_MACRO =
+      createTextAttributesKey("READER_MACRO", DefaultLanguageHighlighterColors.METADATA);
 
   private static final TextAttributesKey[] BAD_CHAR_KEYS = new TextAttributesKey[]{BAD_CHARACTER};
   private static final TextAttributesKey[] STRING_KEYS = new TextAttributesKey[]{STRING};
@@ -53,7 +53,7 @@ public class LispSyntaxHighlighter extends SyntaxHighlighterBase {
     if (tokenType.equals(LispTypes.COMMENT)) {
       return COMMENT_KEYS;
     }
-    if (tokenType.equals(TokenType.BAD_CHARACTER)) {
+    if (tokenType.equals(TokenType.BAD_CHARACTER) || tokenType.equals(LispTypes.SHARP_UNSUPPORTED)) {
       return BAD_CHAR_KEYS;
     }
     return EMPTY_KEYS;

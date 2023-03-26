@@ -32,22 +32,25 @@ public final class SubprocessFeatures {
     this.project = project;
   }
 
-  public List<LispSexp> filterOptionalSexpList(@NotNull List<LispOptionalSexp> optionalSexpList) {
-    return optionalSexpList.stream()
+  public List<LispSexp> filterOptionalSexpList(@NotNull List<LispPrefixedSexp> prefixedSexpList) {
+    return prefixedSexpList.stream()
         .filter(this::isValidSexp)
-        .map(LispOptionalSexp::getSexp)
+        .map(LispPrefixedSexp::getSexp)
         .collect(Collectors.toUnmodifiableList());
   }
 
-  private boolean isValidSexp(LispOptionalSexp optionalSexp) {
-    LispFeatureExp featureExp = optionalSexp.getFeatureExp();
-    return featureExp == null || this.eval(featureExp);
+  private boolean isValidSexp(LispPrefixedSexp prefixedSexp) {
+    LispPrefix prefix = prefixedSexp.getPrefix();
+    if (prefix == null) return true;
+    @NotNull List<LispReaderFeature> readerFeatureList = prefix.getReaderFeatureList();
+    if (readerFeatureList.isEmpty()) return true;
+    return this.eval(readerFeatureList.get(0));
   }
 
-  public boolean eval(LispFeatureExp featureExp) {
-    boolean positive = isPositive(featureExp);
-    boolean featureValue = featureExp.getSimpleFeatureExp() != null ?
-        eval(featureExp.getSimpleFeatureExp()) : eval(featureExp.getCompoundFeatureExp());
+  public boolean eval(LispReaderFeature readerFeature) {
+    boolean positive = isPositive(readerFeature);
+    boolean featureValue = readerFeature.getSimpleFeatureExp() != null ?
+        eval(readerFeature.getSimpleFeatureExp()) : eval(readerFeature.getCompoundFeatureExp());
     return positive == featureValue;
   }
 
@@ -74,8 +77,8 @@ public final class SubprocessFeatures {
     return false;
   }
 
-  private boolean isPositive(LispFeatureExp featureExp) {
-    return featureExp.getText().startsWith("#+");
+  private boolean isPositive(LispReaderFeature readerFeature) {
+    return readerFeature.getText().startsWith("#+");
   }
 
   public synchronized Set<String> getFeatures() {

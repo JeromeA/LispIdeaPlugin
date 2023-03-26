@@ -30,10 +30,15 @@ public class LispFile extends PsiFileBase {
   }
 
   public List<LispSexp> getSexpList() {
-    return SubprocessFeatures.getInstance(getProject()).filterOptionalSexpList(
-        Arrays.stream(getChildren())
-            .filter(x -> x instanceof LispOptionalSexp)
-            .map(x -> (LispOptionalSexp)x)
-            .collect(Collectors.toUnmodifiableList()));
+    return SubprocessFeatures.getInstance(getProject())
+        .filterOptionalSexpList(getPrefixedSexpList());
+  }
+
+  @NotNull
+  public List<LispPrefixedSexp> getPrefixedSexpList() {
+    return Arrays.stream(getChildren())
+        .filter(x -> x instanceof LispPrefixedSexp)
+        .map(x -> (LispPrefixedSexp) x)
+        .collect(Collectors.toUnmodifiableList());
   }
 }

@@ -1,0 +1,367 @@
+options {
+  STATIC = false ;
+  LOOKAHEAD = 3;
+//  DEBUG_TOKEN_MANAGER = true ;
+//  DEBUG_PARSER = true;
+  FORCE_LA_CHECK = true;
+}
+PARSER_BEGIN(LoopParser)
+
+package org.ax1.lisp.loop;
+import org.ax1.lisp.analysis.AnalysisContext;
+import org.ax1.lisp.psi.LispList;
+
+public class LoopParser extends LoopParserBase {
+}
+
+PARSER_END(LoopParser)
+
+<*> SKIP : { " " | "\n" }
+<DEFAULT> TOKEN : { <LOOP : "LOOP"> }
+<DEFAULT> TOKEN : { <INITIALLY : "INITIALLY"> }
+<DEFAULT> TOKEN : { <FINALLY : "FINALLY"> }
+<DEFAULT> TOKEN : { <DO : "DO"> }
+<DEFAULT> TOKEN : { <DOING : "DOING"> }
+<DEFAULT> TOKEN : { <END : "END"> }
+<DEFAULT> TOKEN : { <ELSE : "ELSE"> }
+<DEFAULT> TOKEN : { <BEING : "BEING"> }
+<DEFAULT> TOKEN : { <EACH : "EACH"> }
+<DEFAULT> TOKEN : { <THE : "THE"> }
+<DEFAULT> TOKEN : { <OF : "OF"> }
+<DEFAULT> TOKEN : { <HASH_KEY : "HASH-KEY"> }
+<DEFAULT> TOKEN : { <HASH_KEYS : "HASH-KEYS"> }
+<DEFAULT> TOKEN : { <HASH_VALUE : "HASH-VALUE"> }
+<DEFAULT> TOKEN : { <HASH_VALUES : "HASH-VALUES"> }
+<DEFAULT> TOKEN : { <SYMBOL_KEYWORD : "SYMBOL"> }
+<DEFAULT> TOKEN : { <SYMBOLS : "SYMBOLS"> }
+<DEFAULT> TOKEN : { <PRESENT_SYMBOL : "PRESENT-SYMBOL"> }
+<DEFAULT> TOKEN : { <PRESENT_SYMBOLS : "PRESENT-SYMBOLS"> }
+<DEFAULT> TOKEN : { <EXTERNAL_SYMBOL : "EXTERNAL-SYMBOL"> }
+<DEFAULT> TOKEN : { <EXTERNAL_SYMBOLS : "EXTERNAL-SYMBOLS"> }
+<DEFAULT> TOKEN : { <FIXNUM : "FIXNUM"> }
+<DEFAULT> TOKEN : { <FLOAT : "FLOAT"> }
+<DEFAULT> TOKEN : { <T : "T"> }
+<DEFAULT> TOKEN : { <NIL : "NIL"> }
+
+<DEFAULT> TOKEN : { <FOR : "FOR"> : SYMBOL_STATE}
+<DEFAULT> TOKEN : { <AS : "AS"> : SYMBOL_STATE}
+<DEFAULT> TOKEN : { <NAMED : "NAMED"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <WITH : "WITH"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <AND : "AND"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <EQUAL : "="> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <INTO : "INTO"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <COLLECT : "COLLECT"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <COLLECTING : "COLLECTING"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <APPEND : "APPEND"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <APPENDING : "APPENDING"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <NCONC : "NCONC"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <NCONCING : "NCONCING"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <RETURN : "RETURN"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <COUNT : "COUNT"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <COUNTING : "COUNTING"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <SUM : "SUM"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <SUMMING : "SUMMING"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <MAXIMIZE : "MAXIMIZE"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <MAXIMIZING : "MAXIMIZING"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <MINIMIZE : "MINIMIZE"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <MINIMIZING : "MINIMIZING"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <IF : "IF"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <WHEN : "WHEN"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <UNLESS : "UNLESS"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <WHILE : "WHILE"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <UNTIL : "UNTIL"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <REPEAT : "REPEAT"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <ALWAYS : "ALWAYS"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <NEVER : "NEVER"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <THEREIS : "THEREIS"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <FROM : "FROM"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <UPFROM : "UPFROM"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <DOWNFROM : "DOWNFROM"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <TO : "TO"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <UPTO : "UPTO"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <DOWNTO : "DOWNTO"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <BELOW : "BELOW"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <ABOVE : "ABOVE"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <BY : "BY"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <IN : "IN"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <ON : "ON"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <THEN : "THEN"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <ACROSS : "ACROSS"> : SYMBOL_STATE }
+<DEFAULT> TOKEN : { <OF_TYPE : "OF-TYPE"> : SYMBOL_STATE }
+
+<SYMBOL_STATE> TOKEN : { <IT : "IT"> : DEFAULT }
+<SYMBOL_STATE> TOKEN : { <SYMBOL : (["A"-"Z"])+> : DEFAULT }
+
+<*> TOKEN : { <COMPOUND : "()"> : DEFAULT }
+
+void Start(AnalysisContext context, LispList form):
+{}
+{
+    { init(context, form); }
+    <LOOP> {keyword();}
+    (Simple() | Extended())
+    <EOF>
+    { cleanup(); }
+}
+
+void Simple():
+{}
+{
+    (<COMPOUND> {analyzeForm();}) +
+}
+
+void Extended():
+{}
+{
+    ( <NAMED> {keyword();} <SYMBOL> {skip();}) ?
+    ( VariableClause() ) *
+    ( MainClause() ) *
+}
+
+// variable-clause::= with-clause | initial-final | for-as-clause
+// "Termination-test control constructs can be used anywhere within the loop body"
+void VariableClause():
+{}
+{
+    WithClause()
+    | InitialFinal()
+    | ForAsClause()
+    | TerminationTest()
+}
+
+// with-clause::= with var1 [type-spec] [= form1] {and var2 [type-spec] [= form2]}*
+void WithClause():
+{}
+{
+    <WITH> {keyword();}
+    WithClauseAssignment()
+    (
+      <AND> {keyword();}
+      WithClauseAssignment()
+    ) *
+}
+
+void WithClauseAssignment():
+{}
+{
+    Form()
+    ( TypeSpec() ) ?
+    ( <EQUAL> {keyword();} Form() ) ?
+}
+
+// initial-final::= initially compound-form+ | finally compound-form+
+void InitialFinal():
+{}
+{
+    (<INITIALLY> | <FINALLY>) {keyword();}
+    (<COMPOUND> {analyzeForm();}) +
+}
+
+// main-clause::= unconditional | accumulation | conditional | termination-test | initial-final
+void MainClause():
+{}
+{
+    Unconditional() | Accumulation() | Conditional() | TerminationTest() | InitialFinal()
+}
+
+void Form():
+{}
+{
+    (<SYMBOL> | <COMPOUND>)
+    {analyzeForm();}
+}
+
+// unconditional::= {do | doing} compound-form+ | return {form | it}
+void Unconditional():
+{}
+{
+    (<DO> | <DOING>) {keyword();} (<COMPOUND> {analyzeForm();}) +
+    | <RETURN> {keyword();} (Form() | <IT> {keyword();})
+}
+
+// accumulation::= list-accumulation | numeric-accumulation
+void Accumulation():
+{}
+{
+    ListAccumulation() | NumericAccumulation()
+}
+
+// list-accumulation::= {collect | collecting | append | appending | nconc | nconcing} {form | it}
+//                      [into simple-var]
+void ListAccumulation():
+{}
+{
+    (<COLLECT> | <COLLECTING> | <APPEND> | <APPENDING> | <NCONC> | <NCONCING>) {keyword();}
+    (Form() | <IT> {keyword();})
+    (<INTO> {keyword();} <SYMBOL> {analyzeForm();}) ?
+}
+
+// numeric-accumulation::= {count | counting | sum | summing | }
+//                          maximize | maximizing | minimize | minimizing {form | it}
+//                         [into simple-var] [type-spec]
+void NumericAccumulation():
+{}
+{
+    (<COUNT> | <COUNTING> | <SUM> | <SUMMING> | <MAXIMIZE> | <MAXIMIZING> | <MINIMIZE> | <MINIMIZING>) {keyword();}
+    (Form() | <IT> {keyword();})
+    (<INTO> {keyword();} <SYMBOL> {analyzeForm();}) ?
+    (TypeSpec()) ?
+}
+
+// conditional::= {if | when | unless} form selectable-clause {and selectable-clause}*
+//                [else selectable-clause {and selectable-clause}*]
+//                [end]
+void Conditional():
+{}
+{
+    (<IF> | <WHEN> | <UNLESS>) {keyword();}
+    Form()
+    SelectableClauses()
+    [ <ELSE> {keyword();} SelectableClauses() ]
+    [ <END> {keyword();} ]
+}
+
+void SelectableClauses():
+{}
+{
+    SelectableClause()
+    ( <AND> {keyword();} SelectableClause() ) *
+}
+
+// selectable-clause::= unconditional | accumulation | conditional
+void SelectableClause():
+{}
+{
+    Unconditional()
+     | Accumulation()
+     | Conditional()
+}
+
+// termination-test::= while form | until form | repeat form | always form | never form | thereis form
+// The text says: "".
+void TerminationTest():
+{}
+{
+    (<WHILE> | <UNTIL> | <REPEAT> | <ALWAYS> | <NEVER> | <THEREIS>) {keyword();} Form()
+}
+
+// for-as-clause::= {for | as} for-as-subclause {and for-as-subclause}*
+void ForAsClause():
+{}
+{
+    (<FOR> | <AS>) {keyword();}
+    ForAsSubclause()
+    (
+      <AND> {keyword();}
+      ForAsSubclause()
+    ) *
+}
+
+// for-as-subclause::= for-as-arithmetic | for-as-in-list | for-as-on-list | for-as-equals-then |
+//                     for-as-across | for-as-hash | for-as-package
+void ForAsSubclause():
+{}
+{
+    (<SYMBOL>  | <COMPOUND>) {declareVariable();}
+    (TypeSpec()) ?
+    (ForAsArithmetic() | ForAsInList() | ForAsOnList() | ForAsEqualsThen()
+    | ForAsAcross() | ForAsHashPackage())
+}
+
+// for-as-arithmetic::= var [type-spec] for-as-arithmetic-subclause
+// for-as-arithmetic-subclause::= arithmetic-up | arithmetic-downto | arithmetic-downfrom
+// This part of the grammar is broken in CLHS.
+void ForAsArithmetic():
+{}
+{
+    (ForAsArithmeticSubclauseFromTo() | ForAsArithmeticSubclauseTo())
+    (<BY> {keyword();} Form())?
+}
+
+void ForAsArithmeticSubclauseFromTo():
+{}
+{
+    (<FROM> | <UPFROM> | <DOWNFROM>) {keyword();} Form()
+    [ (<TO> | <UPTO> | <DOWNTO> | <BELOW> | <ABOVE>) {keyword();} Form() ]
+}
+
+void ForAsArithmeticSubclauseTo():
+{}
+{
+    (<TO> | <UPTO> | <DOWNTO> | <BELOW> | <ABOVE>) {keyword();} Form()
+}
+
+// for-as-in-list::= var [type-spec] in form1 [by step-fun]
+void ForAsInList():
+{}
+{
+    <IN> {keyword();} Form()
+    (<BY> {keyword();} Form()) ?
+}
+
+// for-as-on-list::= var [type-spec] on form1 [by step-fun]
+void ForAsOnList():
+{}
+{
+    <ON> {keyword();} Form()
+    (<BY> {keyword();} Form()) ?
+}
+
+// for-as-equals-then::= var [type-spec] = form1 [then form2]
+void ForAsEqualsThen():
+{}
+{
+    <EQUAL> {keyword();} Form()
+    (<THEN> {keyword();} Form()) ?
+}
+
+// for-as-across::= var [type-spec] across vector
+void ForAsAcross():
+{}
+{
+    <ACROSS> {keyword();} Form()
+}
+
+// for-as-hash::= var [type-spec] being {each | the}
+//               {{hash-key | hash-keys} {in | of} hash-table
+//                [using (hash-value other-var)] |
+//                {hash-value | hash-values} {in | of} hash-table
+//                [using (hash-key other-var)]}
+// for-as-package::= var [type-spec] being {each | the}
+//                  {symbol | symbols |
+//                   present-symbol | present-symbols |
+//                   external-symbol | external-symbols}
+//                  [{in | of} package]
+void ForAsHashPackage():
+{}
+{
+    <BEING> {keyword();} (<EACH> | <THE>) {keyword();}
+     (
+       (<HASH_KEY> | <HASH_KEYS>) {keyword();} (<IN> | <OF>) {keyword();} Form()
+       | (<HASH_VALUE> | <HASH_VALUES>) {keyword();} (<IN> | <OF>) {keyword();} Form()
+       | (<SYMBOL> | <SYMBOLS> {keyword();} | <PRESENT_SYMBOL> {keyword();} | <PRESENT_SYMBOLS> {keyword();} | <EXTERNAL_SYMBOL> {keyword();} | <EXTERNAL_SYMBOLS> {keyword();})
+         ((<IN> | <OF>) {keyword();} Form()) ?
+     )
+}
+
+// type-spec::= simple-type-spec | destructured-type-spec
+void TypeSpec():
+{}
+{
+    SimpleTypeSpec() | DestructuredTypeSpec()
+}
+
+// simple-type-spec::= fixnum | float | t | nil
+void SimpleTypeSpec():
+{}
+{
+    (<FIXNUM> | <FLOAT> | <T> | <NIL>) {keyword();}
+}
+
+// destructured-type-spec::= of-type d-type-spec
+//d-type-spec::= type-specifier | (d-type-spec . d-type-spec)
+void DestructuredTypeSpec():
+{}
+{
+    <OF_TYPE> {keyword();} Form()
+}

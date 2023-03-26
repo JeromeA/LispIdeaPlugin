@@ -16,6 +16,6 @@ public abstract class LispListMixinImpl extends ASTWrapperPsiElement implements 
 
   @NotNull
   public List<LispSexp> getSexpList() {
-    return SubprocessFeatures.getInstance(getProject()).filterOptionalSexpList(getOptionalSexpList());
+    return SubprocessFeatures.getInstance(getProject()).filterOptionalSexpList(getPrefixedSexpList());
   }
 }

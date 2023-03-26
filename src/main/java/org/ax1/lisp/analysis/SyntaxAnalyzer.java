@@ -6,6 +6,8 @@ import org.ax1.lisp.analysis.form.*;
 import org.ax1.lisp.analysis.symbol.*;
 import org.ax1.lisp.psi.*;
 import org.ax1.lisp.subprocess.SubprocessFeatures;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,7 +16,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
 import static org.ax1.lisp.analysis.symbol.Symbol.clSymbol;
 import static org.ax1.lisp.parsing.LispSyntaxHighlighter.COMMENT;
-import static org.ax1.lisp.parsing.LispSyntaxHighlighter.FEATURE;
+import static org.ax1.lisp.parsing.LispSyntaxHighlighter.READER_MACRO;
 
 public class SyntaxAnalyzer {
 
@@ -64,6 +66,7 @@ public class SyntaxAnalyzer {
   }
 
   public void analyze() {
+    lispFile.getPrefixedSexpList().forEach(this::analysePrefixExpression);
     analyzeForms(lispFile.getSexpList(), 0);
   }
 
@@ -77,7 +80,7 @@ public class SyntaxAnalyzer {
     }
     LispList list = form.getList();
     if (list != null) {
-      analyzeFeatureExpressions(list);
+      analyzeReaderExpressions(list);
       analyzeCompoundForm(list);
     }
     if (form.getQuoted() != null) {
@@ -85,16 +88,17 @@ public class SyntaxAnalyzer {
     }
   }
 
-  private void analyzeFeatureExpressions(LispList list) {
-    list.getOptionalSexpList().forEach(this::analyseFeatureExpression);
+  private void analyzeReaderExpressions(LispList list) {
+    list.getPrefixedSexpList().forEach(this::analysePrefixExpression);
   }
 
-  private void analyseFeatureExpression(LispOptionalSexp optionalSexp) {
-    LispFeatureExp featureExp = optionalSexp.getFeatureExp();
-    if (featureExp == null) return;
-    context.highlighter.highlight(featureExp, FEATURE);
-    if (!SubprocessFeatures.getInstance(lispFile.getProject()).eval(featureExp)) {
-      context.highlighter.highlight(optionalSexp.getSexp(), COMMENT);
+  private void analysePrefixExpression(LispPrefixedSexp prefixedSexp) {
+    @Nullable LispPrefix prefix = prefixedSexp.getPrefix();
+    if (prefix == null) return;
+    context.highlighter.highlight(prefix, READER_MACRO);
+    @NotNull List<LispReaderFeature> readerFeatureList = prefix.getReaderFeatureList();
+    if (!readerFeatureList.isEmpty() && !SubprocessFeatures.getInstance(lispFile.getProject()).eval(readerFeatureList.get(0))) {
+      context.highlighter.highlight(prefixedSexp.getSexp(), COMMENT);
     }
   }
 

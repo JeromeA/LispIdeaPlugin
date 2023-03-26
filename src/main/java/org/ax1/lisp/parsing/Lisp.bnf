@@ -29,12 +29,17 @@
 }
 
 lispFile ::= topLevelUnit_*
+
 private topLevelUnit_ ::= syntaxUnit_ | invalidClose
-private syntaxUnit_ ::= COMMENT | optional_sexp
-optional_sexp ::= feature_exp? sexp
-feature_exp ::= SHARP_PLUS (simple_feature_exp | compound_feature_exp)
+private syntaxUnit_ ::= COMMENT | prefixed_sexp
+prefixed_sexp ::= prefix? sexp
+prefix ::= reader_feature+ | reader_prefix | SHARP_UNSUPPORTED
+
+reader_prefix ::= SHARP_PREFIX
+reader_feature ::= SHARP_PLUS (simple_feature_exp | compound_feature_exp)
 simple_feature_exp ::= symbol_name
 compound_feature_exp ::= LPAREN symbol_name* RPAREN
+
 sexp ::= string | NUMBER | CHARACTER | symbol | list | quoted
 string ::= STRING_QUOTE string_content STRING_QUOTE
 string_content ::= STRING_CONTENT_TOKEN?

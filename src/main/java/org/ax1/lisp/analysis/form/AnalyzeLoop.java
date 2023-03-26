@@ -1,425 +1,54 @@
 package org.ax1.lisp.analysis.form;
 
+import com.google.common.collect.ImmutableSet;
 import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
-import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.symbol.SymbolDefinition;
+import org.ax1.lisp.loop.LoopParser;
+import org.ax1.lisp.loop.ParseException;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 
-import java.util.List;
-import java.util.Set;
+import java.io.ByteArrayInputStream;
 import java.util.stream.Collectors;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-
 /**
- * http://www.lispworks.com/documentation/lw51/CLHS/Body/m_loop.htm
- *
- * Accumulation statements can create lexical binding that are valid for the scope of all main clauses, so their
- * bindings are currently ignored.
- *
- * TODO: add a first pass that detects accumulation lexical bindings.
- * TODO: rewrite the main pass using a grammar as this code is very error-prone.
+ * <a href="http://www.lispworks.com/documentation/lw51/CLHS/Body/m_loop.htm">Reference</a>
  */
 public class AnalyzeLoop implements FormAnalyzer {
 
-  private static final Set<String> FOR_SUBCLAUSE_KEYWORDS = Set.of("=", "across", "below", "from", "in", "on", "to");
+  public static final ImmutableSet<String> LOOP_KEYWORDS = ImmutableSet.of("=", "ABOVE", "ACROSS", "ALWAYS", "AND",
+      "APPEND", "APPENDING", "AS", "BEING", "BELOW", "BY", "COLLECT", "COLLECTING", "COUNT", "COUNTING", "DO", "DOING",
+      "DOWNFROM", "DOWNTO", "EACH", "ELSE", "END", "EXTERNAL-SYMBOL", "EXTERNAL-SYMBOLS", "FINALLY", "FIXNUM", "FLOAT",
+      "FOR", "FROM", "HASH-KEY", "HASH-KEYS", "HASH-VALUE", "HASH-VALUES", "IF", "IN", "INITIALLY", "INTO", "IT",
+      "LOOP", "MAXIMIZE", "MAXIMIZING", "MINIMIZE", "MINIMIZING", "NAMED", "NCONC", "NCONCING", "NEVER", "NIL", "OF",
+      "OF-TYPE", "ON", "PRESENT-SYMBOL", "PRESENT-SYMBOLS", "REPEAT", "RETURN", "SUM", "SUMMING", "SYMBOL", "SYMBOLS",
+      "T", "THE", "THEN", "THEREIS", "TO", "UNLESS", "UNTIL", "UPFROM", "UPTO", "WHEN", "WHILE", "WITH");
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
-    if (form.getSexpList().size() == 1) return;
-    LispSexp firstSexp = form.getSexpList().get(1);
-    if (firstSexp.getList() != null) {
-      context.analyzer.analyzeForms(form.getSexpList(), 1);
-    } else {
-      nameClause(context, form);
+    String syntaxString = form.getSexpList().stream().map(AnalyzeLoop::toSyntaxString).collect(Collectors.joining(" "));
+    ByteArrayInputStream syntaxInput = new ByteArrayInputStream(syntaxString.getBytes());
+    LoopParser parser = new LoopParser(syntaxInput);
+
+    try {
+      parser.Start(context, form);
+    } catch (ParseException e) {
+      System.err.println("Original: " + form.getText());
+      System.err.println("Modified: " + syntaxString);
+      e.printStackTrace();
     }
   }
 
-  /**
-   * Parse an optional name clause (named name), on continue with variable clauses.
-   */
-  private void nameClause(AnalysisContext context, LispList form) {
-    List<LispSexp> list = form.getSexpList();
-    LispSexp loopKeyword = list.get(1);
-    if (!loopKeyword.isSymbol()) {
-      context.highlighter.highlightError(loopKeyword, "Loop keyword expected");
-      return;
-    }
-    if (loopKeyword.getText().equals("named")) {
-      if (list.size() <= 2) {
-        context.highlighter.highlightError(form, "Name missing");
-        return;
-      }
-      if (list.get(2).getSymbol() == null) {
-        context.highlighter.highlightError(list.get(2), "Name expected");
-        return;
-      }
-      variableClause(context, form, 3);
-    }
-    variableClause(context, form, 1);
-  }
-
-  /**
-   * Parse optional variable clauses, and continue with main clauses.
-   */
-  private void variableClause(AnalysisContext context, LispList form, int startAt) {
-    List<LispSexp> list = form.getSexpList();
-    if (list.size() <= startAt) return;
-    LispSexp loopKeyword = list.get(startAt);
-    if (!loopKeyword.isSymbol()) {
-      context.highlighter.highlightError(loopKeyword, "Loop keyword expected");
-      return;
-    }
-    switch (loopKeyword.getText()) {
-      case "with":
-        with(context, form, startAt);
-        break;
-      case "initially":
-      case "finally":
-        initiallyFinally(context, form, startAt, false);
-        break;
-      case "for":
-      case "as":
-        forAs(context, form, startAt);
-        break;
-      default:
-        mainClause(context, form, startAt);
-        break;
-    }
-  }
-
-  private void initiallyFinally(AnalysisContext context, LispList form, int startAt, boolean inMainClause) {
-    List<LispSexp> list = form.getSexpList();
-    context.highlighter.highlightKeyword(list.get(startAt));
-    startAt++;
-    if (list.size() <= startAt) {
-      context.highlighter.highlightError(list.get(startAt - 1), "Form missing");
-      return;
-    }
-    while (list.size() > startAt && list.get(startAt).getList() != null) {
-      context.analyzer.analyzeForm(list.get(startAt));
-      startAt++;
-    }
-    if (inMainClause) {
-      mainClause(context, form, startAt);
-    } else {
-      variableClause(context, form, startAt);
-    }
-  }
-
-  private void doDoing(AnalysisContext context, LispList form, int startAt) {
-    int consumed = doDoingRaw(context, form, startAt);
-    if (consumed == 0) return;
-    mainClause(context, form, startAt + consumed);
-  }
-
-  /**
-   * Parse a do/doing statement. Such a statement can have any number of compound forms to execute.
-   */
-  private int doDoingRaw(AnalysisContext context, LispList form, int startAt) {
-    List<LispSexp> list = form.getSexpList();
-    context.highlighter.highlightKeyword(list.get(startAt));
-    int consumed = 1;
-    if (list.size() <= startAt + consumed) {
-      context.highlighter.highlightError(list.get(startAt - 1), "Form missing");
-      return 0;
-    }
-    while (list.size() > startAt + consumed && list.get(startAt + consumed).getList() != null) {
-      context.analyzer.analyzeForm(list.get(startAt + consumed));
-      consumed++;
-    }
-    return consumed;
-  }
-
-  private void with(AnalysisContext context, LispList form, int startAt) {
-    List<LispSexp> list = form.getSexpList();
-    context.highlighter.highlightKeyword(list.get(startAt));
-    startAt++;
-
-    if (list.size() <= startAt) {
-      context.highlighter.highlightError(list.get(startAt - 1), "Variable missing");
-      return;
-    }
-    LispSexp sexp1 = list.get(startAt);
-    if (sexp1.getSymbol() == null) {
-      context.highlighter.highlightError(sexp1, "Variable name expected");
-      return;
-    }
-    startAt++;
-
-    if (list.size() <= startAt) return;
-    LispSexp sexp2 = list.get(startAt);
-    if (sexp2.getSymbol() == null) {
-      context.highlighter.highlightError(sexp2, "Loop keyword expected");
-      return;
-    }
-    if (sexp2.getSymbol().getText().equals("=")) {
-      context.highlighter.highlightKeyword(sexp2);
-      context.analyzer.analyzeForm(list.get(startAt + 1));
-      startAt += 2;
-    }
-
-    SymbolDefinition variable = LexicalVariableHelper.newLexicalVariable("LOOP",
-        context.getLocatedSymbol(sexp1.getSymbol()), null);
-    try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(List.of(variable))) {
-      variableClause(context, form, startAt);
-    }
-  }
-
-  private void forAs(AnalysisContext context, LispList form, int startAt) {
-    List<LispSexp> list = form.getSexpList();
-    context.highlighter.highlightKeyword(list.get(startAt));
-    startAt++;
-
-    if (list.size() <= startAt) {
-      context.highlighter.highlightError(list.get(startAt - 1), "Variable name missing");
-      return;
-    }
-    LispSexp sexp1 = list.get(startAt);
-    List<LispSymbol> variables = getVariables(context, sexp1);
-    startAt++;
-
-    while (true) {
-      if (list.size() <= startAt) return;
-      LispSexp sexp2 = list.get(startAt);
-      if (sexp2.getSymbol() == null) {
-        context.highlighter.highlightError(sexp2, "Loop keyword expected");
-        return;
-      }
-      if (!FOR_SUBCLAUSE_KEYWORDS.contains(sexp2.getSymbol().getText())) break;
-      context.highlighter.highlightKeyword(sexp2);
-      context.analyzer.analyzeForm(list.get(startAt + 1));
-      startAt += 2;
-    }
-
-    List<SymbolDefinition> locatedVariables = variables.stream()
-        .map(context::getLocatedSymbol)
-        .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("LOOP", locatedSymbol, null))
-        .collect(toImmutableList());
-    try (LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(locatedVariables)) {
-      variableClause(context, form, startAt);
-    }
-  }
-
-  private List<LispSymbol> getVariables(AnalysisContext context, LispSexp sexp) {
-    if (sexp.getSymbol() != null) {
-      if (sexp.getText().equals("nil")) {
-        context.highlighter.highlightKeyword(sexp);
-        return List.of();
-      }
-      return List.of(sexp.getSymbol());
-    }
+  private static String toSyntaxString(LispSexp sexp) {
     LispList list = sexp.getList();
     if (list != null) {
-      List<LispSexp> sexpList = list.getSexpList();
-      return sexpList.stream().flatMap(s -> getVariables(context, s).stream()).collect(Collectors.toList());
+      return "()";
     }
-    context.highlighter.highlightError(sexp, "Variable name expected");
-    return List.of();
+    LispSymbol symbol = sexp.getSymbol();
+    if (symbol != null) {
+      String symbolName = symbol.getSymbolName().getValue();
+      if (LOOP_KEYWORDS.contains(symbolName)) return symbolName;
+    }
+    return "X";
   }
-
-
-  private void mainClause(AnalysisContext context, LispList form, int startAt) {
-    List<LispSexp> list = form.getSexpList();
-    if (list.size() <= startAt) return;
-    LispSexp sexp = list.get(startAt);
-    if (sexp.getSymbol() == null) {
-      context.highlighter.highlightError(sexp, "Loop keyword expected");
-      return;
-    }
-    switch (sexp.getSymbol().getText()) {
-      case "do":
-      case "doing":
-        doDoing(context, form, startAt);
-        break;
-      case "return":
-        aReturn(context, form, startAt);
-        break;
-      case "append":
-      case "appending":
-      case "collect":
-      case "collecting":
-      case "count":
-      case "counting":
-      case "maximize":
-      case "maximizing":
-      case "minimize":
-      case "minimizing":
-      case "nconc":
-      case "nconcing":
-      case "sum":
-      case "summing":
-        accumulation(context, form, startAt);
-        break;
-      case "initially":
-      case "finally":
-        initiallyFinally(context, form, startAt, true);
-        break;
-      case "always":
-      case "never":
-      case "repeat":
-      case "thereis":
-      case "until":
-      case "while":
-        termination(context, form, startAt);
-        break;
-      case "if":
-      case "when":
-      case "unless":
-        conditional(context, form, startAt);
-        break;
-      default:
-        context.highlighter.highlightError(sexp, "Loop keyword expected");
-    }
-  }
-
-  private void conditional(AnalysisContext context, LispList form, int startAt) {
-    int consumed = conditionalRaw(context, form, startAt);
-    if (consumed == 0) return;
-    mainClause(context, form, startAt + consumed);
-  }
-
-  private int conditionalRaw(AnalysisContext context, LispList form, int startAt) {
-    List<LispSexp> list = form.getSexpList();
-    context.highlighter.highlightKeyword(list.get(startAt));
-    if (list.size() <= startAt + 1) {
-      context.highlighter.highlightError(list.get(startAt), "Conditional form missing");
-      return 0;
-    }
-    context.analyzer.analyzeForm(list.get(startAt + 1));
-    int consumed = 2;
-
-    consumed += selectableRaw(context, form, startAt + consumed);
-    if (consumed == 0) return 0;
-
-    // TODO: else
-    if (list.size() <= startAt + consumed) return consumed;
-    LispSexp sexp = list.get(startAt + consumed);
-    if (sexp.getSymbol() != null && sexp.getSymbol().getText().equals("else")) {
-      consumed++;
-      int consumedElse = selectableRaw(context, form, startAt + consumed);
-      if (consumedElse == 0) return 0;
-      return consumed + consumedElse;
-    }
-
-    return consumed;
-  }
-
-  private int selectableRaw(AnalysisContext context, LispList form, int startAt) {
-    List<LispSexp> list = form.getSexpList();
-    if (list.size() <= startAt) return 0;
-    LispSexp sexp = list.get(startAt);
-    if (sexp.getSymbol() == null) {
-      context.highlighter.highlightError(sexp, "Loop keyword expected");
-      return 0;
-    }
-    switch (sexp.getSymbol().getText()) {
-      case "do":
-      case "doing":
-        return doDoingRaw(context, form, startAt);
-      case "return":
-        return returnRaw(context, form, startAt);
-      case "append":
-      case "appending":
-      case "collect":
-      case "collecting":
-      case "count":
-      case "counting":
-      case "maximize":
-      case "maximizing":
-      case "minimize":
-      case "minimizing":
-      case "nconc":
-      case "nconcing":
-      case "sum":
-      case "summing":
-        return accumulationRaw(context, form, startAt);
-      case "if":
-      case "when":
-      case "unless":
-        return conditionalRaw(context, form, startAt);
-      default:
-        context.highlighter.highlightError(sexp, "Loop keyword expected");
-        return 0;
-    }
-  }
-
-  private void termination(AnalysisContext context, LispList form, int startAt) {
-    List<LispSexp> list = form.getSexpList();
-    context.highlighter.highlightKeyword(list.get(startAt));
-    if (list.size() <= startAt + 1) {
-      context.highlighter.highlightError(list.get(startAt), "Termination form missing");
-      return;
-    }
-    context.analyzer.analyzeForm(list.get(startAt + 1));
-    mainClause(context, form, startAt + 2);
-  }
-
-  private void aReturn(AnalysisContext context, LispList form, int startAt) {
-    if (returnRaw(context, form, startAt) == 0) return;
-    mainClause(context, form, startAt + 2);
-  }
-
-  private int returnRaw(AnalysisContext context, LispList form, int startAt) {
-    List<LispSexp> list = form.getSexpList();
-    context.highlighter.highlightKeyword(list.get(startAt));
-    if (list.size() <= startAt + 1) {
-      context.highlighter.highlightError(list.get(startAt - 1), "Return expression missing");
-      return 0;
-    }
-    LispSexp arg = list.get(startAt + 1);
-    if (arg.isSymbol() && arg.getText().equals("it")) {
-      context.highlighter.highlightKeyword(arg);
-    } else {
-      context.analyzer.analyzeForm(arg);
-    }
-    return 2;
-  }
-
-  private void accumulation(AnalysisContext context, LispList form, int startAt) {
-    int consumed = accumulationRaw(context, form, startAt);
-    if (consumed == 0) return;
-    mainClause(context, form, startAt + consumed);
-  }
-
-  private int accumulationRaw(AnalysisContext context, LispList form, int startAt) {
-    List<LispSexp> list = form.getSexpList();
-    context.highlighter.highlightKeyword(list.get(startAt));
-    if (list.size() <= startAt + 1) {
-      context.highlighter.highlightError(list.get(startAt - 1), "Accumulation expression missing");
-      return 0;
-    }
-    LispSexp arg = list.get(startAt + 1);
-    if (arg.isSymbol() && arg.getText().equals("it")) {
-      context.highlighter.highlightKeyword(arg);
-    } else {
-      context.analyzer.analyzeForm(arg);
-    }
-    int consumed = 2;
-
-    if (list.size() <= startAt + consumed) return consumed;
-    LispSexp arg2 = list.get(startAt + consumed);
-    if (arg2.isSymbol() && arg2.getText().equals("into")) {
-      context.highlighter.highlightKeyword(arg2);
-      consumed++;
-      if (list.size() <= startAt + consumed) {
-        context.highlighter.highlightError(arg2, "Accumulation destination missing");
-        return 0;
-      }
-      LispSexp arg3 = list.get(startAt + consumed);
-      if (arg3.getSymbol() == null) {
-        context.highlighter.highlightError(arg3, "Accumulation destination expected");
-        return 0;
-      }
-      consumed++;
-      // We don't support lexical bindings created by accumulations, because their scope is the whole loop.
-      SymbolDefinition variable = LexicalVariableHelper.newLexicalVariable("LOOP",
-          context.getLocatedSymbol(arg3.getSymbol()), null);
-      context.lexicalBindings.defineLexicalVariables(List.of(variable)).close();
-    }
-    return consumed;
-  }
-}
+ }

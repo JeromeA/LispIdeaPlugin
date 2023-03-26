@@ -1,6 +1,7 @@
 plugins {
     id 'org.jetbrains.intellij' version '1.3.0'
     id 'java'
+    id 'com.intershop.gradle.javacc' version '4.1.3'
 }
 
 group 'org.ax1'
@@ -34,4 +35,15 @@ patchPluginXml {
 
 test {
     useJUnitPlatform()
+}
+
+javacc {
+    javaCCVersion = '7.0.12'
+    configs {
+        loopparser {
+            inputFile = file('src/main/javacc/LoopParser.jj')
+            packageName = 'org.ax1.lisp.loop'
+            outputDir = file('src/main/gen')
+        }
+    }
 }
