@@ -17,77 +17,78 @@ public class LoopParser extends LoopParserBase {
 PARSER_END(LoopParser)
 
 <*> SKIP : { " " | "\n" }
-<DEFAULT> TOKEN : { <LOOP : "LOOP"> }
-<DEFAULT> TOKEN : { <INITIALLY : "INITIALLY"> }
-<DEFAULT> TOKEN : { <FINALLY : "FINALLY"> }
-<DEFAULT> TOKEN : { <DO : "DO"> }
-<DEFAULT> TOKEN : { <DOING : "DOING"> }
-<DEFAULT> TOKEN : { <END : "END"> }
-<DEFAULT> TOKEN : { <ELSE : "ELSE"> }
-<DEFAULT> TOKEN : { <BEING : "BEING"> }
-<DEFAULT> TOKEN : { <EACH : "EACH"> }
-<DEFAULT> TOKEN : { <THE : "THE"> }
-<DEFAULT> TOKEN : { <OF : "OF"> }
-<DEFAULT> TOKEN : { <HASH_KEY : "HASH-KEY"> }
-<DEFAULT> TOKEN : { <HASH_KEYS : "HASH-KEYS"> }
-<DEFAULT> TOKEN : { <HASH_VALUE : "HASH-VALUE"> }
-<DEFAULT> TOKEN : { <HASH_VALUES : "HASH-VALUES"> }
-<DEFAULT> TOKEN : { <SYMBOL_KEYWORD : "SYMBOL"> }
-<DEFAULT> TOKEN : { <SYMBOLS : "SYMBOLS"> }
-<DEFAULT> TOKEN : { <PRESENT_SYMBOL : "PRESENT-SYMBOL"> }
-<DEFAULT> TOKEN : { <PRESENT_SYMBOLS : "PRESENT-SYMBOLS"> }
-<DEFAULT> TOKEN : { <EXTERNAL_SYMBOL : "EXTERNAL-SYMBOL"> }
-<DEFAULT> TOKEN : { <EXTERNAL_SYMBOLS : "EXTERNAL-SYMBOLS"> }
-<DEFAULT> TOKEN : { <FIXNUM : "FIXNUM"> }
-<DEFAULT> TOKEN : { <FLOAT : "FLOAT"> }
-<DEFAULT> TOKEN : { <T : "T"> }
-<DEFAULT> TOKEN : { <NIL : "NIL"> }
+TOKEN : { <LOOP : "LOOP"> }
+TOKEN : { <INITIALLY : "INITIALLY"> }
+TOKEN : { <FINALLY : "FINALLY"> }
+TOKEN : { <DO : "DO"> }
+TOKEN : { <DOING : "DOING"> }
+TOKEN : { <END : "END"> }
+TOKEN : { <ELSE : "ELSE"> }
+TOKEN : { <BEING : "BEING"> }
+TOKEN : { <EACH : "EACH"> }
+TOKEN : { <THE : "THE"> }
+TOKEN : { <OF : "OF"> }
+TOKEN : { <HASH_KEY : "HASH-KEY"> }
+TOKEN : { <HASH_KEYS : "HASH-KEYS"> }
+TOKEN : { <HASH_VALUE : "HASH-VALUE"> }
+TOKEN : { <HASH_VALUES : "HASH-VALUES"> }
+TOKEN : { <SYMBOL_KEYWORD : "SYMBOL"> }
+TOKEN : { <SYMBOLS : "SYMBOLS"> }
+TOKEN : { <PRESENT_SYMBOL : "PRESENT-SYMBOL"> }
+TOKEN : { <PRESENT_SYMBOLS : "PRESENT-SYMBOLS"> }
+TOKEN : { <EXTERNAL_SYMBOL : "EXTERNAL-SYMBOL"> }
+TOKEN : { <EXTERNAL_SYMBOLS : "EXTERNAL-SYMBOLS"> }
+TOKEN : { <FIXNUM : "FIXNUM"> }
+TOKEN : { <FLOAT : "FLOAT"> }
+TOKEN : { <T : "T"> }
+TOKEN : { <NIL : "NIL"> }
 
-<DEFAULT> TOKEN : { <FOR : "FOR"> : SYMBOL_STATE}
-<DEFAULT> TOKEN : { <AS : "AS"> : SYMBOL_STATE}
-<DEFAULT> TOKEN : { <NAMED : "NAMED"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <WITH : "WITH"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <AND : "AND"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <EQUAL : "="> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <INTO : "INTO"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <COLLECT : "COLLECT"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <COLLECTING : "COLLECTING"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <APPEND : "APPEND"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <APPENDING : "APPENDING"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <NCONC : "NCONC"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <NCONCING : "NCONCING"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <RETURN : "RETURN"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <COUNT : "COUNT"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <COUNTING : "COUNTING"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <SUM : "SUM"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <SUMMING : "SUMMING"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <MAXIMIZE : "MAXIMIZE"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <MAXIMIZING : "MAXIMIZING"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <MINIMIZE : "MINIMIZE"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <MINIMIZING : "MINIMIZING"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <IF : "IF"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <WHEN : "WHEN"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <UNLESS : "UNLESS"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <WHILE : "WHILE"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <UNTIL : "UNTIL"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <REPEAT : "REPEAT"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <ALWAYS : "ALWAYS"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <NEVER : "NEVER"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <THEREIS : "THEREIS"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <FROM : "FROM"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <UPFROM : "UPFROM"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <DOWNFROM : "DOWNFROM"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <TO : "TO"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <UPTO : "UPTO"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <DOWNTO : "DOWNTO"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <BELOW : "BELOW"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <ABOVE : "ABOVE"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <BY : "BY"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <IN : "IN"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <ON : "ON"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <THEN : "THEN"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <ACROSS : "ACROSS"> : SYMBOL_STATE }
-<DEFAULT> TOKEN : { <OF_TYPE : "OF-TYPE"> : SYMBOL_STATE }
+TOKEN : { <FOR : "FOR"> : SYMBOL_STATE}
+TOKEN : { <AS : "AS"> : SYMBOL_STATE}
+TOKEN : { <NAMED : "NAMED"> : SYMBOL_STATE }
+TOKEN : { <WITH : "WITH"> : SYMBOL_STATE }
+TOKEN : { <AND : "AND"> : SYMBOL_STATE }
+TOKEN : { <EQUAL : "="> : SYMBOL_STATE }
+TOKEN : { <INTO : "INTO"> : SYMBOL_STATE }
+TOKEN : { <COLLECT : "COLLECT"> : SYMBOL_STATE }
+TOKEN : { <COLLECTING : "COLLECTING"> : SYMBOL_STATE }
+TOKEN : { <APPEND : "APPEND"> : SYMBOL_STATE }
+TOKEN : { <APPENDING : "APPENDING"> : SYMBOL_STATE }
+TOKEN : { <NCONC : "NCONC"> : SYMBOL_STATE }
+TOKEN : { <NCONCING : "NCONCING"> : SYMBOL_STATE }
+TOKEN : { <RETURN : "RETURN"> : SYMBOL_STATE }
+TOKEN : { <COUNT : "COUNT"> : SYMBOL_STATE }
+TOKEN : { <COUNTING : "COUNTING"> : SYMBOL_STATE }
+TOKEN : { <SUM : "SUM"> : SYMBOL_STATE }
+TOKEN : { <SUMMING : "SUMMING"> : SYMBOL_STATE }
+TOKEN : { <MAXIMIZE : "MAXIMIZE"> : SYMBOL_STATE }
+TOKEN : { <MAXIMIZING : "MAXIMIZING"> : SYMBOL_STATE }
+TOKEN : { <MINIMIZE : "MINIMIZE"> : SYMBOL_STATE }
+TOKEN : { <MINIMIZING : "MINIMIZING"> : SYMBOL_STATE }
+TOKEN : { <IF : "IF"> : SYMBOL_STATE }
+TOKEN : { <WHEN : "WHEN"> : SYMBOL_STATE }
+TOKEN : { <UNLESS : "UNLESS"> : SYMBOL_STATE }
+TOKEN : { <WHILE : "WHILE"> : SYMBOL_STATE }
+TOKEN : { <UNTIL : "UNTIL"> : SYMBOL_STATE }
+TOKEN : { <REPEAT : "REPEAT"> : SYMBOL_STATE }
+TOKEN : { <ALWAYS : "ALWAYS"> : SYMBOL_STATE }
+TOKEN : { <NEVER : "NEVER"> : SYMBOL_STATE }
+TOKEN : { <THEREIS : "THEREIS"> : SYMBOL_STATE }
+TOKEN : { <FROM : "FROM"> : SYMBOL_STATE }
+TOKEN : { <UPFROM : "UPFROM"> : SYMBOL_STATE }
+TOKEN : { <DOWNFROM : "DOWNFROM"> : SYMBOL_STATE }
+TOKEN : { <TO : "TO"> : SYMBOL_STATE }
+TOKEN : { <UPTO : "UPTO"> : SYMBOL_STATE }
+TOKEN : { <DOWNTO : "DOWNTO"> : SYMBOL_STATE }
+TOKEN : { <BELOW : "BELOW"> : SYMBOL_STATE }
+TOKEN : { <ABOVE : "ABOVE"> : SYMBOL_STATE }
+TOKEN : { <BY : "BY"> : SYMBOL_STATE }
+TOKEN : { <IN : "IN"> : SYMBOL_STATE }
+TOKEN : { <ON : "ON"> : SYMBOL_STATE }
+TOKEN : { <THEN : "THEN"> : SYMBOL_STATE }
+TOKEN : { <ACROSS : "ACROSS"> : SYMBOL_STATE }
+TOKEN : { <OF_TYPE : "OF-TYPE"> : SYMBOL_STATE }
+TOKEN : { <ERROR : (["A"-"Z"])+> }
 
 <SYMBOL_STATE> TOKEN : { <IT : "IT"> : DEFAULT }
 <SYMBOL_STATE> TOKEN : { <SYMBOL : (["A"-"Z"])+> : DEFAULT }
@@ -100,7 +101,7 @@ void Start(AnalysisContext context, LispList form):
     { init(context, form); }
     <LOOP> {keyword();}
     (Simple() | Extended())
-    <EOF>
+    (<EOF> | {error("Expecting LOOP keyword");})
     { cleanup(); }
 }
 
@@ -113,7 +114,7 @@ void Simple():
 void Extended():
 {}
 {
-    ( <NAMED> {keyword();} <SYMBOL> {skip();}) ?
+    ( <NAMED> {keyword();} (<SYMBOL> {skip();} | <EOF>{missingExpression();})) ?
     ( VariableClause() ) *
     ( MainClause() ) *
 }
@@ -154,7 +155,7 @@ void InitialFinal():
 {}
 {
     (<INITIALLY> | <FINALLY>) {keyword();}
-    (<COMPOUND> {analyzeForm();}) +
+    ((<COMPOUND> {analyzeForm();}) + | <EOF>{missingExpression();})
 }
 
 // main-clause::= unconditional | accumulation | conditional | termination-test | initial-final
@@ -169,14 +170,18 @@ void Form():
 {
     (<SYMBOL> | <COMPOUND>)
     {analyzeForm();}
+    |
+    <EOF> {missingExpression();}
 }
 
 // unconditional::= {do | doing} compound-form+ | return {form | it}
 void Unconditional():
 {}
 {
-    (<DO> | <DOING>) {keyword();} (<COMPOUND> {analyzeForm();}) +
-    | <RETURN> {keyword();} (Form() | <IT> {keyword();})
+    (<DO> | <DOING>) {keyword();}
+    ((<COMPOUND> {analyzeForm();} ) + | <EOF>{missingExpression();})
+    |
+    <RETURN> {keyword();} ItOrVar()
 }
 
 // accumulation::= list-accumulation | numeric-accumulation
@@ -192,8 +197,8 @@ void ListAccumulation():
 {}
 {
     (<COLLECT> | <COLLECTING> | <APPEND> | <APPENDING> | <NCONC> | <NCONCING>) {keyword();}
-    (Form() | <IT> {keyword();})
-    (<INTO> {keyword();} <SYMBOL> {analyzeForm();}) ?
+    ItOrVar()
+    (Into()) ?
 }
 
 // numeric-accumulation::= {count | counting | sum | summing | }
@@ -203,9 +208,21 @@ void NumericAccumulation():
 {}
 {
     (<COUNT> | <COUNTING> | <SUM> | <SUMMING> | <MAXIMIZE> | <MAXIMIZING> | <MINIMIZE> | <MINIMIZING>) {keyword();}
-    (Form() | <IT> {keyword();})
-    (<INTO> {keyword();} <SYMBOL> {analyzeForm();}) ?
+    ItOrVar()
+    (Into()) ?
     (TypeSpec()) ?
+}
+
+void Into():
+{}
+{
+    <INTO> {keyword();} (<SYMBOL> {analyzeForm();} | <EOF>{missingVariable();})
+}
+
+void ItOrVar():
+{}
+{
+    <IT> {keyword();} | Form()
 }
 
 // conditional::= {if | when | unless} form selectable-clause {and selectable-clause}*

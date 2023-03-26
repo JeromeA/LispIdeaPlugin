@@ -69,4 +69,16 @@ public class LoopParserBase {
     context.highlighter.highlightError(sexp, "Variable name expected");
     return List.of();
   }
+
+  public void error(String text) {
+    context.highlighter.highlightError(sexpList.get(index), text);
+  }
+
+  public void missingExpression() {
+    context.highlighter.highlightError(sexpList.get(index - 1), "Missing expression");
+  }
+
+  public void missingVariable() {
+    context.highlighter.highlightError(sexpList.get(index - 1), "Missing variable name");
+  }
 }
