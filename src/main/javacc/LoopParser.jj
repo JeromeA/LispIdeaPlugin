@@ -145,7 +145,10 @@ void WithClause():
 void WithClauseAssignment():
 {}
 {
-    Form()
+    (
+        (<SYMBOL> | <COMPOUND>) {declareVariable();}
+        | <EOF>{missingVariable();}
+    )
     ( TypeSpec() ) ?
     ( <EQUAL> {keyword();} Form() ) ?
 }
@@ -216,7 +219,7 @@ void NumericAccumulation():
 void Into():
 {}
 {
-    <INTO> {keyword();} (<SYMBOL> {analyzeForm();} | <EOF>{missingVariable();})
+    <INTO> {keyword();} (<SYMBOL> {declareVariable();} | <EOF>{missingVariable();})
 }
 
 void ItOrVar():
