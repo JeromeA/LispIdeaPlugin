@@ -14,11 +14,17 @@ import static org.ax1.lisp.analysis.form.LambdaAnalyzer.analyzeLambda;
 
 public class AnalyzeLabels implements FormAnalyzer {
 
+  private final Type type;
+
+  public AnalyzeLabels(Type type) {
+    this.type = type;
+  }
+
   @Override
   public void analyze(AnalysisContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
-      context.highlighter.highlightError(form, "LABELS needs at least 1 argument");
+      context.highlighter.highlightError(form, type.name() + "needs at least 1 argument");
       return;
     }
     LispList list1 = list.get(1).getList();
@@ -35,7 +41,7 @@ public class AnalyzeLabels implements FormAnalyzer {
 
   private void analyzeFunction(AnalysisContext context, LispSexp function) {
     if (function.getList() != null && function.getList().getSexpList().size() >= 2) {
-      analyzeLambda("LABELS", context, function.getList(), 1);
+      analyzeLambda(type.name(), context, function.getList(), 1);
     }
   }
 
@@ -60,4 +66,8 @@ public class AnalyzeLabels implements FormAnalyzer {
     return result;
   }
 
+  public enum Type {
+    FLET,
+    LABELS
+  }
 }
