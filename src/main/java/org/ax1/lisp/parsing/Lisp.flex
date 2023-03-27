@@ -23,7 +23,8 @@ white_space = [\ \r\n\t\f]
 comment = ; [^\r\n]* {eol}?
 reader_comment = "#|" [^|]* "|#"
 sharp_plus = "#" [+-]
-sharp_prefix = "#" [0-9]* [=#.:o]
+sharp_ref = "#" [0-9]+ "#"
+sharp_prefix = "#" [0-9]* [=.:o]
 sharp_unsupported = "#" [0-9]* [^\ \r\n\t\f]
 number = -? [0-9]+ ("." [0-9]*)? | "#x" [0-9a-fA-F]+
 character = "#\\" [^\ \r\n\t\f][a-zA-Z]*
@@ -46,6 +47,7 @@ colon = ::?
   {double_quote}                 { yybegin(STRING); return LispTypes.STRING_QUOTE; }
   {white_space}+                 { return TokenType.WHITE_SPACE; }
   {character}                    { return LispTypes.CHARACTER; }
+  {sharp_ref}                    { return LispTypes.SHARP_REF; }
   {sharp_plus}                   { return LispTypes.SHARP_PLUS; }
   {sharp_prefix}                 { return LispTypes.SHARP_PREFIX; }
   {sharp_unsupported}            { return LispTypes.SHARP_UNSUPPORTED; }

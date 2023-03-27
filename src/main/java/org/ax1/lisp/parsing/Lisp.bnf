@@ -40,7 +40,7 @@ reader_feature ::= SHARP_PLUS (simple_feature_exp | compound_feature_exp)
 simple_feature_exp ::= symbol_name
 compound_feature_exp ::= LPAREN symbol_name* RPAREN
 
-sexp ::= string | NUMBER | CHARACTER | symbol | list | quoted
+sexp ::= string | NUMBER | CHARACTER | SHARP_REF | symbol | list | quoted
 string ::= STRING_QUOTE string_content STRING_QUOTE
 string_content ::= STRING_CONTENT_TOKEN?
 list ::= LPAREN syntaxUnit_* RPAREN?

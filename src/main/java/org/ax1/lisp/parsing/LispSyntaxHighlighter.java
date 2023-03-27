@@ -31,6 +31,7 @@ public class LispSyntaxHighlighter extends SyntaxHighlighterBase {
   private static final TextAttributesKey[] STRING_KEYS = new TextAttributesKey[]{STRING};
   private static final TextAttributesKey[] COMMENT_KEYS = new TextAttributesKey[]{COMMENT};
   private static final TextAttributesKey[] NUMBER_KEYS = new TextAttributesKey[]{NUMBER};
+  private static final TextAttributesKey[] READER_MACRO_KEYS = new TextAttributesKey[]{READER_MACRO};
   private static final TextAttributesKey[] EMPTY_KEYS = new TextAttributesKey[0];
 
   @NotNull
@@ -52,6 +53,9 @@ public class LispSyntaxHighlighter extends SyntaxHighlighterBase {
     }
     if (tokenType.equals(LispTypes.COMMENT)) {
       return COMMENT_KEYS;
+    }
+    if (tokenType.equals(LispTypes.SHARP_REF)) {
+      return READER_MACRO_KEYS;
     }
     if (tokenType.equals(TokenType.BAD_CHARACTER) || tokenType.equals(LispTypes.SHARP_UNSUPPORTED)) {
       return BAD_CHAR_KEYS;
