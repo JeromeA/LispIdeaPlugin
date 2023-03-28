@@ -26,8 +26,11 @@ public class LispPackage {
   }
 
   public Symbol findSymbol(String symbolName) {
+    // Local symbol.
     Symbol localSymbol = symbols.get(symbolName);
     if (localSymbol != null) return localSymbol;
+
+    // USE option.
     for (String packageName : definition.use.keySet()) {
       LispPackage lispPackage = packageManager.getPackage(packageName);
       if (lispPackage != null) {
@@ -37,9 +40,22 @@ public class LispPackage {
         }
       }
     }
+
+    // IMPORT-FROM option.
+    String importFromPackage = definition.importFrom.get(symbolName);
+    if (importFromPackage != null) {
+      LispPackage lispPackage = packageManager.getPackage(importFromPackage);
+      if (lispPackage != null) {
+        Symbol symbol = lispPackage.findExportedSymbol(symbolName);
+        if (symbol != null) {
+          return symbol;
+        }
+      }
+    }
+
+    // EXPORT option.
     Symbol exportedSymbol = findExportedSymbol(symbolName);
     if (exportedSymbol != null) return exportedSymbol;
-    // TODO: search importFrom.
     return null;
   }
 

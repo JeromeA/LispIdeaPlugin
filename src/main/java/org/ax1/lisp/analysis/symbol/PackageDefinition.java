@@ -1,13 +1,17 @@
 package org.ax1.lisp.analysis.symbol;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 
 import java.util.*;
 
 public class PackageDefinition {
 
-  // For both in-package and symbol prefixes.
+  // Both in-package and symbol prefixes are "usages".
   protected final Set<LispStringDesignator> usages = new HashSet<>();
+  // There should be only one definition, but we have to keep a list of duplicates if there are any.
   protected final List<LispStringDesignator> definitions = new ArrayList<>();
   final String name;
   private final Set<String> nicknames = new HashSet<>();
@@ -15,7 +19,8 @@ public class PackageDefinition {
   public final Map<String, LispStringDesignator> use = new HashMap<>();
   public final Map<String, LispStringDesignator> exports = new HashMap<>();
   public final Map<String, LispStringDesignator> shadows = new HashMap<>();
-//  public final Map<LispSymbol, Set<LispSymbol>> importFrom = new HashMap<>();
+  // Warning: this is a symbol to package map, as this is the way we need to query it.
+  public final Map<String, String> importFrom = new HashMap<>();
 
   private boolean isWriteable = true;
 
@@ -76,5 +81,9 @@ public class PackageDefinition {
 
   public boolean isUsage(LispStringDesignator packageName) {
     return usages.contains(packageName);
+  }
+
+  public void addImportFrom(String symbolName, String packageName) {
+    importFrom.put(symbolName, packageName);
   }
 }

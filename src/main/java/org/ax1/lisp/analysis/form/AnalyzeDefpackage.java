@@ -68,6 +68,8 @@ public class AnalyzeDefpackage implements FormAnalyzer {
         analyzeOptionDocumentation(context, definition, optionList);
         break;
       case "NICKNAMES":
+        analyzeOptionNicknames(context, definition, optionList);
+        break;
       case "SHADOW":
       case "SHADOWING-IMPORT-FROM":
       case "INTERN":
@@ -78,14 +80,44 @@ public class AnalyzeDefpackage implements FormAnalyzer {
     }
   }
 
+  private void analyzeOptionNicknames(AnalysisContext context, PackageDefinition definition, LispList optionList) {
+    List<LispSexp> list = optionList.getSexpList();
+    if (list.size() < 2) {
+      context.highlighter.highlightError(optionList, ":NICKNAMES option takes at least 1 argument");
+      return;
+    }
+    for (int i = 1; i < list.size(); i++) {
+      LispSexp sexp = list.get(i);
+      LispStringDesignator stringDesignator = getLispStringDesignator(context, sexp);
+      if (stringDesignator == null) {
+        context.highlighter.highlightError(sexp, "Symbol name (string designator) expected");
+      } else {
+        definition.addNickname(stringDesignator.getValue());
+      }
+    }
+  }
+
   private void analyzeOptionImportFrom(AnalysisContext context, PackageDefinition definition, LispList optionList) {
     List<LispSexp> list = optionList.getSexpList();
     if (list.size() < 2) {
       context.highlighter.highlightError(optionList, "IMPORT-FROM option takes at least 1 argument");
       return;
     }
-    getLispStringDesignator(context, list.get(1));
-    // TODO: parse and use the rest of the form.
+    LispStringDesignator packageNameDesignator = getLispStringDesignator(context, list.get(1));
+    if (packageNameDesignator == null) {
+      context.highlighter.highlightError(list.get(1), "Package name (string designator) expected");
+      return;
+    }
+    String packageName = packageNameDesignator.getValue();
+    for (int i = 2; i < list.size(); i++) {
+      LispSexp sexp = list.get(i);
+      LispStringDesignator stringDesignator = getLispStringDesignator(context, sexp);
+      if (stringDesignator == null) {
+        context.highlighter.highlightError(sexp, "Symbol name (string designator) expected");
+      } else {
+        definition.addImportFrom(stringDesignator.getValue(), packageName);
+      }
+    }
   }
 
   private void analyzeOptionDocumentation(AnalysisContext context, PackageDefinition definition, LispList optionList) {

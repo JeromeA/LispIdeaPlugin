@@ -5,16 +5,16 @@ import org.ax1.lisp.psi.impl.LispStringDesignator;
 
 public class NameDesignators {
   public static LispStringDesignator getLispStringDesignator(AnalysisContext context, LispSexp sexp) {
-    LispStringDesignator lispPackageName = null;
+    LispStringDesignator stringDesignator = null;
     if (sexp.getString() != null) {
-      lispPackageName = sexp.getString().getStringContent();
+      stringDesignator = sexp.getString().getStringContent();
     }
     if (sexp.getSymbol() != null) {
-      lispPackageName = sexp.getSymbol().getSymbolName();
+      stringDesignator = sexp.getSymbol().getSymbolName();
     }
-    if (lispPackageName != null) {
-      context.highlighter.highlightDeclaration(lispPackageName);
+    if (stringDesignator != null) {
+      context.highlighter.highlightDeclaration(stringDesignator);
     }
-    return lispPackageName;
+    return stringDesignator;
   }
 }
