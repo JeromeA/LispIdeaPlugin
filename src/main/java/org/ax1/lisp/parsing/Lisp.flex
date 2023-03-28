@@ -24,8 +24,9 @@ comment = ; [^\r\n]* {eol}?
 reader_comment = "#|" [^|]* "|#"
 sharp_plus = "#" [+-]
 sharp_ref = "#" [0-9]+ "#"
-sharp_prefix = "#" [0-9]* [=.:o]
+sharp_prefix = "#" [0-9]* [=.:bo]
 sharp_unsupported = "#" [0-9]* [^\ \r\n\t\f]
+sharp_lparen = "#" [0-9]* "("
 number = -? [0-9]+ ("." [0-9]*)? | "#x" [0-9a-fA-F]+
 character = "#\\" [^\ \r\n\t\f][a-zA-Z]*
 quote = ['`] | "," "@"? | "#'"
@@ -50,6 +51,7 @@ colon = ::?
   {sharp_ref}                    { return LispTypes.SHARP_REF; }
   {sharp_plus}                   { return LispTypes.SHARP_PLUS; }
   {sharp_prefix}                 { return LispTypes.SHARP_PREFIX; }
+  {sharp_lparen}                 { return LispTypes.SHARP_LPAREN; }
   {sharp_unsupported}            { return LispTypes.SHARP_UNSUPPORTED; }
   {symbol} / :                   { return LispTypes.PACKAGE_TOKEN; }
   {colon}                        { return LispTypes.COLON_TOKEN; }

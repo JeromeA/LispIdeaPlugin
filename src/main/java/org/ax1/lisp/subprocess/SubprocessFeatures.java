@@ -49,9 +49,13 @@ public final class SubprocessFeatures {
 
   public boolean eval(LispReaderFeature readerFeature) {
     boolean positive = isPositive(readerFeature);
-    boolean featureValue = readerFeature.getSimpleFeatureExp() != null ?
-        eval(readerFeature.getSimpleFeatureExp()) : eval(readerFeature.getCompoundFeatureExp());
+    boolean featureValue = eval(readerFeature.getFeatureExp());
     return positive == featureValue;
+  }
+
+  private boolean eval(LispFeatureExp featureExp) {
+    if (featureExp.getSimpleFeatureExp() != null) return eval(featureExp.getSimpleFeatureExp());
+    return eval(featureExp.getCompoundFeatureExp());
   }
 
   private boolean eval(LispSimpleFeatureExp simpleFeatureExp) {
@@ -63,16 +67,18 @@ public final class SubprocessFeatures {
   }
 
   private boolean eval(LispCompoundFeatureExp compoundFeatureExp) {
-    List<LispSymbolName> symbolNameList = compoundFeatureExp.getSymbolNameList();
-    if (symbolNameList.isEmpty()) return false;
-    switch (symbolNameList.get(0).getValue()) {
+    @NotNull List<LispFeatureExp> featureExpList = compoundFeatureExp.getFeatureExpList();
+    if (featureExpList.isEmpty()) return false;
+    LispFeatureExp exp0 = featureExpList.get(0);
+    if (exp0.getSimpleFeatureExp() == null) return false;
+    switch (exp0.getSimpleFeatureExp().getSymbolName().getValue()) {
       case "NOT":
-        if (symbolNameList.size() != 2) return false;
-        return !eval(symbolNameList.get(1));
+        if (featureExpList.size() != 2) return false;
+        return !eval(featureExpList.get(1));
       case "OR":
-        return symbolNameList.stream().skip(1).anyMatch(this::eval);
+        return featureExpList.stream().skip(1).anyMatch(this::eval);
       case "AND":
-        return symbolNameList.stream().skip(1).allMatch(this::eval);
+        return featureExpList.stream().skip(1).allMatch(this::eval);
     }
     return false;
   }
