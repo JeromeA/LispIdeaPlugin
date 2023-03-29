@@ -125,3 +125,23 @@ In InplaceRefactoring.startTemplate():
 * Then the names are removed.
 * Then the call to TemplateManager.getInstance(myProject).startTemplate() is inserting the getName() version of the
 names, which is why getName() should not return the upper case version, as canonical as it is.
+
+## Exported symbols
+
+On a real Lisp system, exported symbols are interned as soon as the package is created. But this process
+is order dependent: are we re-exporting this symbol that comes from the exported list of a used package,
+or should we create it locally? This works because the used packages were declared first, so that when
+the package is created, we know the exact origin (and the symbol instance) for each exported name.
+
+We want to reach the same behavior in our order-independent framework. We don't try to resolve any exported
+name at package creation time, IMPORT-FROM and USED are just strings.
+
+Whenever findSymbol() is called:
+* we first look in the internal map, which is both a local symbol directory and a local cache.
+* if it's not there, we look at our IMPORT-FROM, and if relevant ask the package for the symbol
+* if it's not there, we ask each of USES if they know about it
+* if it's not there, we proved that it's not a re-export
+  * if we export it, we create it on the fly and return it.
+  * otherwise, it's really unknown, and it will only be created if we are called from intern.
+
+At each step, if we found a symbol, we store it in the internal map for later optimization.

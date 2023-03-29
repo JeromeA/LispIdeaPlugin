@@ -1,6 +1,7 @@
 package org.ax1.lisp.analysis.symbol;
 
 import org.ax1.lisp.psi.impl.LispStringDesignator;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -19,43 +20,55 @@ public class LispPackage {
   public Symbol intern(String symbolName) {
     Symbol symbol = findSymbol(symbolName);
     if (symbol == null ) {
-      symbol = new Symbol(definition.name, symbolName);
-      symbols.put(symbolName, symbol);
+      symbol = createSymbol(symbolName);
     }
     return symbol;
   }
 
+  @NotNull
+  private Symbol createSymbol(String symbolName) {
+    Symbol symbol;
+    symbol = new Symbol(definition.name, symbolName);
+    symbols.put(symbolName, symbol);
+    return symbol;
+  }
+
   public Symbol findSymbol(String symbolName) {
-    // Local symbol.
+    // Local (or cached) symbol.
     Symbol localSymbol = symbols.get(symbolName);
     if (localSymbol != null) return localSymbol;
-
-    // USE option.
-    for (String packageName : definition.use.keySet()) {
-      LispPackage lispPackage = packageManager.getPackage(packageName);
-      if (lispPackage != null) {
-        Symbol usedSymbol = lispPackage.findExportedSymbol(symbolName);
-        if (usedSymbol != null) {
-          return usedSymbol;
-        }
-      }
-    }
 
     // IMPORT-FROM option.
     String importFromPackage = definition.importFrom.get(symbolName);
     if (importFromPackage != null) {
       LispPackage lispPackage = packageManager.getPackage(importFromPackage);
       if (lispPackage != null) {
-        Symbol symbol = lispPackage.findExportedSymbol(symbolName);
-        if (symbol != null) {
-          return symbol;
+        // This may be null, but anyway, this symbol is declared as imported, we can't proceed with other options.
+        Symbol importedSymbol = lispPackage.findExportedSymbol(symbolName);
+        if (importedSymbol != null) {
+          symbols.put(symbolName, importedSymbol);
+        }
+        return importedSymbol;
+      }
+    }
+
+    // USE option.
+    for (String packageName : definition.use.keySet()) {
+      LispPackage lispPackage = packageManager.getPackage(packageName);
+      if (lispPackage != null) {
+        Symbol importedSymbol = lispPackage.findExportedSymbol(symbolName);
+        if (importedSymbol != null) {
+          symbols.put(symbolName, importedSymbol);
+          return importedSymbol;
         }
       }
     }
 
-    // EXPORT option.
-    Symbol exportedSymbol = findExportedSymbol(symbolName);
-    if (exportedSymbol != null) return exportedSymbol;
+    // If it's exported, we behave as if it was always there.
+    if (definition.exports.containsKey(symbolName)) {
+      return createSymbol(symbolName);
+    }
+
     return null;
   }
 
