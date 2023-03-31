@@ -109,10 +109,6 @@ public class SyntaxAnalyzer {
     context.highlighter.highlightKeyword(quote);
     String quoteType = quote.getText();
     switch (quoteType) {
-      case "'":
-        // We arbitrarily decide to highlight quoted expressions as data.
-        context.highlighter.highlightConstant(quoted);
-        break;
       case "#'":
         if (quotedSexp.isSymbol()) {
           context.addFunctionUsage(quotedSexp.getSymbol());
@@ -129,6 +125,10 @@ public class SyntaxAnalyzer {
           }
           ANALYZE_LAMBDA.analyze(context, list);
         }
+        break;
+      case "'":
+        // We arbitrarily decide to highlight quoted expressions as data.
+        context.highlighter.highlightConstant(quoted);
         break;
       case "`":
       case ",":
@@ -181,9 +181,22 @@ public class SyntaxAnalyzer {
         context.addFunctionUsage(sexp0.getSymbol());
         getAnalyzer(symbol).analyze(context, form);
       }
-    } else {
+    } else if (isLambda(sexp0)){
       // TODO: handle lambda expression case.
+    } else {
+      context.highlighter.highlightError(sexp0, "Function name expected");
     }
+  }
+
+  private boolean isLambda(LispSexp sexp) {
+    LispList list = sexp.getList();
+    if (list == null) return false;
+    List<LispSexp> sexpList = list.getSexpList();
+    if (sexpList.isEmpty()) return false;
+    LispSexp sexp0 = sexpList.get(0);
+    LispSymbol symbol0 = sexp0.getSymbol();
+    if (symbol0 == null) return false;
+    return symbol0.getSymbolName().getValue().equals("LAMBDA");
   }
 
   private static Collection<String> toLowerCase(Collection<String> strings) {
