@@ -127,14 +127,18 @@ public class SyntaxAnalyzer {
         }
         break;
       case "'":
-        // We arbitrarily decide to highlight quoted expressions as data.
-        context.highlighter.highlightConstant(quoted);
-        break;
       case "`":
       case ",":
       case ",@":
-        // We arbitrarily decide to highlight backquoted expressions as code.
-        analyzeForm(quotedSexp);
+        // We arbitrarily decide to highlight all these expressions as data.
+        // TODO: find a nice heuristic that tells us that it's likely to be code.
+        //  Possible heuristics:
+        //  - this is the top-level sexp of a macro (this is a very strong one).
+        //  - the first element of the list is a standard common lisp function.
+        //  - the first element of the list is a known function (this one is tricky, because we are in the middle of
+        //    the pass in charge of finding all the known functions).
+        context.highlighter.highlightConstant(quoted);
+//        analyzeForm(quotedSexp);
         break;
     }
   }
