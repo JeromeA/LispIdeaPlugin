@@ -177,6 +177,15 @@ void Form():
     <EOF> {missingExpression();}
 }
 
+void DelayedForm():
+{}
+{
+    (<SYMBOL> | <COMPOUND>)
+    {delayedAnalyzeForm();}
+    |
+    <EOF> {missingExpression();}
+}
+
 // unconditional::= {do | doing} compound-form+ | return {form | it}
 void Unconditional():
 {}
@@ -332,7 +341,7 @@ void ForAsEqualsThen():
 {}
 {
     <EQUAL> {keyword();} Form()
-    (<THEN> {keyword();} Form()) ?
+    (<THEN> {keyword();} DelayedForm()) ?
 }
 
 // for-as-across::= var [type-spec] across vector

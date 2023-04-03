@@ -7,6 +7,7 @@ import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 public class LoopParserBase {
   private AnalysisContext context;
   private List<LispSexp> sexpList;
+  private final List<LispSexp> delayed = new ArrayList<>();
   private int index = 0;
   private int lexicalDepth = 0;
 
@@ -24,6 +26,7 @@ public class LoopParserBase {
   }
 
   public void cleanup() {
+    delayed.forEach(this::analyzeForm);
     for (int i = 0; i < lexicalDepth; i++) {
       context.lexicalBindings.dropLexicalVariables();
     }
@@ -39,8 +42,17 @@ public class LoopParserBase {
   }
 
   public void analyzeForm() {
-    context.analyzer.analyzeForm(sexpList.get(index));
+    analyzeForm(sexpList.get(index));
     index++;
+  }
+
+  public void delayedAnalyzeForm() {
+    delayed.add(sexpList.get(index));
+    index++;
+  }
+
+  private void analyzeForm(LispSexp form) {
+    context.analyzer.analyzeForm(form);
   }
 
   public void declareVariable() {
