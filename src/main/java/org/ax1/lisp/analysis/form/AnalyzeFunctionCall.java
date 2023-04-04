@@ -16,7 +16,7 @@ public class AnalyzeFunctionCall implements FormAnalyzer {
    * be highlighted as such.
    */
   private static final Set<Symbol> KEYWORDS =
-      Stream.of("DECLARE", "IF", "IGNORE", "RETURN", "SETQ", "SPECIAL", "UNLESS", "WHEN")
+      Stream.of("IF", "IGNORE", "RETURN", "SETQ", "SPECIAL", "UNLESS", "WHEN")
           .map(Symbol::clSymbol)
           .collect(Collectors.toSet());
 
