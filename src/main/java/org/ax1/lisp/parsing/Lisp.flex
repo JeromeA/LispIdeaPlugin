@@ -24,7 +24,7 @@ comment = ; [^\r\n]* {eol}?
 reader_comment = "#|" [^|]* "|#"
 sharp_plus = "#" [+-]
 sharp_ref = "#" [0-9]+ "#"
-sharp_prefix = "#" [0-9]* [=.:bo]
+sharp_prefix = "#" [0-9]* [=.:bop]
 sharp_unsupported = "#" [0-9]* [^\ \r\n\t\f]
 sharp_lparen = "#" [0-9]* "("
 number = -? [0-9]+ ("." [0-9]*)? | "#x" [0-9a-fA-F]+
