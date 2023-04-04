@@ -38,7 +38,7 @@ reader_prefix ::= SHARP_PREFIX
 
 reader_feature ::= SHARP_PLUS feature_exp
 feature_exp ::= simple_feature_exp | compound_feature_exp
-simple_feature_exp ::= symbol_name
+simple_feature_exp ::= colon? symbol_name
 compound_feature_exp ::= LPAREN feature_exp* RPAREN?
 
 sexp ::= string | NUMBER | CHARACTER | SHARP_REF | symbol | list | vector | quoted
