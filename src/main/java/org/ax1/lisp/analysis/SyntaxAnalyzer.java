@@ -22,6 +22,8 @@ public class SyntaxAnalyzer {
 
   private static final AnalyzeFunctionCall ANALYZE_FUNCTION_CALL = new AnalyzeFunctionCall();
   private static final AnalyzeLambda ANALYZE_LAMBDA = new AnalyzeLambda();
+  private static final AnalyzeQuote ANALYZE_QUOTE = new AnalyzeQuote();
+  private static final AnalyzeBackQuote ANALYZE_BACKQUOTE = new AnalyzeBackQuote();
 
   private static final Map<Symbol, FormAnalyzer> ANALYSERS = Maps.of(
       clSymbol("CASE"), new AnalyzeCase(),
@@ -89,27 +91,7 @@ public class SyntaxAnalyzer {
     }
   }
 
-  public void analyzeBackquotedForm(LispSexp form) {
-    LispList list = form.getList();
-    if (list == null) return;
-    list.getSexpList().forEach(this::analyzeBackquotedSexp);
-  }
-
-  private void analyzeBackquotedSexp(LispSexp sexp) {
-    LispQuoted quoted = sexp.getQuoted();
-    if (quoted == null) {
-      analyzeBackquotedForm(sexp);
-      return;
-    }
-    PsiElement quote = quoted.getFirstChild();
-    context.highlighter.highlightKeyword(quote);
-    String quoteType = quote.getText();
-    if (quoteType.equals(",") || quoteType.equals(",@")) {
-      analyzeForm(quoted.getSexp());
-    }
-  }
-
-  private void analyzeReaderExpressions(LispList list) {
+  public void analyzeReaderExpressions(LispList list) {
     list.getPrefixedSexpList().forEach(this::analysePrefixExpression);
   }
 
@@ -151,18 +133,10 @@ public class SyntaxAnalyzer {
         context.highlighter.highlightError(quote, "Unexpected comma outside backquote expression");
         break;
       case "'":
-        context.highlighter.highlightConstant(quoted);
+        ANALYZE_QUOTE.analyze(context, quoted.getSexp());
         break;
       case "`":
-        // We arbitrarily decide to highlight QUOTE and BACKQUOTE expressions as data.
-        // TODO: find a nice heuristic that tells us that it's likely to be code.
-        //  Possible heuristics:
-        //  - this is the top-level sexp of a macro (this is a very strong one).
-        //  - the first element of the list is a standard common lisp function.
-        //  - the first element of the list is a known function (this one is tricky, because we are in the middle of
-        //    the pass in charge of finding all the known functions).
-//        context.highlighter.highlightConstant(quoted);
-        analyzeBackquotedForm(quotedSexp);
+        ANALYZE_BACKQUOTE.analyze(context, quoted.getSexp());
         break;
     }
   }
