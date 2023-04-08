@@ -69,7 +69,9 @@ public class SyntaxAnalyzer {
   }
 
   public void analyze() {
-    lispFile.getPrefixedSexpList().forEach(this::analysePrefixExpression);
+    if (context.highlighter.getHolder() != null) {
+      analyzeFeatureExpressions(lispFile.getPrefixedSexpList());
+    }
     analyzeForms(lispFile.getSexpList(), 0);
   }
 
@@ -83,7 +85,6 @@ public class SyntaxAnalyzer {
     }
     LispList list = form.getList();
     if (list != null) {
-      analyzeReaderExpressions(list);
       analyzeCompoundForm(list);
     }
     if (form.getQuoted() != null) {
@@ -91,17 +92,27 @@ public class SyntaxAnalyzer {
     }
   }
 
-  public void analyzeReaderExpressions(LispList list) {
-    list.getPrefixedSexpList().forEach(this::analysePrefixExpression);
+  public void analyzeFeatureExpressions(@NotNull List<LispPrefixedSexp> list) {
+    list.forEach(this::analyseFeatureExpression);
   }
 
-  private void analysePrefixExpression(LispPrefixedSexp prefixedSexp) {
+  private void analyseFeatureExpression(LispPrefixedSexp prefixedSexp) {
     @Nullable LispPrefix prefix = prefixedSexp.getPrefix();
-    if (prefix == null) return;
-    context.highlighter.highlight(prefix, READER_MACRO);
-    @NotNull List<LispReaderFeature> readerFeatureList = prefix.getReaderFeatureList();
-    if (!readerFeatureList.isEmpty() && !SubprocessFeatures.getInstance(lispFile.getProject()).eval(readerFeatureList.get(0))) {
-      context.highlighter.highlight(prefixedSexp.getSexp(), COMMENT);
+    LispSexp sexp = prefixedSexp.getSexp();
+    if (prefix != null) {
+      context.highlighter.highlight(prefix, READER_MACRO);
+      @NotNull List<LispReaderFeature> readerFeatureList = prefix.getReaderFeatureList();
+      if (!readerFeatureList.isEmpty() && !SubprocessFeatures.getInstance(lispFile.getProject()).eval(readerFeatureList.get(0))) {
+        context.highlighter.highlight(sexp, COMMENT);
+      }
+    }
+    LispList list = sexp.getList();
+    LispQuoted quoted = sexp.getQuoted();
+    if (quoted != null) {
+      list = quoted.getSexp().getList();
+    }
+    if (list != null) {
+      analyzeFeatureExpressions(list.getPrefixedSexpList());
     }
   }
 

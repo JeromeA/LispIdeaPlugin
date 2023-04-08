@@ -15,7 +15,6 @@ public class AnalyzeQuote {
     if (list != null) {
       context.highlighter.highlightConstant(list.getFirstChild());
       context.highlighter.highlightConstant(list.getLastChild());
-      context.analyzer.analyzeReaderExpressions(list);
       list.getSexpList().forEach(sexp -> analyzeForm(context, sexp));
     } else {
       context.highlighter.highlightConstant(form);

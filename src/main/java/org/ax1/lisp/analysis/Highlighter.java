@@ -26,6 +26,10 @@ public class Highlighter {
     this.holder = holder;
   }
 
+  public AnnotationHolder getHolder() {
+    return holder;
+  }
+
   public void highlightKeyword(PsiElement psiElement) {
     highlight(psiElement, KEYWORD);
   }
