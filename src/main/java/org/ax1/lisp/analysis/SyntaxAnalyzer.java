@@ -7,7 +7,6 @@ import org.ax1.lisp.analysis.symbol.*;
 import org.ax1.lisp.psi.*;
 import org.ax1.lisp.subprocess.SubprocessFeatures;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;

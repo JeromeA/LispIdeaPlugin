@@ -3,6 +3,7 @@ package org.ax1.lisp.analysis.form;
 import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
 import org.ax1.lisp.analysis.LexicalVariableHelper;
+import org.ax1.lisp.analysis.symbol.CommonLispPackage;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
@@ -26,6 +27,7 @@ public class AnalyzeDefmethod implements FormAnalyzer {
       Stream.of("&KEY", "&OPTIONAL", "&REST")
           .map(Symbol::clSymbol)
           .collect(Collectors.toSet());
+  public static final Symbol CALL_NEXT_METHOD = CommonLispPackage.INSTANCE.intern("CALL-NEXT-METHOD");
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
@@ -61,7 +63,9 @@ public class AnalyzeDefmethod implements FormAnalyzer {
         .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("DEFMETHOD", locatedSymbol, null))
         .collect(toImmutableList());
     try(LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {
-      context.analyzer.analyzeForms(list, arg + 1);
+      try(LexicalScope ignored2 = context.lexicalBindings.defineLexicalFunction(CALL_NEXT_METHOD)) {
+        context.analyzer.analyzeForms(list, arg + 1);
+      }
     }
   }
 

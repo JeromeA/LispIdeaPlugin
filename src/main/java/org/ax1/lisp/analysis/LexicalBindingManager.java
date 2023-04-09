@@ -45,6 +45,13 @@ public class LexicalBindingManager {
     return this::dropLexicalFunctions;
   }
 
+  public LexicalScope defineLexicalFunction(Symbol symbol) {
+    Map<Symbol, SymbolDefinition> newDictionary = new HashMap<>();
+    newDictionary.put(symbol, newDefinition(Type.FUNCTION, LEXICAL, symbol));
+    functions.push(newDictionary);
+    return this::dropLexicalFunctions;
+  }
+
   public SymbolDefinition getLexicalVariable(Symbol symbol) {
     return getSymbolDefinition(variables, symbol);
   }
