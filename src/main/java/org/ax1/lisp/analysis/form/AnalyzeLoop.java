@@ -33,6 +33,7 @@ public class AnalyzeLoop implements FormAnalyzer {
     try {
       parser.Start(context, form);
     } catch (ParseException e) {
+      System.err.println("In file: " + form.getContainingFile().getName());
       System.err.println("Original: " + form.getText());
       System.err.println("Modified: " + syntaxString);
       e.printStackTrace();

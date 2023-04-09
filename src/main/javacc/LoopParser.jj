@@ -27,7 +27,6 @@ TOKEN : { <ELSE : "ELSE"> }
 TOKEN : { <BEING : "BEING"> }
 TOKEN : { <EACH : "EACH"> }
 TOKEN : { <THE : "THE"> }
-TOKEN : { <OF : "OF"> }
 TOKEN : { <HASH_KEY : "HASH-KEY"> }
 TOKEN : { <HASH_KEYS : "HASH-KEYS"> }
 TOKEN : { <HASH_VALUE : "HASH-VALUE"> }
@@ -45,6 +44,7 @@ TOKEN : { <NIL : "NIL"> }
 
 TOKEN : { <FOR : "FOR"> : SYMBOL_STATE}
 TOKEN : { <AS : "AS"> : SYMBOL_STATE}
+TOKEN : { <OF : "OF"> : SYMBOL_STATE}
 TOKEN : { <NAMED : "NAMED"> : SYMBOL_STATE }
 TOKEN : { <WITH : "WITH"> : SYMBOL_STATE }
 TOKEN : { <AND : "AND"> : SYMBOL_STATE }
