@@ -21,9 +21,9 @@ import static org.ax1.lisp.analysis.symbol.SymbolDefinition.newDefinition;
 public final class ExternalDocumentation {
 
   private static final Pattern DESCRIBE_PATTERN =
-      Pattern.compile("^[^\n]+ names a (compiled function|special operator|macro|special variable):.*?\n\n", Pattern.MULTILINE | Pattern.DOTALL);
+      Pattern.compile("^[^\n]+ names a (compiled function|generic function|special operator|macro|special variable):.*?\n\n", Pattern.MULTILINE | Pattern.DOTALL);
   private static final Pattern NAME_PATTERN =
-      Pattern.compile("^([^\n]+) names a (compiled function|special operator|macro|special variable):.*", Pattern.DOTALL);
+      Pattern.compile("^([^\n]+) names a (compiled function|generic function|special operator|macro|special variable):.*", Pattern.DOTALL);
   private static final Pattern DOC_PATTERN =
       Pattern.compile(".*\n  Documentation:\n(.*?)\n(  [^ ]|\n).*", Pattern.DOTALL);
   private static final Pattern LAMBDA_PATTERN =
@@ -88,10 +88,15 @@ public final class ExternalDocumentation {
 
   private static SymbolDefinition.Type toType(String type) {
     switch (type) {
-      case "compiled function": return SymbolDefinition.Type.FUNCTION;
-      case "macro": return SymbolDefinition.Type.MACRO;
-      case "special operator": return SymbolDefinition.Type.SPECIAL_OPERATOR;
-      case "special variable": return SymbolDefinition.Type.VARIABLE;
+      case "compiled function":
+      case "generic function":
+        return SymbolDefinition.Type.FUNCTION;
+      case "macro":
+        return SymbolDefinition.Type.MACRO;
+      case "special operator":
+        return SymbolDefinition.Type.SPECIAL_OPERATOR;
+      case "special variable":
+        return SymbolDefinition.Type.VARIABLE;
       default:
         throw new IllegalStateException("Unexpected value: " + type);
     }
