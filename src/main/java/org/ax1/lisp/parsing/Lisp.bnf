@@ -31,9 +31,8 @@
 lispFile ::= topLevelUnit_*
 
 private topLevelUnit_ ::= syntaxUnit_ | invalidClose
-private syntaxUnit_ ::= COMMENT | prefixed_sexp
-prefixed_sexp ::= prefix? sexp
-prefix ::= reader_feature+ | reader_prefix | SHARP_UNSUPPORTED
+private syntaxUnit_ ::= COMMENT | SHARP_UNSUPPORTED | prefixed_sexp
+prefixed_sexp ::= reader_feature* reader_prefix? sexp
 reader_prefix ::= SHARP_PREFIX
 
 reader_feature ::= SHARP_PLUS feature_exp

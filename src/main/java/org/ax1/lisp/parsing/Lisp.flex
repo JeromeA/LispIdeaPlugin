@@ -24,10 +24,10 @@ comment = ; [^\r\n]* {eol}?
 reader_comment = "#|" [^|]* "|#"
 sharp_plus = "#" [+-]
 sharp_ref = "#" [0-9]+ "#"
-sharp_prefix = "#" [0-9]* [=.:bop]
+sharp_prefix = "#" [0-9]* [=.p]
 sharp_unsupported = "#" [0-9]* [^\ \r\n\t\f]
 sharp_lparen = "#" [0-9]* "("
-number = -? [0-9]+ ("." [0-9]*)? | "#x" [0-9a-fA-F]+
+number = -? [0-9]+ ("." [0-9]*)? | "#x" [0-9a-fA-F]+ | "#o" [0-7]* | "#b" [01]*
 character = "#\\" [^\ \r\n\t\f][a-zA-Z]*
 quote = ['`] | "," "@"? | "#'"
 double_quote = \"
@@ -52,10 +52,11 @@ colon = ::?
   {sharp_plus}                   { return LispTypes.SHARP_PLUS; }
   {sharp_prefix}                 { return LispTypes.SHARP_PREFIX; }
   {sharp_lparen}                 { return LispTypes.SHARP_LPAREN; }
-  {sharp_unsupported}            { return LispTypes.SHARP_UNSUPPORTED; }
+  "#" / :                        { return LispTypes.PACKAGE_TOKEN; }
   {symbol} / :                   { return LispTypes.PACKAGE_TOKEN; }
   {colon}                        { return LispTypes.COLON_TOKEN; }
   {symbol}                       { return LispTypes.SYMBOL_TOKEN; }
+  {sharp_unsupported}            { return LispTypes.SHARP_UNSUPPORTED; }
 }
 
 <STRING> {

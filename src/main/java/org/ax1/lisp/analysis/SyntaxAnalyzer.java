@@ -97,12 +97,11 @@ public class SyntaxAnalyzer {
   }
 
   private void analyseFeatureExpression(LispPrefixedSexp prefixedSexp) {
-    @Nullable LispPrefix prefix = prefixedSexp.getPrefix();
+    List<LispReaderFeature> readerFeatureList = prefixedSexp.getReaderFeatureList();
     LispSexp sexp = prefixedSexp.getSexp();
-    if (prefix != null) {
-      context.highlighter.highlight(prefix, READER_MACRO);
-      @NotNull List<LispReaderFeature> readerFeatureList = prefix.getReaderFeatureList();
-      if (!readerFeatureList.isEmpty() && !SubprocessFeatures.getInstance(lispFile.getProject()).eval(readerFeatureList.get(0))) {
+    if (!readerFeatureList.isEmpty()) {
+      readerFeatureList.forEach(feature -> context.highlighter.highlight(feature, READER_MACRO));
+      if (!SubprocessFeatures.getInstance(lispFile.getProject()).eval(readerFeatureList.get(0))) {
         context.highlighter.highlight(sexp, COMMENT);
       }
     }

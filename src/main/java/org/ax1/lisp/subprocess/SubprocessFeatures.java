@@ -40,9 +40,7 @@ public final class SubprocessFeatures {
   }
 
   private boolean isValidSexp(LispPrefixedSexp prefixedSexp) {
-    LispPrefix prefix = prefixedSexp.getPrefix();
-    if (prefix == null) return true;
-    @NotNull List<LispReaderFeature> readerFeatureList = prefix.getReaderFeatureList();
+    @NotNull List<LispReaderFeature> readerFeatureList = prefixedSexp.getReaderFeatureList();
     if (readerFeatureList.isEmpty()) return true;
     return this.eval(readerFeatureList.get(0));
   }
