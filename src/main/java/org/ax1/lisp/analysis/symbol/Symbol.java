@@ -7,6 +7,8 @@ import static org.ax1.lisp.analysis.symbol.KeywordPackage.KEYWORD;
 
 public class Symbol {
 
+  public static final Symbol NIL = CommonLispPackage.INSTANCE.NIL;
+  public static final Symbol T = CommonLispPackage.INSTANCE.T;
   private final String packageName;
   private final String name;
 
@@ -16,11 +18,11 @@ public class Symbol {
   }
 
   public static Symbol clSymbol(String name) {
-    return new Symbol(COMMON_LISP, name);
+    return CommonLispPackage.INSTANCE.intern(name);
   }
 
   public static Symbol keywordSymbol(String name) {
-    return new Symbol(KEYWORD, name);
+    return KeywordPackage.INSTANCE.intern(name);
   }
 
   public String getName() {

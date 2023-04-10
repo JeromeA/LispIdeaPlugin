@@ -11,8 +11,9 @@ public class CommonLispPackage extends LispPackage {
 
   public static final String COMMON_LISP = "COMMON-LISP";
 
-  public static final Symbol NIL = clSymbol("NIL");
-  public static final Symbol T = clSymbol("T");
+  public final Symbol NIL;
+
+  public final Symbol T;
 
   private static final Set<String> COMMON_LISP_FUNCTIONS = ImmutableSet.of(
       "*",
@@ -1005,6 +1006,8 @@ public class CommonLispPackage extends LispPackage {
     COMMON_LISP_FUNCTIONS.forEach(this::addExport);
     COMMON_LISP_VARIABLES.forEach(this::addExport);
     COMMON_LISP_LAMBDA_KEYWORDS.forEach(this::addExport);
+    NIL = intern("NIL");
+    T = intern("T");
   }
 
   private void addExport(String name) {

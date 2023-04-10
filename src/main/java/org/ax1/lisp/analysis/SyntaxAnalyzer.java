@@ -47,6 +47,7 @@ public class SyntaxAnalyzer {
       clSymbol("ECASE"), new AnalyzeEcase(),
       clSymbol("EVAL-WHEN"), new AnalyzeEvalWhen(),
       clSymbol("FLET"), new AnalyzeLabels(AnalyzeLabels.Type.FLET),
+      clSymbol("HANDLER-BIND"), new AnalyzeHandlerBind(),
       clSymbol("HANDLER-CASE"), new AnalyzeHandlerCase(),
       clSymbol("IN-PACKAGE"), new AnalyzeInPackage(),
       clSymbol("LABELS"), new AnalyzeLabels(AnalyzeLabels.Type.LABELS),
