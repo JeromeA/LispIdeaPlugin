@@ -22,7 +22,7 @@ public class AnalyzeLoop implements FormAnalyzer {
       "FOR", "FROM", "HASH-KEY", "HASH-KEYS", "HASH-VALUE", "HASH-VALUES", "IF", "IN", "INITIALLY", "INTO", "IT",
       "LOOP", "MAXIMIZE", "MAXIMIZING", "MINIMIZE", "MINIMIZING", "NAMED", "NCONC", "NCONCING", "NEVER", "NIL", "OF",
       "OF-TYPE", "ON", "PRESENT-SYMBOL", "PRESENT-SYMBOLS", "REPEAT", "RETURN", "SUM", "SUMMING", "SYMBOL", "SYMBOLS",
-      "T", "THE", "THEN", "THEREIS", "TO", "UNLESS", "UNTIL", "UPFROM", "UPTO", "WHEN", "WHILE", "WITH");
+      "T", "THE", "THEN", "THEREIS", "TO", "UNLESS", "UNTIL", "USING", "UPFROM", "UPTO", "WHEN", "WHILE", "WITH");
 
   @Override
   public void analyze(AnalysisContext context, LispList form) {
@@ -33,10 +33,13 @@ public class AnalyzeLoop implements FormAnalyzer {
     try {
       parser.Start(context, form);
     } catch (ParseException e) {
+      System.err.println("Error: " + e.getMessage());
       System.err.println("In file: " + form.getContainingFile().getName());
       System.err.println("Original: " + form.getText());
       System.err.println("Modified: " + syntaxString);
-      e.printStackTrace();
+//      e.printStackTrace();
+    } finally {
+      parser.End();
     }
   }
 

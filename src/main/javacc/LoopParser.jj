@@ -31,6 +31,7 @@ TOKEN : { <HASH_KEY : "HASH-KEY"> }
 TOKEN : { <HASH_KEYS : "HASH-KEYS"> }
 TOKEN : { <HASH_VALUE : "HASH-VALUE"> }
 TOKEN : { <HASH_VALUES : "HASH-VALUES"> }
+TOKEN : { <USING : "USING"> }
 TOKEN : { <SYMBOL_KEYWORD : "SYMBOL"> }
 TOKEN : { <SYMBOLS : "SYMBOLS"> }
 TOKEN : { <PRESENT_SYMBOL : "PRESENT-SYMBOL"> }
@@ -102,7 +103,6 @@ void Start(AnalysisContext context, LispList form):
     <LOOP> {keyword();}
     (Simple() | Extended())
     (<EOF> | {error("Expecting LOOP keyword");})
-    { cleanup(); }
 }
 
 void Simple():
@@ -356,6 +356,7 @@ void ForAsAcross():
 //                [using (hash-value other-var)] |
 //                {hash-value | hash-values} {in | of} hash-table
 //                [using (hash-key other-var)]}
+// Plus: accept the using clause before the of clause, as it looks better, and people are using it.
 // for-as-package::= var [type-spec] being {each | the}
 //                  {symbol | symbols |
 //                   present-symbol | present-symbols |
@@ -365,12 +366,35 @@ void ForAsHashPackage():
 {}
 {
     <BEING> {keyword();} (<EACH> | <THE>) {keyword();}
-     (
-       (<HASH_KEY> | <HASH_KEYS>) {keyword();} (<IN> | <OF>) {keyword();} Form()
-       | (<HASH_VALUE> | <HASH_VALUES>) {keyword();} (<IN> | <OF>) {keyword();} Form()
-       | (<SYMBOL> | <SYMBOLS> {keyword();} | <PRESENT_SYMBOL> {keyword();} | <PRESENT_SYMBOLS> {keyword();} | <EXTERNAL_SYMBOL> {keyword();} | <EXTERNAL_SYMBOLS> {keyword();})
-         ((<IN> | <OF>) {keyword();} Form()) ?
-     )
+    ( ForAsHash() | ForAsPackage() )
+}
+
+// for-as-hash::= var [type-spec] being {each | the}
+//               {{hash-key | hash-keys} {in | of} hash-table
+//                [using (hash-value other-var)] |
+//                {hash-value | hash-values} {in | of} hash-table
+//                [using (hash-key other-var)]}
+// Plus: accept the using clause before the of clause, as it looks better, and people are using it.
+void ForAsHash():
+{}
+{
+    ((<HASH_KEY> | <HASH_KEYS>) {keyword();}
+    | (<HASH_VALUE> | <HASH_VALUES>) {keyword();})
+    (<USING> {keyword();} <COMPOUND> {skip();} ) ?
+    (<IN> | <OF>) {keyword();} Form()
+    (<USING> {keyword();} <COMPOUND> {skip();} ) ?
+}
+
+// for-as-package::= var [type-spec] being {each | the}
+//                  {symbol | symbols |
+//                   present-symbol | present-symbols |
+//                   external-symbol | external-symbols}
+//                  [{in | of} package]
+void ForAsPackage():
+{}
+{
+    (<SYMBOL> | <SYMBOLS> {keyword();} | <PRESENT_SYMBOL> {keyword();} | <PRESENT_SYMBOLS> {keyword();} | <EXTERNAL_SYMBOL> {keyword();} | <EXTERNAL_SYMBOLS> {keyword();})
+    ((<IN> | <OF>) {keyword();} Form()) ?
 }
 
 // type-spec::= simple-type-spec | destructured-type-spec

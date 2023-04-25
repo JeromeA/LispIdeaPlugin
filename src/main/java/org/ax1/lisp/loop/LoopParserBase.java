@@ -25,7 +25,7 @@ public class LoopParserBase {
     this.sexpList = form.getSexpList();
   }
 
-  public void cleanup() {
+  public void End() {
     delayed.forEach(this::analyzeForm);
     for (int i = 0; i < lexicalDepth; i++) {
       context.lexicalBindings.dropLexicalVariables();
