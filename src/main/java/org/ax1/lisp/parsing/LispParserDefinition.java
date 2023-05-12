@@ -14,13 +14,12 @@ import com.intellij.psi.tree.TokenSet;
 import org.ax1.lisp.LispLanguage;
 import org.ax1.lisp.psi.LispFile;
 import org.ax1.lisp.psi.LispTypes;
+import org.ax1.lisp.stubs.LispFileElementType;
 import org.jetbrains.annotations.NotNull;
 
 public class LispParserDefinition implements ParserDefinition {
   public static final TokenSet WHITE_SPACES = TokenSet.create(TokenType.WHITE_SPACE);
   public static final TokenSet COMMENTS = TokenSet.create(LispTypes.COMMENT);
-
-  public static final IFileElementType FILE = new IFileElementType(LispLanguage.INSTANCE);
 
   @NotNull
   @Override
@@ -55,7 +54,7 @@ public class LispParserDefinition implements ParserDefinition {
   @NotNull
   @Override
   public IFileElementType getFileNodeType() {
-    return FILE;
+    return LispFileElementType.INSTANCE;
   }
 
   @NotNull
