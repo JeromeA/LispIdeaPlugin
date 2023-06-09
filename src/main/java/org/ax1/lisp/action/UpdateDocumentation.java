@@ -1,4 +1,4 @@
-package org.ax1.lisp.subprocess.action;
+package org.ax1.lisp.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;

@@ -1,4 +1,4 @@
-package org.ax1.lisp.subprocess.action;
+package org.ax1.lisp.action;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
