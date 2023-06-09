@@ -7,8 +7,6 @@ import static org.ax1.lisp.analysis.symbol.KeywordPackage.KEYWORD;
 
 public class Symbol {
 
-  public static final Symbol NIL = CommonLispPackage.INSTANCE.NIL;
-  public static final Symbol T = CommonLispPackage.INSTANCE.T;
   private final String packageName;
   private final String name;
 
@@ -47,7 +45,9 @@ public class Symbol {
   }
 
   public boolean isConstant() {
-    return packageName.equals(KEYWORD) || Objects.equals(this, NIL) || Objects.equals(this, T);
+    return packageName.equals(KEYWORD)
+        || Objects.equals(this, CommonLispPackage.INSTANCE.NIL)
+        || Objects.equals(this, CommonLispPackage.INSTANCE.T);
   }
 
   public String getQualifiedName() {

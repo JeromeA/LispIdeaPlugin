@@ -1,27 +1,50 @@
-package org.ax1.lisp.psi.impl;
+package org.ax1.lisp.stubs;
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import com.intellij.extapi.psi.StubBasedPsiElementBase;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.util.NlsSafe;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.stubs.IStubElementType;
+import com.intellij.psi.stubs.StubElement;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.util.IncorrectOperationException;
 import org.ax1.lisp.analysis.ProjectComputedData;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispElementFactory;
-import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispStringContent;
-import org.ax1.lisp.psi.LispSymbolName;
+import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.ax1.lisp.usages.LispStringDesignatorReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Type.FUNCTION;
-import static org.ax1.lisp.analysis.symbol.SymbolDefinition.Type.VARIABLE;
+public class LispStringDesignatorStubBase<T extends StubElement> extends StubBasedPsiElementBase<T> implements LispStringDesignator {
 
-public abstract class LispStringDesignatorImpl extends ASTWrapperPsiElement implements LispStringDesignator {
+  public LispStringDesignatorStubBase(@NotNull T stub, @NotNull IStubElementType<?, ?> nodeType) {
+    super(stub, nodeType);
+  }
 
-  public LispStringDesignatorImpl(@NotNull ASTNode node) {
+  public LispStringDesignatorStubBase(@NotNull ASTNode node) {
     super(node);
+  }
+
+  public LispStringDesignatorStubBase(T stub, IElementType nodeType, ASTNode node) {
+    super(stub, nodeType, node);
+  }
+
+  @Override
+  public PsiElement setName(@NlsSafe @NotNull String newName) throws IncorrectOperationException {
+    ASTNode node = getNode();
+    node.getTreeParent().replaceChild(node, createNewNode(newName));
+    return this;
+  }
+
+  public ASTNode createNewNode(@NotNull String newName) {
+    if (this instanceof LispStringContent) {
+      return LispElementFactory.createStringContent(getProject(), newName).getNode();
+    }
+    return LispElementFactory.createSymbolName(getProject(), newName).getNode();
   }
 
   @Override
@@ -41,19 +64,6 @@ public abstract class LispStringDesignatorImpl extends ASTWrapperPsiElement impl
   @Override
   public String getName() {
     return getText();
-  }
-
-  @Override
-  public PsiElement setName(@NotNull String newName) {
-    ASTNode newNode;
-    if (this instanceof LispStringContent) {
-      newNode = LispElementFactory.createStringContent(getProject(), newName).getNode();
-    } else {
-      newNode = LispElementFactory.createSymbolName(getProject(), newName).getNode();
-    }
-    ASTNode parent = getNode().getTreeParent();
-    parent.replaceChild(getNode(), newNode);
-    return this;
   }
 
   @Override

@@ -27,8 +27,7 @@ public class LispPackage {
 
   @NotNull
   private Symbol createSymbol(String symbolName) {
-    Symbol symbol;
-    symbol = new Symbol(definition.name, symbolName);
+    Symbol symbol = new Symbol(definition.name, symbolName);
     symbols.put(symbolName, symbol);
     return symbol;
   }
