@@ -9,7 +9,6 @@ import org.ax1.lisp.subprocess.SubprocessFeatures;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
@@ -19,6 +18,7 @@ import static org.ax1.lisp.parsing.LispSyntaxHighlighter.READER_MACRO;
 
 public class SyntaxAnalyzer {
 
+  public static final SyntaxAnalyzer INSTANCE = new SyntaxAnalyzer();
   private static final AnalyzeFunctionCall ANALYZE_FUNCTION_CALL = new AnalyzeFunctionCall();
   private static final AnalyzeLambda ANALYZE_LAMBDA = new AnalyzeLambda();
   private static final AnalyzeQuote ANALYZE_QUOTE = new AnalyzeQuote();
@@ -60,17 +60,11 @@ public class SyntaxAnalyzer {
       clSymbol("WITH-OPEN-FILE"), new AnalyzeWithOpenFile(),
       clSymbol("WITH-OUTPUT-TO-STRING"), new AnalyzeWithOutputToString());
 
-  private AnalysisContext context;
-  private final LispFile lispFile;
-
-  public SyntaxAnalyzer(LispFile lispFile) {
-    this.lispFile = lispFile;
+  private SyntaxAnalyzer() {
   }
 
-  public void analyze() {
-    if (context.highlighter.getHolder() != null) {
-      analyzeFeatureExpressions(lispFile.getPrefixedSexpList());
-    }
+  public void analyze(LispFile lispFile) {
+    analyzeFeatureExpressions(lispFile.getPrefixedSexpList());
     analyzeForms(lispFile.getSexpList(), 0);
   }
 

@@ -12,6 +12,7 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.util.IncorrectOperationException;
 import org.ax1.lisp.analysis.Highlighter;
 import org.ax1.lisp.analysis.ProjectData;
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispElementFactory;
@@ -57,7 +58,7 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
   @Override
   public Type getType() {
     if (type == null) {
-      ((LispFile)getContainingFile()).analyse();
+      SyntaxAnalyzer.INSTANCE.analyze((LispFile)getContainingFile());
     }
     return type;
   }
