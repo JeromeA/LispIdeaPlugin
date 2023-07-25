@@ -32,13 +32,14 @@ public class LispFindUsagesProvider implements FindUsagesProvider {
   @Override
   public @Nls @NotNull String getType(@NotNull PsiElement element) {
     if (element instanceof LispSymbolName) {
-      LispSymbolName symbolName = (LispSymbolName) element;
-      SymbolDefinition symbolDefinition = symbolName.getSymbolDefinition();
-      if (symbolDefinition == null) return "unknown";
-      switch (symbolDefinition.type) {
-        case FUNCTION:
+      switch(((LispSymbolName) element).getType()) {
+        case METHOD_DEFINITION:
+          return "Method";
+        case FUNCTION_DEFINITION:
           return "Function";
-        case VARIABLE:
+        case PACKAGE_DEFINITION:
+          return "Package";
+        case VARIABLE_DEFINITION:
           return "Variable";
       }
     }

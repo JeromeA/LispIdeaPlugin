@@ -130,7 +130,7 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       context.highlighter.highlightError(descriptionSexp, "Description string expected");
       return;
     }
-    definition.setDescription(descriptionSexp.getString().getStringContent().getValue());
+    definition.setDescriptionString(descriptionSexp.getString().getStringContent().getValue());
   }
 
   private void analyzeOptionUses(AnalysisContext context, PackageDefinition definition, List<LispSexp> list) {

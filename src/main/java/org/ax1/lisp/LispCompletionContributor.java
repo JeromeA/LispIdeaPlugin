@@ -2,24 +2,19 @@ package org.ax1.lisp;
 
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.openapi.project.Project;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.patterns.StandardPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
-import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.ProjectComputedData;
-import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.PackageManager;
-import org.ax1.lisp.psi.LispFile;
+import org.ax1.lisp.analysis.ProjectData;
+import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
-import static org.ax1.lisp.analysis.LispAnnotator.EMPTY_HIGHLIGHTER;
 import static org.ax1.lisp.psi.LispTypes.STRING_CONTENT_TOKEN;
 import static org.ax1.lisp.psi.LispTypes.SYMBOL_TOKEN;
+import static org.ax1.lisp.psi.impl.LispStringDesignator.Type.FUNCTION_USAGE;
+import static org.ax1.lisp.psi.impl.LispStringDesignator.Type.VARIABLE_USAGE;
 
 public class LispCompletionContributor extends CompletionContributor {
 
@@ -33,21 +28,27 @@ public class LispCompletionContributor extends CompletionContributor {
       PsiElement symbolToken = parameters.getPosition();
       String tokenText = symbolToken.getText();
       result = result.withPrefixMatcher(tokenText.substring(0, tokenText.length() - DUMMY_IDENTIFIER_TRIMMED.length()));
-      getSyntaxAnalyzerCompletions(symbolToken)
-          .stream().map(LookupElementBuilder::create)
-          .forEach(result::addElement);
-    }
-
-    private List<String> getSyntaxAnalyzerCompletions(PsiElement symbolToken) {
-      Project project = symbolToken.getProject();
-      ProjectComputedData projectComputedData = ProjectComputedData.getInstance(project);
-      LispFile lispFile = (LispFile) symbolToken.getContainingFile();
-      SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lispFile);
-      AnalysisContext analysisContext = new AnalysisContext(EMPTY_HIGHLIGHTER, new PackageManager(projectComputedData.getPackageDefinitions()), syntaxAnalyzer);
-      syntaxAnalyzer.setContext(analysisContext);
-      syntaxAnalyzer.analyze();
-      List<String> syntaxAnalyzerCompletions = syntaxAnalyzer.completions;
-      return syntaxAnalyzerCompletions;
+      // If we are data, no completion.
+      if (!(symbolToken instanceof LispStringDesignator)) {
+        return;
+      }
+      LispStringDesignator stringDesignator = (LispStringDesignator) symbolToken;
+      // If we are a function usage, complete with all known functions
+      if (stringDesignator.getType() == FUNCTION_USAGE) {
+        ProjectData.getInstance(symbolToken.getProject())
+            .getAllFunctionDefinitionNames()
+            .stream()
+            .map(LookupElementBuilder::create)
+            .forEach(result::addElement);
+      }
+      // If we are a variable usae, complete with all global variables
+      if (stringDesignator.getType() == VARIABLE_USAGE) {
+        ProjectData.getInstance(symbolToken.getProject())
+            .getAllVariableDefinitionNames()
+            .stream()
+            .map(LookupElementBuilder::create)
+            .forEach(result::addElement);
+      }
     }
   }
 }

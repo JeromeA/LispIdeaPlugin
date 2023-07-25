@@ -17,13 +17,11 @@ public class LispRefactoringSupportProvider extends RefactoringSupportProvider {
   }
 
   private boolean isDefinition(@NotNull PsiElement element) {
-    if (element instanceof LispStringDesignator) {
-      LispStringDesignator stringDesignator = (LispStringDesignator) element;
-      SymbolDefinition symbolDefinition = stringDesignator.getSymbolDefinition();
-      PackageDefinition packageDefinition = stringDesignator.getPackageDefinition();
-      return (symbolDefinition != null && symbolDefinition.isDefinition(stringDesignator))
-          || (packageDefinition != null && packageDefinition.isDefinition(stringDesignator));
-    }
-    return false;
+    if (!(element instanceof LispStringDesignator)) return false;
+    LispStringDesignator stringDesignator = (LispStringDesignator) element;
+    LispStringDesignator.Type type = stringDesignator.getType();
+    return type == LispStringDesignator.Type.FUNCTION_DEFINITION
+        || type == LispStringDesignator.Type.METHOD_DEFINITION
+        || type == LispStringDesignator.Type.VARIABLE_DEFINITION;
   }
 }

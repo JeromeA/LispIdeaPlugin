@@ -5,6 +5,7 @@ import com.intellij.psi.stubs.*;
 import org.ax1.lisp.LispLanguage;
 import org.ax1.lisp.psi.LispStringContent;
 import org.ax1.lisp.psi.impl.LispStringContentImpl;
+import org.ax1.lisp.stubs.index.LispFunctionDefinitionIndex;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -43,6 +44,6 @@ public class LispStringContentStubElementType extends IStubElementType<LispStrin
 
   @Override
   public void indexStub(@NotNull LispStringContentStub stub, @NotNull IndexSink sink) {
-    sink.occurrence(LispNameIndex.LISP_NAMES, stub.getStringValue());
+    sink.occurrence(LispFunctionDefinitionIndex.FUNCTION_DEFINITIONS, stub.getStringValue());
   }
 }

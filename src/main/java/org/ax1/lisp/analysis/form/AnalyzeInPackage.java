@@ -26,26 +26,8 @@ public class AnalyzeInPackage implements FormAnalyzer {
       context.highlighter.highlightError(sexp1, "Expected name designator");
       return;
     }
-    if (isCompletion(sexp1)) {
-      String prefix = getCompletionPrefix(sexp1);
-      if (prefix.isEmpty()) {
-        addCompletions(context, p -> "#:" + p.toLowerCase());
-      } else if (prefix.equals("#")) {
-        addCompletions(context, p -> ":" + p.toLowerCase());
-      } else if (prefix.startsWith(":") || prefix.startsWith("#:")) {
-        addCompletions(context, String::toLowerCase);
-      } else  if (prefix.startsWith("\"")) {
-        addCompletions(context, Function.identity());
-      }
-    }
 
     context.result.addPackageUsage(stringDesignator);
     context.setCurrentPackage(stringDesignator.getValue());
-  }
-
-  private void addCompletions(AnalysisContext context, Function<String, String> stringMapper) {
-    context.packageManager.packages.keySet().stream()
-        .map(stringMapper)
-        .forEach(p -> context.analyzer.completions.add(p));
   }
 }

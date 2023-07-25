@@ -7,15 +7,18 @@ import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
+import org.ax1.lisp.analysis.ProjectData;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispString;
 import org.ax1.lisp.psi.LispSymbolName;
 import org.ax1.lisp.psi.LispTypes;
+import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.ax1.lisp.LispIcons.TO_GENERIC;
 import static org.ax1.lisp.LispIcons.TO_METHOD;
@@ -32,27 +35,25 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
 
   @Override
   public LineMarkerInfo<?> getLineMarkerInfo(@NotNull PsiElement element) {
-    if (getTokenType(element) == LispTypes.SYMBOL_TOKEN) {
-      if (!(element.getParent() instanceof LispSymbolName)) return null;
-      LispSymbolName symbolName = (LispSymbolName) element.getParent();
-      SymbolDefinition symbolDefinition = symbolName.getSymbolDefinition();
-      if (symbolDefinition == null) return null;
-      if (symbolDefinition.type != SymbolDefinition.Type.FUNCTION) return null;
-      if (symbolDefinition.methods.contains(symbolName) && !symbolDefinition.getDefinitions().isEmpty()) {
-        NavigatablePsiElement target = (NavigatablePsiElement) symbolDefinition.getDefinition();
-        return new LineMarkerInfo<>(element, element.getTextRange(), TO_GENERIC,
-            null, new DefaultGutterIconNavigationHandler<>(List.of(target), "Generic Definition"),
-            GutterIconRenderer.Alignment.RIGHT, () -> "Go to generic");
-      }
-      if (symbolDefinition.isDefinition(symbolName) && !symbolDefinition.methods.isEmpty()) {
-        Collection<NavigatablePsiElement> targets = symbolDefinition.methods.stream()
-            .map(NavigatablePsiElement.class::cast)
-            .collect(Collectors.toList());
-        return new LineMarkerInfo<>(element, element.getTextRange(), TO_METHOD,
-            null, new DefaultGutterIconNavigationHandler<>(targets, "Implementations"),
-            GutterIconRenderer.Alignment.RIGHT, () -> "Go to implementations");
-      }
+    if (getTokenType(element) != LispTypes.SYMBOL_TOKEN) return null;
+    if (!(element.getParent() instanceof LispSymbolName)) return null;
+    LispSymbolName symbolName = (LispSymbolName) element.getParent();
+    if (symbolName.getType() == LispStringDesignator.Type.METHOD_DEFINITION) {
+      LispStringDesignator functionDefinition = ProjectData.getInstance(element.getProject()).getFunctionDefinition(symbolName.getValue());
+      return new LineMarkerInfo<>(element, element.getTextRange(), TO_GENERIC,
+          null, new DefaultGutterIconNavigationHandler<>(List.of((NavigatablePsiElement) functionDefinition), "Generic Definition"),
+          GutterIconRenderer.Alignment.RIGHT, () -> "Go to generic");
     }
+    if (symbolName.getType() == LispStringDesignator.Type.FUNCTION_DEFINITION) {
+      List<NavigatablePsiElement> targets =
+          ProjectData.getInstance(element.getProject()).getMethodDefinitions(symbolName.getValue()).stream()
+              .map(NavigatablePsiElement.class::cast)
+              .collect(Collectors.toUnmodifiableList());
+      return new LineMarkerInfo<>(element, element.getTextRange(), TO_METHOD,
+          null, new DefaultGutterIconNavigationHandler<>(targets, "Implementations"),
+          GutterIconRenderer.Alignment.RIGHT, () -> "Go to implementations");
+    }
+    Collection<LispStringDesignator> methodDefinitions = ProjectData.getInstance(element.getProject()).getMethodDefinitions(symbolName.getValue());
     return null;
   }
 

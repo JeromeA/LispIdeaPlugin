@@ -1,21 +1,13 @@
 package org.ax1.lisp.analysis.symbol;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 
 import java.util.*;
 
-public class PackageDefinition {
+public class PackageDefinition extends Definition {
 
-  // Both in-package and symbol prefixes are "usages".
-  protected final Set<LispStringDesignator> usages = new HashSet<>();
-  // There should be only one definition, but we have to keep a list of duplicates if there are any.
-  protected final List<LispStringDesignator> definitions = new ArrayList<>();
   final String name;
   private final Set<String> nicknames = new HashSet<>();
-  private String description;
   public final Map<String, LispStringDesignator> use = new HashMap<>();
   public final Map<String, LispStringDesignator> exports = new HashMap<>();
   public final Map<String, LispStringDesignator> shadows = new HashMap<>();
@@ -56,31 +48,6 @@ public class PackageDefinition {
 
   public void addExport(String symbolName) {
     exports.put(symbolName, null);
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public List<LispStringDesignator> getDefinitions() {
-    return definitions;
-  }
-
-  public LispStringDesignator getDefinition() {
-    if (definitions.isEmpty()) return null;
-    return definitions.get(0);
-  }
-
-  public boolean isDefinition(LispStringDesignator packageName) {
-    return definitions.contains(packageName);
-  }
-
-  public Collection<LispStringDesignator> getUsages() {
-    return usages;
-  }
-
-  public boolean isUsage(LispStringDesignator packageName) {
-    return usages.contains(packageName);
   }
 
   public void addImportFrom(String symbolName, String packageName) {

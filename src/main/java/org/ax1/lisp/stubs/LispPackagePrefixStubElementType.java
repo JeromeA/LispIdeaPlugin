@@ -5,6 +5,7 @@ import com.intellij.psi.stubs.*;
 import org.ax1.lisp.LispLanguage;
 import org.ax1.lisp.psi.LispPackagePrefix;
 import org.ax1.lisp.psi.impl.LispPackagePrefixImpl;
+import org.ax1.lisp.stubs.index.LispFunctionDefinitionIndex;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -43,6 +44,6 @@ public class LispPackagePrefixStubElementType extends IStubElementType<LispPacka
 
   @Override
   public void indexStub(@NotNull LispPackagePrefixStub stub, @NotNull IndexSink sink) {
-    sink.occurrence(LispNameIndex.LISP_NAMES, stub.getStringValue());
+    sink.occurrence(LispFunctionDefinitionIndex.FUNCTION_DEFINITIONS, stub.getStringValue());
   }
 }

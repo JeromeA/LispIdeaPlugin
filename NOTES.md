@@ -145,3 +145,14 @@ Whenever findSymbol() is called:
   * otherwise, it's really unknown, and it will only be created if we are called from intern.
 
 At each step, if we found a symbol, we store it in the internal map for later optimization.
+
+# Indexes
+
+The following indexes are used instead of using the ProjectComputedData:
+* Package definition
+* Function/Generic definitions
+* Method definitions
+* Global variable definitions
+* Package usages
+* Function usages
+* variable usages

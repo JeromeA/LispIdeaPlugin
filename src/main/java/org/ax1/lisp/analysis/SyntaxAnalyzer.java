@@ -62,7 +62,6 @@ public class SyntaxAnalyzer {
 
   private AnalysisContext context;
   private final LispFile lispFile;
-  public List<String> completions = new ArrayList<>();
 
   public SyntaxAnalyzer(LispFile lispFile) {
     this.lispFile = lispFile;
@@ -152,32 +151,12 @@ public class SyntaxAnalyzer {
   }
 
   private void analyseSymbolForm(LispSexp sexp) {
-    if (isCompletion(sexp)) {
-      completions.addAll(toLowerCase(context.lexicalBindings.getLexicalVariables()));
-      completions.addAll(toLowerCase(getGlobalVariableNames()));
-      completions.addAll(getParentKeywords(sexp));
+    Symbol symbol = context.getSymbol(sexp.getSymbol());
+    if (symbol.isConstant()) {
+      context.highlighter.highlightConstant(sexp);
     } else {
-      Symbol symbol = context.getSymbol(sexp.getSymbol());
-      if (symbol.isConstant()) {
-        context.highlighter.highlightConstant(sexp);
-      } else {
-        context.addVariableUsage(sexp.getSymbol());
-      }
+      context.addVariableUsage(sexp.getSymbol());
     }
-  }
-
-  private Collection<String> getParentKeywords(LispSexp sexp) {
-    PsiElement parent = sexp.getParent();
-    if (!(parent instanceof LispList)) return List.of();
-    LispList form = (LispList) parent;
-    LispSexp sexp0 = form.getSexpList().get(0);
-    Symbol symbol = context.getSymbol(sexp0.getSymbol());
-    SymbolDefinition symbolDefinition = ProjectComputedData.getInstance(lispFile.getProject()).getProjectAnalysis()
-        .getFunction(symbol);
-    if (symbolDefinition == null) return List.of();
-    Lambda lambda = symbolDefinition.getLambda();
-    if (lambda == null) return List.of();
-    return lambda.keys.stream().map(name -> ":" + name).collect(Collectors.toUnmodifiableList());
   }
 
   private void analyzeCompoundForm(LispList form) {
@@ -185,14 +164,9 @@ public class SyntaxAnalyzer {
     if (list.isEmpty()) return;
     LispSexp sexp0 = list.get(0);
     if (sexp0.isSymbol()) {
-      if (isCompletion(sexp0)) {
-        completions.addAll(toLowerCase(context.lexicalBindings.getLexicalFunctions()));
-        completions.addAll(toLowerCase(getGlobalFunctions()));
-      } else {
-        Symbol symbol = context.getSymbol(sexp0.getSymbol());
-        context.addFunctionUsage(sexp0.getSymbol());
-        getAnalyzer(symbol).analyze(context, form);
-      }
+      Symbol symbol = context.getSymbol(sexp0.getSymbol());
+      context.addFunctionUsage(sexp0.getSymbol());
+      getAnalyzer(symbol).analyze(context, form);
     } else if (isLambda(sexp0)){
       // TODO: handle lambda expression case.
     } else {
@@ -220,21 +194,6 @@ public class SyntaxAnalyzer {
   private static synchronized FormAnalyzer getAnalyzer(Symbol symbol) {
     FormAnalyzer formAnalyzer = ANALYSERS.get(symbol);
     return formAnalyzer == null ? ANALYZE_FUNCTION_CALL : formAnalyzer;
-  }
-
-  private List<String> getGlobalVariableNames() {
-    return ProjectComputedData.getInstance(lispFile.getProject()).getProjectAnalysis()
-        .getVariables().stream()
-        .map(SymbolDefinition::getName)
-        .collect(Collectors.toList());
-  }
-
-  /** These are really the global functions, not just the ones found by this analysis so far. */
-  private List<String> getGlobalFunctions() {
-    return ProjectComputedData.getInstance(lispFile.getProject()).getProjectAnalysis()
-        .getFunctions().stream()
-        .map(SymbolDefinition::getName)
-        .collect(Collectors.toList());
   }
 
   public static boolean isCompletion(LispSexp sexp) {

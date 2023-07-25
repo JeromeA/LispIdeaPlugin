@@ -1,11 +1,11 @@
 package org.ax1.lisp.usages;
 
+import com.google.common.collect.ImmutableList;
 import com.intellij.find.findUsages.FindUsagesHandler;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.SearchScope;
-import org.ax1.lisp.analysis.symbol.PackageDefinition;
-import org.ax1.lisp.analysis.symbol.SymbolDefinition;
+import org.ax1.lisp.analysis.ProjectData;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,27 +23,22 @@ public class LispFindUsagesHandler extends FindUsagesHandler {
   public @NotNull Collection<PsiReference> findReferencesToHighlight(@NotNull PsiElement target, @NotNull SearchScope searchScope) {
     if (target instanceof LispStringDesignator) {
       LispStringDesignator stringDesignator = (LispStringDesignator) target;
-      SymbolDefinition symbolDefinition = stringDesignator.getSymbolDefinition();
-      if (symbolDefinition != null && symbolDefinition.isDefinition(stringDesignator)) {
-        return symbolDefinition.getUsages().stream()
-            .filter(usage -> searchScope.contains(usage.getContainingFile().getVirtualFile()))
-            .map(LispStringDesignator::getSymbolReference)
-            .collect(toImmutableList());
+      ProjectData projectData = ProjectData.getInstance(getProject());
+      if (stringDesignator.getType() == LispStringDesignator.Type.FUNCTION_DEFINITION) {
+        return getUsageReferences(searchScope, projectData.getFunctionUsages(stringDesignator.getValue()));
       }
-      PackageDefinition packageDefinition = stringDesignator.getPackageDefinition();
-      if (packageDefinition != null && packageDefinition.isDefinition(stringDesignator)) {
-        return packageDefinition.getUsages().stream()
-            .filter(usage -> {
-              // Got a null pointer while navigating between files.
-              if (usage == null) throw new RuntimeException("usage null");
-              if (usage.getContainingFile() == null) throw new RuntimeException("containing file null");
-              return searchScope.contains(usage.getContainingFile().getVirtualFile());
-            })
-            .map(LispStringDesignator::getPackageReference)
-            .collect(toImmutableList());
+      if (stringDesignator.getType() == LispStringDesignator.Type.PACKAGE_DEFINITION) {
+        return getUsageReferences(searchScope, projectData.getPackageUsages(stringDesignator.getValue()));
       }
     }
     return List.of();
+  }
+
+  private static ImmutableList<PsiReference> getUsageReferences(@NotNull SearchScope searchScope, Collection<LispStringDesignator> usages) {
+    return usages.stream()
+        .filter(usage -> searchScope.contains(usage.getContainingFile().getVirtualFile()))
+        .map(LispStringDesignator::getReference)
+        .collect(toImmutableList());
   }
 
 }

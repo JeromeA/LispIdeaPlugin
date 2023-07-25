@@ -71,8 +71,13 @@
         anchor="bottom"
         secondary="false"/>
     <stubElementTypeHolder class="org.ax1.lisp.psi.LispTypes" externalIdPrefix="lisp."/>
-    <stubIndex implementation="org.ax1.lisp.stubs.LispNameIndex"/>
-</extensions>
+    <stubIndex implementation="org.ax1.lisp.stubs.index.LispFunctionDefinitionIndex"/>
+    <stubIndex implementation="org.ax1.lisp.stubs.index.LispFunctionUsageIndex"/>
+    <stubIndex implementation="org.ax1.lisp.stubs.index.LispMethodDefinitionIndex"/>
+    <stubIndex implementation="org.ax1.lisp.stubs.index.LispPackageDefinitionIndex"/>
+    <stubIndex implementation="org.ax1.lisp.stubs.index.LispPackageUsageIndex"/>
+    <stubIndex implementation="org.ax1.lisp.stubs.index.LispVariableDefinitionIndex"/>
+  </extensions>
   <actions>
     <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction"/>
     <group text="Lisp" icon="/icons/lambda.svg" popup="true">

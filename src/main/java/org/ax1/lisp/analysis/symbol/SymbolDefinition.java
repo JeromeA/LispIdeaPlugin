@@ -8,14 +8,11 @@ import java.util.*;
 import static com.intellij.lang.documentation.DocumentationMarkup.*;
 import static com.intellij.lang.documentation.DocumentationMarkup.SECTIONS_END;
 
-public class SymbolDefinition {
-  protected final Set<LispStringDesignator> usages = new HashSet<>();
-  protected final Set<LispStringDesignator> definitions = new HashSet<>();
+public class SymbolDefinition extends Definition {
   public final Symbol symbol;
   public final Set<LispStringDesignator> methods = new HashSet<>(); // For the methods of a generic.
   public Type type;
   public final Scope scope;
-  private String descriptionString; // Whatever should be in the tooltip.
   private Lambda lambda;
   public String bindingSite;
   public String initialValue;
@@ -54,33 +51,8 @@ public class SymbolDefinition {
     return symbolDefinition;
   }
 
-  public Set<LispStringDesignator> getDefinitions() {
-    return definitions;
-  }
-
-  public LispStringDesignator getDefinition() {
-    if (definitions.isEmpty()) return null;
-    return definitions.stream().findFirst().get();
-  }
-
-  public boolean isDefinition(LispStringDesignator symbolName) {
-    return definitions.contains(symbolName);
-  }
-
-  public Collection<LispStringDesignator> getUsages() {
-    return usages;
-  }
-
-  public boolean isUsage(LispStringDesignator symbolName) {
-    return usages.contains(symbolName);
-  }
-
   public String getName() {
     return symbol.getName();
-  }
-
-  public void setDescriptionString(String descriptionString) {
-    this.descriptionString = descriptionString;
   }
 
   public String getDescription() {
@@ -106,10 +78,6 @@ public class SymbolDefinition {
     sb.append(SECTION_CONTENT_CELL.addText(descriptionString == null ? "--" : descriptionString));
     sb.append(SECTIONS_END);
     return sb.toString();
-  }
-
-  public boolean isDefined() {
-    return !definitions.isEmpty() || hasExternalDefinition;
   }
 
   public SymbolDefinition merge(SymbolDefinition def2) {

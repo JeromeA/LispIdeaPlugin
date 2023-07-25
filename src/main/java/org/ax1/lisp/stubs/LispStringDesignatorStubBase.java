@@ -2,6 +2,7 @@ package org.ax1.lisp.stubs;
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase;
 import com.intellij.lang.ASTNode;
+import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.openapi.util.NlsSafe;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
@@ -9,10 +10,12 @@ import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.IncorrectOperationException;
-import org.ax1.lisp.analysis.ProjectComputedData;
+import org.ax1.lisp.analysis.Highlighter;
+import org.ax1.lisp.analysis.ProjectData;
 import org.ax1.lisp.analysis.symbol.PackageDefinition;
 import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.psi.LispElementFactory;
+import org.ax1.lisp.psi.LispFile;
 import org.ax1.lisp.psi.LispStringContent;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.ax1.lisp.usages.LispStringDesignatorReference;
@@ -20,6 +23,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LispStringDesignatorStubBase<T extends StubElement> extends StubBasedPsiElementBase<T> implements LispStringDesignator {
+
+  private Type type;
+  private String descriptionString;
 
   public LispStringDesignatorStubBase(@NotNull T stub, @NotNull IStubElementType<?, ?> nodeType) {
     super(stub, nodeType);
@@ -42,14 +48,33 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
 
   public ASTNode createNewNode(@NotNull String newName) {
     if (this instanceof LispStringContent) {
+      // Inheritance is generated code, so it's inconvenient to overload this method there.
       return LispElementFactory.createStringContent(getProject(), newName).getNode();
     }
     return LispElementFactory.createSymbolName(getProject(), newName).getNode();
   }
 
   @Override
-  public SymbolDefinition getSymbolDefinition() {
-    return ProjectComputedData.getInstance(getProject()).getProjectAnalysis().getSymbolDefinition(this);
+  public Type getType() {
+    if (type == null) {
+      ((LispFile)getContainingFile()).analyse();
+    }
+    return type;
+  }
+
+  @Override
+  public void annotate(@NotNull AnnotationHolder holder) {
+    // TODO: "Function '%s' does not exist"
+    // TODO: "Variable '%s' is not defined"
+    // TODO: unused lexical variables
+    // TODO: "Variable '%s' is never used"
+    // TODO: "Function '%s' is never called"
+    // TODO: argument checker
+  }
+
+  @Override
+  public String getDescriptionString() {
+    return descriptionString;
   }
 
   @Override
@@ -68,32 +93,26 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
 
   @Override
   public PsiReference getReference() {
-    PsiReference symbolReference = getSymbolReference();
-    if (symbolReference != null) return symbolReference;
-    return getPackageReference();
-  }
-
-  @Override
-  public PsiReference getSymbolReference() {
-    SymbolDefinition definition = getSymbolDefinition();
-    if (definition != null && definition.isUsage(this)) {
-      return new LispStringDesignatorReference(this, definition.getDefinition());
+    ProjectData projectData = ProjectData.getInstance(getProject());
+    if (type == Type.FUNCTION_USAGE) {
+      return getReference(projectData.getFunctionDefinition(getValue()));
+    }
+    if (type == Type.VARIABLE_USAGE) {
+      return getReference(projectData.getVariableDefinition(getValue()));
+    }
+    if (type == Type.PACKAGE_USAGE) {
+      return getReference(projectData.getPackageDefinition(getValue()));
     }
     return null;
   }
 
-  @Override
-  public PsiReference getPackageReference() {
-    PackageDefinition packageDefinition = getPackageDefinition();
-    if (packageDefinition != null && packageDefinition.isUsage(this)) {
-      return new LispStringDesignatorReference(this, packageDefinition.getDefinition());
+  @Nullable
+  private LispStringDesignatorReference getReference(LispStringDesignator functionDefinition) {
+    if (functionDefinition != null) {
+      return new LispStringDesignatorReference(this, functionDefinition);
+    } else {
+      return null;
     }
-    return null;
-  }
-
-  @Override
-  public PackageDefinition getPackageDefinition() {
-    return ProjectComputedData.getInstance(getProject()).getProjectAnalysis().getPackageDefinition(this);
   }
 
   @Override
