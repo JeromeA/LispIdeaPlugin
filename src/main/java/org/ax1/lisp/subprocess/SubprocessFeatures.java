@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.intellij.openapi.components.Service.Level.PROJECT;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.CODE;
 
 /** Evaluate feature expressions, using the list of valid features from the Lisp subprocess. */
 @Service(PROJECT)
@@ -61,15 +62,19 @@ public final class SubprocessFeatures {
   }
 
   private boolean eval(@NotNull LispSymbolName symbolName) {
+    symbolName.setType(CODE);
     return getFeatures().contains(symbolName.getValue());
   }
 
   private boolean eval(LispCompoundFeatureExp compoundFeatureExp) {
     @NotNull List<LispFeatureExp> featureExpList = compoundFeatureExp.getFeatureExpList();
     if (featureExpList.isEmpty()) return false;
+    featureExpList.forEach(this::eval); // To mark all sexps as CODE.
     LispFeatureExp exp0 = featureExpList.get(0);
     if (exp0.getSimpleFeatureExp() == null) return false;
-    switch (exp0.getSimpleFeatureExp().getSymbolName().getValue()) {
+    LispSymbolName symbolName = exp0.getSimpleFeatureExp().getSymbolName();
+    symbolName.setType(CODE);
+    switch (symbolName.getValue()) {
       case "NOT":
         if (featureExpList.size() != 2) return false;
         return !eval(featureExpList.get(1));

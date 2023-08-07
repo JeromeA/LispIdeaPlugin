@@ -1,13 +1,14 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.symbol.Symbol;
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbolName;
 
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
+
 
 public class AnalyzeFunctionCall implements FormAnalyzer {
 
@@ -15,18 +16,17 @@ public class AnalyzeFunctionCall implements FormAnalyzer {
    * Names that could look like function calls, but behave effectively like language keywords and should
    * be highlighted as such.
    */
-  private static final Set<Symbol> KEYWORDS =
-      Stream.of("IF", "IGNORE", "RETURN", "SETQ", "SPECIAL", "UNLESS", "WHEN")
-          .map(Symbol::clSymbol)
-          .collect(Collectors.toSet());
+  private static final Set<String> KEYWORDS =
+      Set.of("IF", "IGNORE", "RETURN", "SETQ", "SPECIAL", "UNLESS", "WHEN");
 
   @Override
-  public void analyze(AnalysisContext context, LispList form) {
+  public void analyze(LispList form) {
     LispSexp functionName = form.getSexpList().get(0);
-    Symbol symbol = context.getSymbol(functionName.getSymbol());
-    if (KEYWORDS.contains(symbol)) {
-      context.highlighter.highlightKeyword(functionName);
+    LispSymbolName symbolName = functionName.getSymbolName();
+    if (KEYWORDS.contains(symbolName.getValue())) {
+      symbolName.setType(KEYWORD);
+
     }
-    context.analyzer.analyzeForms(form.getSexpList(), 1);
+    SyntaxAnalyzer.INSTANCE.analyzeForms(form.getSexpList(), 1);
   }
 }

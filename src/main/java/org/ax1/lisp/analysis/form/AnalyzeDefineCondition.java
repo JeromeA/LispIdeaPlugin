@@ -1,36 +1,64 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 
 import java.util.List;
 
+import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
+
 public class AnalyzeDefineCondition implements FormAnalyzer {
 
   @Override
-  public void analyze(AnalysisContext context, LispList form) {
+  public void analyze(LispList form) {
     List<LispSexp> list = form.getSexpList();
+    list.get(0).setType(KEYWORD);
     if (list.size() < 4) {
-      context.highlighter.highlightError(form, "DEFINE-CONDITION needs at least 3 arguments");
+      form.setErrorMessage("DEFINE-CONDITION needs at least 3 arguments");
       return;
     }
 
     if (!list.get(1).isSymbol()) {
-      context.highlighter.highlightError(list.get(1), "Expecting name of the condition");
+      list.get(1).setErrorMessage("Expecting name of the condition");
+      list.stream().skip(2).forEach(s -> s.setType(ERROR));
       return;
     }
+    list.get(1).getSymbolName().setType(CONDITION_DEFINITION);
 
     LispList parentList = list.get(2).getList();
     if (parentList == null) {
-      context.highlighter.highlightError(list.get(2), "Expecting parent list");
+      list.get(2).setErrorMessage("Expecting parent list");
+      list.stream().skip(3).forEach(s -> s.setType(ERROR));
       return;
     }
+    parentList.setType(CODE);
+    parentList.getSexpList().forEach(this::analyzeParent);
 
     LispList slotList = list.get(3).getList();
     if (slotList == null) {
-      context.highlighter.highlightError(list.get(3), "Expecting slot list");
+      list.get(3).setErrorMessage("Expecting slot list");
       return;
     }
+    slotList.setType(CODE);
+    slotList.getSexpList().forEach(this::analyzeSlot);
+  }
+
+  private void analyzeSlot(LispSexp slot) {
+    if (slot.isSymbol()) {
+      slot.getSymbolName().setType(CODE);
+      return;
+    }
+    if (slot.getList() != null && !slot.getList().getSexpList().isEmpty() && slot.getList().getSexpList().get(0).isSymbol()) {
+      slot.getList().setType(CODE);
+      slot.getList().getSexpList().forEach(s -> s.setType(CODE));
+    }
+  }
+
+  private void analyzeParent(LispSexp parentCondition) {
+    if (!parentCondition.isSymbol()) {
+      parentCondition.setErrorMessage("Expecting parent condition");
+      return;
+    }
+    parentCondition.getSymbolName().setType(CONDITION_USAGE);
   }
 }

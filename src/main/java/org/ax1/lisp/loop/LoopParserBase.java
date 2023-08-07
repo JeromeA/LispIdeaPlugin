@@ -1,43 +1,65 @@
 package org.ax1.lisp.loop;
 
-import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.symbol.SymbolDefinition;
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
+import org.ax1.lisp.analysis.symbol.LexicalVariable;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
+import org.ax1.lisp.psi.LispSymbolName;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
 
 public class LoopParserBase {
-  private AnalysisContext context;
   private List<LispSexp> sexpList;
   private final List<LispSexp> delayed = new ArrayList<>();
   private int index = 0;
-  private int lexicalDepth = 0;
+  private LispList form;
 
-  public void init(AnalysisContext context, LispList form) {
-    this.context = context;
+  public void init(LispList form) {
+    this.form = form;
     this.sexpList = form.getSexpList();
   }
 
   public void End() {
     delayed.forEach(this::analyzeForm);
-    for (int i = 0; i < lexicalDepth; i++) {
-      context.lexicalBindings.dropLexicalVariables();
-    }
   }
 
   public void skip() {
+    sexpList.get(index).setType(CODE);
     index++;
   }
 
+  public void usingHashValueKey() {
+    LispList compound = sexpList.get(index).getList();
+    if (checkValidCompound(compound)) {
+      compound.setType(CODE);
+    } else {
+      compound.setErrorMessage("(HASH-VALUE var) or (HASH-KEY var) expected");
+    }
+    index++;
+  }
+
+  private boolean checkValidCompound(LispList compound) {
+    List<LispSexp> compoundSexpList = compound.getSexpList();
+    if (compoundSexpList.size() != 2) return false;
+    if (!compoundSexpList.get(0).isSymbol()) return false;
+    if (!compoundSexpList.get(1).isSymbol()) return false;
+    LispSymbolName symbolName0 = compoundSexpList.get(0).getSymbolName();
+    String value0 = symbolName0.getValue();
+    if (! (value0.equals("HASH-VALUE") || value0.equals("HASH-KEY"))) return false;
+    symbolName0.setType(CODE);
+    LispSymbolName symbolName1 = compoundSexpList.get(1).getSymbolName();
+    ((LispSexp)form.getParent()).addLexicalVariables(Set.of(new LexicalVariable(symbolName1)));
+    return true;
+  }
+
   public void keyword() {
-    context.highlighter.highlightKeyword(sexpList.get(index));
+    sexpList.get(index).setType(KEYWORD);
     index++;
   }
 
@@ -52,45 +74,40 @@ public class LoopParserBase {
   }
 
   private void analyzeForm(LispSexp form) {
-    context.analyzer.analyzeForm(form);
+    SyntaxAnalyzer.INSTANCE.analyzeForm(form);
   }
 
   public void declareVariable() {
-    List<SymbolDefinition> locatedVariables = getVariables(sexpList.get(index)).stream()
-        .map(context::getLocatedSymbol)
-        .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable("LOOP", locatedSymbol, null))
-        .collect(toImmutableList());
-    context.lexicalBindings.defineLexicalVariables(locatedVariables);
-    lexicalDepth++;
+    ((LispSexp)form.getParent()).addLexicalVariables(getVariables(sexpList.get(index)));
     index++;
   }
 
-  private List<LispSymbol> getVariables(LispSexp sexp) {
+  private List<LexicalVariable> getVariables(LispSexp sexp) {
     if (sexp.getSymbol() != null) {
       if (sexp.getText().equals("nil")) {
-        context.highlighter.highlightKeyword(sexp);
+        sexp.setType(KEYWORD);
         return List.of();
       }
-      return List.of(sexp.getSymbol());
+      return List.of(new LexicalVariable(sexp.getSymbolName()));
     }
     LispList list = sexp.getList();
     if (list != null) {
       List<LispSexp> sexpList = list.getSexpList();
       return sexpList.stream().flatMap(s -> getVariables(s).stream()).collect(Collectors.toList());
     }
-    context.highlighter.highlightError(sexp, "Variable name expected");
+    sexp.setErrorMessage("Variable name expected");
     return List.of();
   }
 
   public void error(String text) {
-    context.highlighter.highlightError(sexpList.get(index), text);
+    sexpList.get(index).setErrorMessage(text);
   }
 
   public void missingExpression() {
-    context.highlighter.highlightError(sexpList.get(index - 1), "Missing expression");
+    sexpList.get(index - 1).setErrorMessage("Missing expression");
   }
 
   public void missingVariable() {
-    context.highlighter.highlightError(sexpList.get(index - 1), "Missing variable name");
+    sexpList.get(index - 1).setErrorMessage("Missing variable name");
   }
 }

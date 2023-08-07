@@ -1,10 +1,11 @@
 package org.ax1.lisp.analysis.form;
 
-import com.intellij.psi.PsiElement;
-import org.ax1.lisp.analysis.AnalysisContext;
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispQuoted;
 import org.ax1.lisp.psi.LispSexp;
+
+import static org.ax1.lisp.analysis.BaseLispElement.Type.DATA;
 
 public class AnalyzeBackQuote {
 
@@ -15,32 +16,27 @@ public class AnalyzeBackQuote {
   //  - the first element of the list is a standard common lisp function.
   //  - the first element of the list is a known function (this one is tricky, because we are in the middle of
   //    the pass in charge of finding all the known functions).
-  public void analyze(AnalysisContext context, LispSexp form) {
-    analyzeForm(context, form);
+  public void analyze(LispSexp form) {
+    analyzeForm(form);
   }
 
-  private void analyzeForm(AnalysisContext context, LispSexp form) {
+  private void analyzeForm(LispSexp form) {
+    form.setType(DATA);
     LispList list = form.getList();
     if (list != null) {
-      context.highlighter.highlightConstant(list.getFirstChild());
-      context.highlighter.highlightConstant(list.getLastChild());
-      list.getSexpList().forEach(sexp -> analyzeSexp(context, sexp));
-    } else {
-      context.highlighter.highlightConstant(form);
+      list.getSexpList().forEach(this::analyzeSexp);
     }
   }
 
-  private void analyzeSexp(AnalysisContext context, LispSexp sexp) {
+  private void analyzeSexp(LispSexp sexp) {
     LispQuoted quoted = sexp.getQuoted();
     if (quoted == null) {
-      analyzeForm(context, sexp);
+      analyzeForm(sexp);
       return;
     }
-    PsiElement quote = quoted.getFirstChild();
-    context.highlighter.highlightKeyword(quote);
-    String quoteType = quote.getText();
+    String quoteType = quoted.getFirstChild().getText();
     if (quoteType.equals(",") || quoteType.equals(",@")) {
-      context.analyzer.analyzeForm(quoted.getSexp());
+      SyntaxAnalyzer.INSTANCE.analyzeForm(quoted.getSexp());
     }
   }
 

@@ -1,36 +1,31 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 
 import java.util.List;
 import java.util.Set;
 
-import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.FUNCTION_DECLARATION;
-import static org.ax1.lisp.analysis.symbol.Symbol.keywordSymbol;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.FUNCTION_DEFINITION;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
 
 public class AnalyzeDefclass implements FormAnalyzer {
 
-  private static final Set<Symbol> METHOD_GENERATORS =
-      Set.of(keywordSymbol("READER"), keywordSymbol("WRITER"), keywordSymbol("ACCESSOR"));
-  private static final Set<Symbol> OTHER_OPTIONS = Set.of(keywordSymbol("ALLOCATION"), keywordSymbol("INITARG"),
-      keywordSymbol("INITFORM"), keywordSymbol("TYPE"), keywordSymbol("DOCUMENTATION"));
+  private static final Set<String> METHOD_GENERATORS = Set.of("READER", "WRITER", "ACCESSOR");
+  private static final Set<String> OTHER_OPTIONS = Set.of("ALLOCATION", "INITARG", "INITFORM", "TYPE", "DOCUMENTATION");
 
   @Override
-  public void analyze(AnalysisContext context, LispList form) {
+  public void analyze(LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 4) {
-      context.highlighter.highlightError(form, "DEFCLASS needs at least 3 arguments");
+      form.setErrorMessage("DEFCLASS needs at least 3 arguments");
       return;
     }
 
     // Class name
     LispSexp nameSexp = list.get(1);
     if (!nameSexp.isSymbol()) {
-      context.highlighter.highlightError(nameSexp, "Class name expected");
+      nameSexp.setErrorMessage("Class name expected");
       return;
     }
 
@@ -38,7 +33,7 @@ public class AnalyzeDefclass implements FormAnalyzer {
     LispSexp superclassSexp = list.get(2);
     LispList superclassList = superclassSexp.getList();
     if (superclassList == null) {
-      context.highlighter.highlightError(superclassSexp, "Superclass list expected");
+      superclassSexp.setErrorMessage("Superclass list expected");
       return;
     }
 
@@ -46,41 +41,39 @@ public class AnalyzeDefclass implements FormAnalyzer {
     LispSexp slotSexp = list.get(3);
     LispList slotList = slotSexp.getList();
     if (slotList == null) {
-      context.highlighter.highlightError(slotSexp, "Slot list expected");
+      slotSexp.setErrorMessage("Slot list expected");
       return;
     }
-    slotList.getSexpList().forEach(slot -> analyzeSlot(context, slot));
+    slotList.getSexpList().forEach(this::analyzeSlot);
   }
 
-  private void analyzeSlot(AnalysisContext context, LispSexp slot) {
+  private void analyzeSlot(LispSexp slot) {
     if (slot.isSymbol()) {
       return;
     }
     LispList slotList = slot.getList();
     if (slotList == null || slotList.getSexpList().size() < 1 || !slotList.getSexpList().get(0).isSymbol()) {
-      context.highlighter.highlightError(slot, "Slot definition expected");
+      slot.setErrorMessage("Slot definition expected");
       return;
     }
     List<LispSexp> slotOptions = slotList.getSexpList();
     for (int i = 1; i < slotOptions.size()-1; i += 2) {
       LispSexp slotOption = slotOptions.get(i);
       if (slotOption.getSymbol() == null) {
-        context.highlighter.highlightError(slotOptions.get(i), "Slot option expected");
+        slotOptions.get(i).setErrorMessage("Slot option expected");
         continue;
       }
-      LispSymbol slotOptionName = slotOption.getSymbol();
-      Symbol option = context.getSymbol(slotOptionName);
-      if (METHOD_GENERATORS.contains(option)) {
-        context.highlighter.highlightKeyword(slotOption);
+      String slotOptionName = slotOption.getSymbolName().getValue();
+      if (METHOD_GENERATORS.contains(slotOptionName)) {
+        slotOption.setType(KEYWORD);
         LispSexp name = slotOptions.get(i + 1);
         if (name.getSymbol() == null) {
-          context.highlighter.highlightError(slotOptions.get(i + 1), "Method name expected");
+          slotOptions.get(i + 1).setErrorMessage("Method name expected");
           continue;
         }
-        context.addFunctionDefinition(name.getSymbol());
-        context.highlighter.highlight(name, FUNCTION_DECLARATION);
-      } else if (!OTHER_OPTIONS.contains(option)) {
-        context.highlighter.highlightError(slotOption, "Slot option expected");
+        name.getSymbolName().setType(FUNCTION_DEFINITION);
+      } else if (!OTHER_OPTIONS.contains(slotOptionName)) {
+        slotOption.setErrorMessage("Slot option expected");
       }
     }
   }

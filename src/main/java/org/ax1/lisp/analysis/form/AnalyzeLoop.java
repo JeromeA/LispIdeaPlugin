@@ -1,7 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
 import com.google.common.collect.ImmutableSet;
-import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.loop.LoopParser;
 import org.ax1.lisp.loop.ParseException;
 import org.ax1.lisp.psi.LispList;
@@ -9,7 +8,10 @@ import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
 
 /**
  * <a href="http://www.lispworks.com/documentation/lw51/CLHS/Body/m_loop.htm">Reference</a>
@@ -25,13 +27,15 @@ public class AnalyzeLoop implements FormAnalyzer {
       "T", "THE", "THEN", "THEREIS", "TO", "UNLESS", "UNTIL", "USING", "UPFROM", "UPTO", "WHEN", "WHILE", "WITH");
 
   @Override
-  public void analyze(AnalysisContext context, LispList form) {
-    String syntaxString = form.getSexpList().stream().map(AnalyzeLoop::toSyntaxString).collect(Collectors.joining(" "));
+  public void analyze(LispList form) {
+    List<LispSexp> sexpList = form.getSexpList();
+    sexpList.get(0).setType(KEYWORD);
+    String syntaxString = sexpList.stream().map(AnalyzeLoop::toSyntaxString).collect(Collectors.joining(" "));
     ByteArrayInputStream syntaxInput = new ByteArrayInputStream(syntaxString.getBytes());
     LoopParser parser = new LoopParser(syntaxInput);
 
     try {
-      parser.Start(context, form);
+      parser.Start(form);
     } catch (ParseException e) {
       System.err.println("Error: " + e.getMessage());
       System.err.println("In file: " + form.getContainingFile().getName());

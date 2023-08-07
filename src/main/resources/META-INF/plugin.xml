@@ -77,6 +77,7 @@
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispPackageDefinitionIndex"/>
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispPackageUsageIndex"/>
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispVariableDefinitionIndex"/>
+    <stubIndex implementation="org.ax1.lisp.stubs.index.LispVariableUsageIndex"/>
   </extensions>
   <actions>
     <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction"/>

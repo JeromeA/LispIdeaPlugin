@@ -1,13 +1,14 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.AnalysisContext;
+import org.ax1.lisp.analysis.BaseLispElement;
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.jetbrains.annotations.NotNull;
+import org.ax1.lisp.psi.LispSymbolName;
 
 import java.util.List;
 
-import static com.intellij.lang.documentation.DocumentationMarkup.*;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
 
 public class AnalyzeDefvar implements FormAnalyzer {
 
@@ -18,38 +19,43 @@ public class AnalyzeDefvar implements FormAnalyzer {
   }
 
   @Override
-  public void analyze(AnalysisContext context, LispList form) {
+  public void analyze(LispList form) {
     List<LispSexp> sexpList = form.getSexpList();
+    sexpList.get(0).setType(KEYWORD);
     if (sexpList.size() < type.getMinArg() + 1) {
-      context.highlighter.highlightError(form, type.name() + " takes at least 1 argument");
+      form.setErrorMessage(type.name() + " takes at least 1 argument");
       return;
     }
     LispSexp varName = sexpList.get(1);
     if (varName.getSymbol() == null) {
-      context.highlighter.highlightError(varName, "Variable name expected");
+      varName.setErrorMessage("Variable name expected");
       return;
     }
-    if (sexpList.size() >= 3) context.analyzer.analyzeForm(sexpList.get(2));
-    context.addVariableDefinition(varName.getSymbol(), getDescription(sexpList, varName.getText()));
+    LispSymbolName symbolName = varName.getSymbolName();
+    symbolName.setType(VARIABLE_DEFINITION);
+    if (sexpList.size() >= 3) SyntaxAnalyzer.INSTANCE.analyzeForm(sexpList.get(2));
+    // Documentation.
+    if (sexpList.size() >= 4) sexpList.get(3).setType(CODE);
+    sexpList.stream().skip(4).forEach(sexp -> sexp.setErrorMessage("Unexpected argument"));
   }
 
-  @NotNull
-  private String getDescription(List<LispSexp> sexpList, String name) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(DEFINITION_ELEMENT.addText("Variable " + name));
-    sb.append(SECTIONS_START);
-    sb.append(SECTION_HEADER_CELL.addText("Binding site:"));
-    sb.append(SECTION_CONTENT_CELL.addText(type.name()));
-    sb.append("</tr>");
-    sb.append(SECTION_HEADER_CELL.addText("Initial value:"));
-    if (sexpList.size() >= 3) {
-      sb.append(SECTION_CONTENT_CELL.addText(sexpList.get(2).getText()));
-    } else {
-      sb.append(SECTION_CONTENT_CELL.addText("unbound"));
-    }
-    sb.append(SECTIONS_END);
-    return sb.toString();
-  }
+//  @NotNull
+//  private String getDescription(List<LispSexp> sexpList, String name) {
+//    StringBuilder sb = new StringBuilder();
+//    sb.append(DEFINITION_ELEMENT.addText("Variable " + name));
+//    sb.append(SECTIONS_START);
+//    sb.append(SECTION_HEADER_CELL.addText("Binding site:"));
+//    sb.append(SECTION_CONTENT_CELL.addText(type.name()));
+//    sb.append("</tr>");
+//    sb.append(SECTION_HEADER_CELL.addText("Initial value:"));
+//    if (sexpList.size() >= 3) {
+//      sb.append(SECTION_CONTENT_CELL.addText(sexpList.get(2).getText()));
+//    } else {
+//      sb.append(SECTION_CONTENT_CELL.addText("unbound"));
+//    }
+//    sb.append(SECTIONS_END);
+//    return sb.toString();
+//  }
 
   public enum Type {
     DEFCONSTANT(2),

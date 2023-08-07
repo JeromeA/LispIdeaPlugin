@@ -1,17 +1,13 @@
 package org.ax1.lisp.analysis.symbol;
 
-public class CommonLispUserPackage extends LispPackage {
+public class CommonLispUserPackage extends Package {
 
   public static final String COMMON_LISP_USER = "COMMON-LISP-USER";
+  public static final CommonLispUserPackage INSTANCE = new CommonLispUserPackage();
 
-  public CommonLispUserPackage(PackageManager packageManager) {
-    super(packageManager, createDefinition());
-  }
-
-  private static PackageDefinition createDefinition() {
-    PackageDefinition definition = new PackageDefinition(COMMON_LISP_USER);
-    definition.addNickname("CL-USER");
-    definition.use.put(CommonLispPackage.COMMON_LISP, null);
-    return definition;
+  public CommonLispUserPackage() {
+    super(COMMON_LISP_USER);
+    addNickname("CL-USER");
+    addUse(CommonLispPackage.COMMON_LISP);
   }
 }

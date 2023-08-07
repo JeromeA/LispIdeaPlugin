@@ -1,35 +1,35 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.LocatedSymbol;
-import org.ax1.lisp.analysis.symbol.SymbolDefinition;
+import org.ax1.lisp.analysis.BaseLispElement;
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
+import org.ax1.lisp.analysis.symbol.LexicalVariable;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbolName;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static org.ax1.lisp.analysis.LexicalVariableHelper.newLexicalVariable;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.LEXICAL_VARIABLE_DEFINITION;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.VARIABLE_DEFINITION;
 
 public class AnalyzeLet implements FormAnalyzer {
 
   @Override
-  public void analyze(AnalysisContext context, LispList form) {
+  public void analyze(LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
-      context.highlighter.highlightError(form, "LET needs at least 1 argument");
+      form.setErrorMessage("LET needs at least 1 argument");
       return;
     }
     LispList list1 = list.get(1).getList();
     if (list1 == null) {
-      context.highlighter.highlightError(list.get(1), "Variable binding list expected");
+      list.get(1).setErrorMessage("Variable binding list expected");
       return;
     }
     List<LispSexp> varList = list1.getSexpList();
-    context.analyzer.analyzeForms(getInitForms(varList), 0);
-    context.lexicalBindings.defineLexicalVariables(getLetVariables(context, varList));
-    context.analyzer.analyzeForms(list, 2);
-    context.lexicalBindings.dropLexicalVariables();
+    SyntaxAnalyzer.INSTANCE.analyzeForms(getInitForms(varList), 0);
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, getLetVariables(varList));
   }
 
   private Collection<LispSexp> getInitForms(List<LispSexp> varList) {
@@ -46,24 +46,21 @@ public class AnalyzeLet implements FormAnalyzer {
     return result;
   }
 
-  private List<SymbolDefinition> getLetVariables(AnalysisContext context, @NotNull List<LispSexp> varList) {
-    List<SymbolDefinition> result = new ArrayList<>();
+  private List<LexicalVariable> getLetVariables(@NotNull List<LispSexp> varList) {
+    List<LexicalVariable> result = new ArrayList<>();
     for (LispSexp sexp : varList) {
       LispList list = sexp.getList();
       if (sexp.isSymbol()) {
-        LocatedSymbol locatedSymbol = context.getLocatedSymbol(sexp.getSymbol());
-        result.add(newLexicalVariable("LET", locatedSymbol, "nil"));
+        result.add(new LexicalVariable(sexp.getSymbolName()));
       } else if (list != null) {
         List<LispSexp> sexpList = list.getSexpList();
         if (sexpList.size() < 1 || sexpList.get(0).getSymbol() == null) {
-          context.highlighter.highlightError(list, "Expected var init form");
+          list.setErrorMessage("Expected var init form");
           continue;
         }
-        LocatedSymbol locatedSymbol = context.getLocatedSymbol(sexpList.get(0).getSymbol());
-        String initialValue = sexpList.size() < 2 ? "nil" : sexpList.get(1).getText();
-        result.add(newLexicalVariable("LET", locatedSymbol, initialValue));
+        result.add(new LexicalVariable(sexpList.get(0).getSymbolName()));
       } else {
-        context.highlighter.highlightError(sexp, "Expected var binding");
+        sexp.setErrorMessage("Expected var binding");
       }
     }
     return result;

@@ -5,7 +5,6 @@ import com.intellij.lang.cacheBuilder.WordsScanner;
 import com.intellij.lang.findUsages.FindUsagesProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.TokenSet;
-import org.ax1.lisp.analysis.symbol.SymbolDefinition;
 import org.ax1.lisp.parsing.LispLexerAdapter;
 import org.ax1.lisp.psi.LispSymbolName;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
@@ -41,6 +40,8 @@ public class LispFindUsagesProvider implements FindUsagesProvider {
           return "Package";
         case VARIABLE_DEFINITION:
           return "Variable";
+        case LEXICAL_VARIABLE_DEFINITION:
+          return "Lexical variable";
       }
     }
     return "unknown";

@@ -16,6 +16,7 @@ import static org.ax1.lisp.stubs.index.LispMethodDefinitionIndex.METHOD_DEFINITI
 import static org.ax1.lisp.stubs.index.LispPackageDefinitionIndex.PACKAGE_DEFINITIONS;
 import static org.ax1.lisp.stubs.index.LispPackageUsageIndex.PACKAGE_USAGES;
 import static org.ax1.lisp.stubs.index.LispVariableDefinitionIndex.VARIABLE_DEFINITIONS;
+import static org.ax1.lisp.stubs.index.LispVariableUsageIndex.VARIABLE_USAGES;
 
 @Service
 public final class ProjectData {
@@ -77,6 +78,10 @@ public final class ProjectData {
 
   public Collection<LispStringDesignator> getFunctionUsages(String name) {
     return StubIndex.getInstance().get(FUNCTION_USAGES, name, project, null);
+  }
+
+  public Collection<LispStringDesignator> getVariableUsages(String name) {
+    return StubIndex.getInstance().get(VARIABLE_USAGES, name, project, null);
   }
 
   public Collection<LispStringDesignator> getPackageUsages(String name) {

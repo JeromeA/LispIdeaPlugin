@@ -1,12 +1,12 @@
 package org.ax1.lisp.analysis.symbol;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-
-import static org.ax1.lisp.analysis.symbol.CommonLispPackage.*;
-import static org.ax1.lisp.analysis.symbol.KeywordPackage.KEYWORD;
 
 public class Symbol {
 
+  private static final Map<Symbol, Symbol> interned = new HashMap<>();
   private final String packageName;
   private final String name;
 
@@ -16,11 +16,11 @@ public class Symbol {
   }
 
   public static Symbol clSymbol(String name) {
-    return CommonLispPackage.INSTANCE.intern(name);
+    return new Symbol(CommonLispPackage.COMMON_LISP, name);
   }
 
   public static Symbol keywordSymbol(String name) {
-    return KeywordPackage.INSTANCE.intern(name);
+    return new Symbol("", name);
   }
 
   public String getName() {
@@ -45,12 +45,19 @@ public class Symbol {
   }
 
   public boolean isConstant() {
-    return packageName.equals(KEYWORD)
+    return packageName.equals("")
         || Objects.equals(this, CommonLispPackage.INSTANCE.NIL)
         || Objects.equals(this, CommonLispPackage.INSTANCE.T);
   }
 
   public String getQualifiedName() {
     return packageName + ":" + name;
+  }
+
+  public Symbol intern() {
+    Symbol internedSymbol = interned.get(this);
+    if (internedSymbol != null) return internedSymbol;
+    interned.put(this, this);
+    return this;
   }
 }

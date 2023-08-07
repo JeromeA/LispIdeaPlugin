@@ -1,16 +1,15 @@
 package org.ax1.lisp.stubs;
 
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.stubs.*;
 import org.ax1.lisp.LispLanguage;
+import org.ax1.lisp.analysis.BaseLispElement;
 import org.ax1.lisp.psi.LispStringContent;
 import org.ax1.lisp.psi.impl.LispStringContentImpl;
-import org.ax1.lisp.stubs.index.LispFunctionDefinitionIndex;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class LispStringContentStubElementType extends IStubElementType<LispStringContentStub, LispStringContent> {
+public class LispStringContentStubElementType extends LispStubElementType<LispStringContentStub, LispStringContent> {
   public static final LispStringContentStubElementType INSTANCE = new LispStringContentStubElementType();
 
   public LispStringContentStubElementType() {
@@ -23,27 +22,7 @@ public class LispStringContentStubElementType extends IStubElementType<LispStrin
   }
 
   @Override
-  public @NotNull LispStringContentStub createStub(@NotNull LispStringContent psi, StubElement<? extends PsiElement> parentStub) {
-    return new LispStringContentStub(parentStub, INSTANCE, psi.getValue());
-  }
-
-  @Override
-  public @NotNull String getExternalId() {
-    return toString();
-  }
-
-  @Override
-  public void serialize(@NotNull LispStringContentStub stub, @NotNull StubOutputStream dataStream) throws IOException {
-    dataStream.writeName(stub.getStringValue());
-  }
-
-  @Override
-  public @NotNull LispStringContentStub deserialize(@NotNull StubInputStream dataStream, StubElement parentStub) throws IOException {
-    return new LispStringContentStub(parentStub, INSTANCE, dataStream.readName().getString());
-  }
-
-  @Override
-  public void indexStub(@NotNull LispStringContentStub stub, @NotNull IndexSink sink) {
-    sink.occurrence(LispFunctionDefinitionIndex.FUNCTION_DEFINITIONS, stub.getStringValue());
+  protected LispStringContentStub createStub(StubElement parentStub, String stringValue, BaseLispElement.Type type) {
+    return new LispStringContentStub(parentStub, INSTANCE, stringValue, type);
   }
 }

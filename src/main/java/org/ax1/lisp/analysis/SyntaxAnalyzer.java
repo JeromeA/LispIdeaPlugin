@@ -2,19 +2,16 @@ package org.ax1.lisp.analysis;
 
 import com.intellij.psi.PsiElement;
 import org.apache.groovy.util.Maps;
+import org.ax1.lisp.SymbolResolver;
 import org.ax1.lisp.analysis.form.*;
 import org.ax1.lisp.analysis.symbol.*;
 import org.ax1.lisp.psi.*;
-import org.ax1.lisp.subprocess.SubprocessFeatures;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
+import static org.ax1.lisp.analysis.symbol.LexicalVariables.find;
 import static org.ax1.lisp.analysis.symbol.Symbol.clSymbol;
-import static org.ax1.lisp.parsing.LispSyntaxHighlighter.COMMENT;
-import static org.ax1.lisp.parsing.LispSyntaxHighlighter.READER_MACRO;
 
 public class SyntaxAnalyzer {
 
@@ -64,7 +61,6 @@ public class SyntaxAnalyzer {
   }
 
   public void analyze(LispFile lispFile) {
-    analyzeFeatureExpressions(lispFile.getPrefixedSexpList());
     analyzeForms(lispFile.getSexpList(), 0);
   }
 
@@ -72,51 +68,52 @@ public class SyntaxAnalyzer {
     forms.stream().skip(skip).forEach(this::analyzeForm);
   }
 
+  public void analyzeFormsWithVariables(Collection<LispSexp> forms, int skip, Collection<LexicalVariable> variables) {
+    forms.stream().skip(skip).forEach(f -> f.addLexicalVariables(variables));
+    forms.stream().skip(skip).forEach(this::analyzeForm);
+  }
+
+  public void analyzeFormsWithFunctions(Collection<LispSexp> forms, int skip, Collection<LispSymbolName> functions) {
+    forms.stream().skip(skip).forEach(f -> f.addLexicalFunctions(functions));
+    forms.stream().skip(skip).forEach(this::analyzeForm);
+  }
+
   public void analyzeForm(LispSexp form) {
     if (form.isSymbol()) {
-      analyseSymbolForm(form);
+      LispSymbolName symbolName = form.getSymbolName();
+      LexicalVariable lexicalVariable = find(symbolName);
+      if (lexicalVariable != null) {
+        symbolName.setType(LEXICAL_VARIABLE_USAGE);
+        symbolName.setLexicalVariable(lexicalVariable);
+        lexicalVariable.usages.add(symbolName);
+      } else {
+        symbolName.setType(VARIABLE_USAGE);
+      }
+      return;
+    }
+    if (form.getQuoted() != null) {
+      analyseQuotedForm(form.getQuoted());
+      return;
     }
     LispList list = form.getList();
     if (list != null) {
       analyzeCompoundForm(list);
+      return;
     }
-    if (form.getQuoted() != null) {
-      analyseQuotedForm(form.getQuoted());
-    }
-  }
-
-  public void analyzeFeatureExpressions(@NotNull List<LispPrefixedSexp> list) {
-    list.forEach(this::analyseFeatureExpression);
-  }
-
-  private void analyseFeatureExpression(LispPrefixedSexp prefixedSexp) {
-    List<LispReaderFeature> readerFeatureList = prefixedSexp.getReaderFeatureList();
-    LispSexp sexp = prefixedSexp.getSexp();
-    if (!readerFeatureList.isEmpty()) {
-      readerFeatureList.forEach(feature -> context.highlighter.highlight(feature, READER_MACRO));
-      if (!SubprocessFeatures.getInstance(lispFile.getProject()).eval(readerFeatureList.get(0))) {
-        context.highlighter.highlight(sexp, COMMENT);
-      }
-    }
-    LispList list = sexp.getList();
-    LispQuoted quoted = sexp.getQuoted();
-    if (quoted != null) {
-      list = quoted.getSexp().getList();
-    }
-    if (list != null) {
-      analyzeFeatureExpressions(list.getPrefixedSexpList());
+    LispString string = form.getString();
+    if (string != null) {
+      string.getStringContent().setType(DATA);
     }
   }
 
   private void analyseQuotedForm(LispQuoted quoted) {
     PsiElement quote = quoted.getFirstChild();
     LispSexp quotedSexp = quoted.getSexp();
-    context.highlighter.highlightKeyword(quote);
     String quoteType = quote.getText();
     switch (quoteType) {
       case "#'":
         if (quotedSexp.isSymbol()) {
-          context.addFunctionUsage(quotedSexp.getSymbol());
+          quotedSexp.getSymbolName().setType(FUNCTION_DEFINITION);
           return;
         }
         LispList list = quotedSexp.getList();
@@ -125,46 +122,38 @@ public class SyntaxAnalyzer {
           if (sexpList.size() < 2
               || sexpList.get(0).getSymbol() == null
               || !sexpList.get(0).getSymbol().getText().equals("lambda")) {
-            context.highlighter.highlightError(quotedSexp, "Expected lambda form");
+            quotedSexp.setErrorMessage("Expected lambda form");
             return;
           }
-          ANALYZE_LAMBDA.analyze(context, list);
+          ANALYZE_LAMBDA.analyze(list);
         }
         break;
       case ",":
       case ",@":
-        context.highlighter.highlightError(quote, "Unexpected comma outside backquote expression");
+//        context.highlighter.highlightError(quote, "Unexpected comma outside backquote expression");
         break;
       case "'":
-        ANALYZE_QUOTE.analyze(context, quoted.getSexp());
+        ANALYZE_QUOTE.analyze(quoted.getSexp());
         break;
       case "`":
-        ANALYZE_BACKQUOTE.analyze(context, quoted.getSexp());
+        ANALYZE_BACKQUOTE.analyze(quoted.getSexp());
         break;
-    }
-  }
-
-  private void analyseSymbolForm(LispSexp sexp) {
-    Symbol symbol = context.getSymbol(sexp.getSymbol());
-    if (symbol.isConstant()) {
-      context.highlighter.highlightConstant(sexp);
-    } else {
-      context.addVariableUsage(sexp.getSymbol());
     }
   }
 
   private void analyzeCompoundForm(LispList form) {
+    form.setType(CODE);
     List<LispSexp> list = form.getSexpList();
     if (list.isEmpty()) return;
     LispSexp sexp0 = list.get(0);
     if (sexp0.isSymbol()) {
-      Symbol symbol = context.getSymbol(sexp0.getSymbol());
-      context.addFunctionUsage(sexp0.getSymbol());
-      getAnalyzer(symbol).analyze(context, form);
-    } else if (isLambda(sexp0)){
+      sexp0.getSymbolName().setType(FUNCTION_USAGE);
+      Symbol symbol = SymbolResolver.resolve(sexp0.getSymbolName());
+      getAnalyzer(symbol).analyze(form);
+    } else if (isLambda(sexp0)) {
       // TODO: handle lambda expression case.
     } else {
-      context.highlighter.highlightError(sexp0, "Function name expected");
+      sexp0.setErrorMessage("Function name expected");
     }
   }
 
@@ -179,28 +168,9 @@ public class SyntaxAnalyzer {
     return symbol0.getSymbolName().getValue().equals("LAMBDA");
   }
 
-  private static Collection<String> toLowerCase(Collection<String> strings) {
-    return strings.stream()
-        .map(String::toLowerCase)
-        .collect(toImmutableList());
-  }
-
   private static synchronized FormAnalyzer getAnalyzer(Symbol symbol) {
     FormAnalyzer formAnalyzer = ANALYSERS.get(symbol);
     return formAnalyzer == null ? ANALYZE_FUNCTION_CALL : formAnalyzer;
   }
 
-  public static boolean isCompletion(LispSexp sexp) {
-    return sexp.getText().contains(DUMMY_IDENTIFIER_TRIMMED);
-  }
-
-  public static String getCompletionPrefix(LispSexp sexp) {
-    String text = sexp.getText();
-    int index = text.indexOf(DUMMY_IDENTIFIER_TRIMMED);
-    return text.substring(0, index);
-  }
-
-  public void setContext(AnalysisContext context) {
-    this.context = context;
-  }
 }

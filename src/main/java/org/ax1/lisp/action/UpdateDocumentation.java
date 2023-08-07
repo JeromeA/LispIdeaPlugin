@@ -22,7 +22,7 @@ public class UpdateDocumentation extends AnAction implements DumbAware {
   public void actionPerformed(@NotNull AnActionEvent e) {
     Project project = e.getProject();
     if (project != null) {
-      ExternalDocumentation.getInstance(project).getBindings();
+//      ExternalDocumentation.getInstance(project).getBindings();
     }
   }
 

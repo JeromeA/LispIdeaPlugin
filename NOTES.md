@@ -18,32 +18,22 @@ be limited.
 
 So, we're optimizing for the second case: a quick pass is checking for DEFPACKAGEs before the real parsing is happening.
 
-## Name resolution
+## Name/Package resolution
 
-The algorithm for name resolution should be:
-* If the symbol is specified as PACKAGE:NAME, use findExportedSymbol() in that package.
-* If the symbol is specified as PACKAGE::NAME, use findSymbol() in that package, which may do recursive calls into other
-packages;
-* Otherwise, use intern() on the default package.
-
-findExportedSymbol() only lookup the set of exported symbols.
-
-findSymbol():
-* searches the local map (which already contains the shadows).
-* if not found, calls findExportedSymbols() on the uses.
-* if not found, search the importFrom data structure.
-* if not found, return nil.
-
-intern() calls findSymbol(), and create the symbol if nothing is found.
+The algorithm for name resolution is:
+* If the symbol is specified without package, resolve it as if it was specified as \*CURRENTPACKAGE\*::S
+* If the symbol is specified as P:S, it has to be EXPORTed from P, otherwise it's an error.
+* if P IMPORTs S from Q, intern for Q::S
+* check if any of the USEd package U, find-symbol for U:S.
+* otherwise, return P:S.
 
 ## Unknown package
 
 When finding a symbol from an unknown package, we could either:
-* Return a null Symbol, and the caller should mark it as invalid.
-* Create a default package and proceed. Anyway, it will be marked later as undefined. No need to add the burden of
-checking for null in every single symbol management.
+* Mark it as invalid.
+* Behave as if it's a simple package (no export, USEs CL).
 
-I am going for the second solution for now. 
+The second solution is chosen, as it's very likely to be the correct behavior. 
 
 ## Usage highlighting
 

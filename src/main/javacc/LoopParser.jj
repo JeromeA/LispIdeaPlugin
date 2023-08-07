@@ -8,7 +8,6 @@ options {
 PARSER_BEGIN(LoopParser)
 
 package org.ax1.lisp.loop;
-import org.ax1.lisp.analysis.AnalysisContext;
 import org.ax1.lisp.psi.LispList;
 
 public class LoopParser extends LoopParserBase {
@@ -96,10 +95,10 @@ TOKEN : { <ERROR : (["A"-"Z"])+> }
 
 <*> TOKEN : { <COMPOUND : "()"> : DEFAULT }
 
-void Start(AnalysisContext context, LispList form):
+void Start(LispList form):
 {}
 {
-    { init(context, form); }
+    { init(form); }
     <LOOP> {keyword();}
     (Simple() | Extended())
     (<EOF> | {error("Expecting LOOP keyword");})
@@ -380,9 +379,9 @@ void ForAsHash():
 {
     ((<HASH_KEY> | <HASH_KEYS>) {keyword();}
     | (<HASH_VALUE> | <HASH_VALUES>) {keyword();})
-    (<USING> {keyword();} <COMPOUND> {skip();} ) ?
+    (<USING> {keyword();} <COMPOUND> {usingHashValueKey();} ) ?
     (<IN> | <OF>) {keyword();} Form()
-    (<USING> {keyword();} <COMPOUND> {skip();} ) ?
+    (<USING> {keyword();} <COMPOUND> {usingHashValueKey();} ) ?
 }
 
 // for-as-package::= var [type-spec] being {each | the}

@@ -1,37 +1,34 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.LexicalVariableHelper;
-import org.ax1.lisp.analysis.symbol.SymbolDefinition;
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
+import org.ax1.lisp.analysis.symbol.LexicalVariable;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 
 import java.util.List;
+import java.util.Set;
 
 public class AnalyzeDoTimes implements FormAnalyzer {
 
   @Override
-  public void analyze(AnalysisContext context, LispList form) {
+  public void analyze(LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
-      context.highlighter.highlightError(form, "DOTIMES needs at least 1 argument");
+      form.setErrorMessage("DOTIMES needs at least 1 argument");
       return;
     }
     LispList varList = list.get(1).getList();
     if (varList == null || varList.getSexpList().size() < 2 || varList.getSexpList().size() > 3) {
-      context.highlighter.highlightError(list.get(1), "(var count [result]) expected");
+      list.get(1).setErrorMessage("(var count [result]) expected");
       return;
     }
     LispSexp varName = varList.getSexpList().get(0);
     if (varName.getSymbol() == null) {
-      context.highlighter.highlightError(varList.getSexpList().get(0), "variable name expected");
+      varList.getSexpList().get(0).setErrorMessage("variable name expected");
       return;
     }
-    context.analyzer.analyzeForms(varList.getSexpList(), 1);
-    SymbolDefinition binding = LexicalVariableHelper.newLexicalVariable("DOTIMES",
-        context.getLocatedSymbol(varName.getSymbol()), null);
-    context.lexicalBindings.defineLexicalVariables(List.of(binding));
-    context.analyzer.analyzeForms(list, 2);
-    context.lexicalBindings.dropLexicalVariables();
+    LexicalVariable variable = new LexicalVariable(varName.getSymbolName());
+    SyntaxAnalyzer.INSTANCE.analyzeForms(varList.getSexpList(), 1);
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, Set.of(variable));
   }
 }

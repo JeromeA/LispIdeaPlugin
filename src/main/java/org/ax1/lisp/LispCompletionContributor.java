@@ -11,10 +11,10 @@ import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.NotNull;
 
 import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.FUNCTION_USAGE;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.VARIABLE_USAGE;
 import static org.ax1.lisp.psi.LispTypes.STRING_CONTENT_TOKEN;
 import static org.ax1.lisp.psi.LispTypes.SYMBOL_TOKEN;
-import static org.ax1.lisp.psi.impl.LispStringDesignator.Type.FUNCTION_USAGE;
-import static org.ax1.lisp.psi.impl.LispStringDesignator.Type.VARIABLE_USAGE;
 
 public class LispCompletionContributor extends CompletionContributor {
 

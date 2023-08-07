@@ -8,17 +8,13 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import org.ax1.lisp.analysis.ProjectData;
-import org.ax1.lisp.analysis.symbol.SymbolDefinition;
-import org.ax1.lisp.psi.LispString;
 import org.ax1.lisp.psi.LispSymbolName;
 import org.ax1.lisp.psi.LispTypes;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.ax1.lisp.LispIcons.TO_GENERIC;
 import static org.ax1.lisp.LispIcons.TO_METHOD;
@@ -53,7 +49,6 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
           null, new DefaultGutterIconNavigationHandler<>(targets, "Implementations"),
           GutterIconRenderer.Alignment.RIGHT, () -> "Go to implementations");
     }
-    Collection<LispStringDesignator> methodDefinitions = ProjectData.getInstance(element.getProject()).getMethodDefinitions(symbolName.getValue());
     return null;
   }
 

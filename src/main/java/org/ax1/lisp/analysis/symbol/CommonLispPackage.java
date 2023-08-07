@@ -1,19 +1,16 @@
 package org.ax1.lisp.analysis.symbol;
 
 import com.google.common.collect.ImmutableSet;
-import org.ax1.lisp.analysis.Bindings;
 
 import java.util.Set;
 
-import static org.ax1.lisp.analysis.symbol.Symbol.clSymbol;
-
-public class CommonLispPackage extends LispPackage {
+public class CommonLispPackage extends Package {
 
   public static final String COMMON_LISP = "COMMON-LISP";
 
-  public final Symbol NIL;
+  public final Symbol NIL = new Symbol(COMMON_LISP, "NIL").intern();
 
-  public final Symbol T;
+  public final Symbol T = new Symbol(COMMON_LISP, "T").intern();
 
   private static final Set<String> COMMON_LISP_FUNCTIONS = ImmutableSet.of(
       "*",
@@ -1002,23 +999,10 @@ public class CommonLispPackage extends LispPackage {
   public static CommonLispPackage INSTANCE = new CommonLispPackage();
 
   private CommonLispPackage() {
-    super(null, createDefinition());
+    super(COMMON_LISP);
+    addNickname("CL");
     COMMON_LISP_FUNCTIONS.forEach(this::addExport);
     COMMON_LISP_VARIABLES.forEach(this::addExport);
     COMMON_LISP_LAMBDA_KEYWORDS.forEach(this::addExport);
-    NIL = intern("NIL");
-    T = intern("T");
-  }
-
-  private void addExport(String name) {
-    getDefinition().addExport(name);
-    intern(name);
-  }
-
-  private static PackageDefinition createDefinition() {
-    PackageDefinition definition = new PackageDefinition(COMMON_LISP);
-    definition.addNickname("CL");
-    definition.setReadOnly();
-    return definition;
   }
 }

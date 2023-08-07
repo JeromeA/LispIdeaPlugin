@@ -1,43 +1,39 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.AnalysisContext;
-import org.ax1.lisp.analysis.symbol.Symbol;
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 
 import java.util.List;
 import java.util.Set;
 
-import static org.ax1.lisp.analysis.symbol.Symbol.keywordSymbol;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
 
 public class AnalyzeEvalWhen implements FormAnalyzer {
 
-  private static final Set<Symbol> SITUATIONS = Set.of(
-      keywordSymbol("COMPILE-TOPLEVEL"),
-      keywordSymbol("LOAD-TOPLEVEL"),
-      keywordSymbol("EXECUTE")
-  );
+  private static final Set<String> SITUATIONS = Set.of("COMPILE-TOPLEVEL", "LOAD-TOPLEVEL", "EXECUTE");
 
   @Override
-  public void analyze(AnalysisContext context, LispList form) {
+  public void analyze(LispList form) {
     List<LispSexp> list = form.getSexpList();
+    list.get(0).setType(KEYWORD);
     if (list.size() < 2) {
-      context.highlighter.highlightError(form, "EVAL-WHEN needs at least 1 argument");
+      form.setErrorMessage("EVAL-WHEN needs at least 1 argument");
       return;
     }
     LispList situationList = list.get(1).getList();
     if (situationList == null) {
-      context.highlighter.highlightError(list.get(1), "List of situations expected");
+      list.get(1).setErrorMessage("List of situations expected");
       return;
     }
     for (LispSexp situation : situationList.getSexpList()) {
-      if (situation.isSymbol() && SITUATIONS.contains(context.getSymbol(situation.getSymbol()))) {
-        context.highlighter.highlightKeyword(situation);
+      if (situation.isSymbol() && SITUATIONS.contains(situation.getSymbolName().getValue())) {
+        situation.setType(KEYWORD);
       } else {
-        context.highlighter.highlightError(situation, "Invalid situation");
+        situation.setErrorMessage("Invalid situation");
       }
     }
 
-    context.analyzer.analyzeForms(list, 2);
+    SyntaxAnalyzer.INSTANCE.analyzeForms(list, 2);
   }
 }

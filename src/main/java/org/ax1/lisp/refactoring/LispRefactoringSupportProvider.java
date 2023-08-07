@@ -2,9 +2,7 @@ package org.ax1.lisp.refactoring;
 
 import com.intellij.lang.refactoring.RefactoringSupportProvider;
 import com.intellij.psi.PsiElement;
-import org.ax1.lisp.analysis.symbol.PackageDefinition;
-import org.ax1.lisp.analysis.symbol.SymbolDefinition;
-import org.ax1.lisp.psi.LispSymbolName;
+import org.ax1.lisp.analysis.BaseLispElement;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +20,7 @@ public class LispRefactoringSupportProvider extends RefactoringSupportProvider {
     LispStringDesignator.Type type = stringDesignator.getType();
     return type == LispStringDesignator.Type.FUNCTION_DEFINITION
         || type == LispStringDesignator.Type.METHOD_DEFINITION
-        || type == LispStringDesignator.Type.VARIABLE_DEFINITION;
+        || type == LispStringDesignator.Type.VARIABLE_DEFINITION
+        || type == LispStringDesignator.Type.LEXICAL_VARIABLE_DEFINITION;
   }
 }

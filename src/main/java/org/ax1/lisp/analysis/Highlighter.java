@@ -3,12 +3,9 @@ package org.ax1.lisp.analysis;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.psi.PsiElement;
 import org.ax1.lisp.psi.LispFile;
-import org.ax1.lisp.psi.LispList;
 
-import static com.intellij.lang.annotation.HighlightSeverity.INFO;
 import static com.intellij.lang.annotation.HighlightSeverity.INFORMATION;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.CONSTANT;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.FUNCTION_DECLARATION;

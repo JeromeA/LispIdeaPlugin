@@ -1,12 +1,9 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.*;
-import org.ax1.lisp.analysis.LexicalBindingManager.LexicalScope;
-import org.ax1.lisp.analysis.symbol.Symbol;
-import org.ax1.lisp.analysis.symbol.SymbolDefinition;
+import org.ax1.lisp.analysis.symbol.LexicalVariable;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
 import org.ax1.lisp.psi.LispSymbolName;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,28 +11,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static org.ax1.lisp.analysis.symbol.Symbol.clSymbol;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
 
 public class LambdaAnalyzer {
 
-  private static final Set<Symbol> KEYWORDS =
-      Set.of(clSymbol("&BODY"), clSymbol("&KEY"), clSymbol("&OPTIONAL"), clSymbol("&REST"));
+  private static final Set<String> KEYWORDS = Set.of("&BODY", "&KEY", "&OPTIONAL", "&REST");
 
   /**
    * Analyze a lambda function, starting from the lambda list at the specified index in the form.
    */
-  public static void analyzeLambda(String formName, AnalysisContext context, LispList form, int index) {
+  public static void analyzeLambda(String formName, LispList form, int index) {
     List<LispSexp> list = form.getSexpList();
     LispList lambdaList = list.get(index).getList();
     if (lambdaList == null) {
-      context.highlighter.highlightError(list.get(index), "Lambda list expected");
+      list.get(index).setErrorMessage("Lambda list expected");
       return;
     }
-    List<SymbolDefinition> variables = getVariables(context, lambdaList).stream()
-        .map(context::getLocatedSymbol)
-        .map(locatedSymbol -> LexicalVariableHelper.newLexicalVariable(formName, locatedSymbol, null))
-        .collect(toImmutableList());
+    lambdaList.setType(CODE);
+    List<LexicalVariable> variables = getVariables(lambdaList);
 
     index++;
     if (index >= list.size()) return;
@@ -44,9 +37,7 @@ public class LambdaAnalyzer {
     // Skip declaration.
     if (isDeclaration(list.get(index))) index++;
 
-    try(LexicalScope ignored = context.lexicalBindings.defineLexicalVariables(variables)) {
-      context.analyzer.analyzeForms(list, index);
-    }
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, index, variables);
   }
 
   private static boolean isDeclaration(LispSexp sexp) {
@@ -61,15 +52,15 @@ public class LambdaAnalyzer {
   }
 
   @NotNull
-  private static List<LispSymbol> getVariables(AnalysisContext context, LispList lambdaList) {
-    List<LispSymbol> result = new ArrayList<>();
+  private static List<LexicalVariable> getVariables(LispList lambdaList) {
+    List<LexicalVariable> result = new ArrayList<>();
     for (LispSexp parameterSpecifier : lambdaList.getSexpList()) {
       if (parameterSpecifier.isSymbol()) {
-        Symbol symbol = context.getSymbol(parameterSpecifier.getSymbol());
-        if (KEYWORDS.contains(symbol)) {
-          context.highlighter.highlightConstant(parameterSpecifier);
+        LispSymbolName symbolName = parameterSpecifier.getSymbolName();
+        if (KEYWORDS.contains(symbolName.getValue())) {
+          symbolName.setType(KEYWORD);
         } else {
-          result.add(parameterSpecifier.getSymbol());
+          result.add(new LexicalVariable(symbolName));
         }
         continue;
       }
@@ -78,17 +69,16 @@ public class LambdaAnalyzer {
         List<LispSexp> varInit = list.getSexpList();
         LispSexp varName = varInit.get(0);
         if (varName.getSymbol() == null) {
-          context.highlighter.highlightError(varName, "Variable name expected");
+          varName.setErrorMessage("Variable name expected");
           continue;
         }
-        result.add(varName.getSymbol());
+        result.add(new LexicalVariable(varName.getSymbolName()));
         if (varInit.size() > 1) {
-          // TODO: this should happen inside the lexical env of the previous variables.
-          context.analyzer.analyzeForm(varInit.get(1));
+          SyntaxAnalyzer.INSTANCE.analyzeForm(varInit.get(1));
         }
         continue;
       }
-      context.highlighter.highlightError(parameterSpecifier, "Parameter specifier expected");
+      parameterSpecifier.setErrorMessage("Parameter specifier expected");
     }
     return result;
   }
