@@ -212,16 +212,6 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
   }
 
   private boolean isKeywordSymbol() {
-    if (getText().equals("list-fasls")) {
-      System.err.println("isSymbol: " + isSymbol());
-      if (!isSymbol()) return false;
-      System.err.println("instanceof LispSymbolName: " + (this instanceof LispSymbolName));
-      if (!(this instanceof LispSymbolName)) return false;
-      Symbol symbol = SymbolResolver.resolve((LispSymbolName) this);
-      System.err.println("Symbol: " + symbol);
-      System.err.println("symbol.isConstant(): " + symbol.isConstant());
-      return symbol.isConstant();
-    }
     if (!isSymbol()) return false;
     if (! (this instanceof LispSymbolName)) return false;
     Symbol symbol = SymbolResolver.resolve((LispSymbolName) this);
