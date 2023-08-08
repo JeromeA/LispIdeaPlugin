@@ -11,6 +11,7 @@ import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.IncorrectOperationException;
+import org.ax1.lisp.SymbolResolver;
 import org.ax1.lisp.analysis.ProjectData;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalVariable;
@@ -19,6 +20,7 @@ import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispElementFactory;
 import org.ax1.lisp.psi.LispFile;
 import org.ax1.lisp.psi.LispStringContent;
+import org.ax1.lisp.psi.LispSymbolName;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.ax1.lisp.usages.LispStringDesignatorReference;
 import org.jetbrains.annotations.NotNull;
@@ -112,8 +114,8 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
     Type type = getType();
     if (type == Type.DATA && isSymbol()) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(CONSTANT).create();
-    } else if (type == Type.KEYWORD) {
-      holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(KEYWORD).create();
+    } else if (isKeywordSymbol() || type == Type.KEYWORD) {
+      holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(CONSTANT).create();
     } else if (type == Type.UNKNOWN) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(REASSIGNED_LOCAL_VARIABLE).create();
     } else if (type == Type.FUNCTION_USAGE && KEYWORDS.contains(getValue())) {
@@ -207,5 +209,22 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
 
   private boolean isSymbol() {
     return SYMBOL_TYPES.contains(getType());
+  }
+
+  private boolean isKeywordSymbol() {
+    if (getText().equals("list-fasls")) {
+      System.err.println("isSymbol: " + isSymbol());
+      if (!isSymbol()) return false;
+      System.err.println("instanceof LispSymbolName: " + (this instanceof LispSymbolName));
+      if (!(this instanceof LispSymbolName)) return false;
+      Symbol symbol = SymbolResolver.resolve((LispSymbolName) this);
+      System.err.println("Symbol: " + symbol);
+      System.err.println("symbol.isConstant(): " + symbol.isConstant());
+      return symbol.isConstant();
+    }
+    if (!isSymbol()) return false;
+    if (! (this instanceof LispSymbolName)) return false;
+    Symbol symbol = SymbolResolver.resolve((LispSymbolName) this);
+    return symbol.isConstant();
   }
 }

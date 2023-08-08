@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.stubs.StubIndex;
 import org.ax1.lisp.analysis.symbol.*;
 import org.ax1.lisp.analysis.symbol.Package;
+import org.ax1.lisp.psi.LispColon;
 import org.ax1.lisp.psi.LispPackagePrefix;
 import org.ax1.lisp.psi.LispSymbol;
 import org.ax1.lisp.psi.LispSymbolName;
@@ -38,6 +39,8 @@ public final class SymbolResolver {
     if (packagePrefix != null) {
       return new Symbol(packagePrefix.getText(), symbolName.getText());
     }
+    LispColon colon = symbol.getColon();
+    if (colon != null) return new Symbol("", symbolName.getValue());
     return findSymbol(getPackageContext(symbolName), symbolName.getValue());
   }
 
