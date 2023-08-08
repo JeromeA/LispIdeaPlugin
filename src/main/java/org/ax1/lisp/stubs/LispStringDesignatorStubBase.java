@@ -114,8 +114,10 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
     Type type = getType();
     if (type == Type.DATA && isSymbol()) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(CONSTANT).create();
-    } else if (isKeywordSymbol() || type == Type.KEYWORD) {
+    } else if (isConstantSymbol()) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(CONSTANT).create();
+    } else if (type == Type.KEYWORD) {
+      holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(KEYWORD).create();
     } else if (type == Type.UNKNOWN) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(REASSIGNED_LOCAL_VARIABLE).create();
     } else if (type == Type.FUNCTION_USAGE && KEYWORDS.contains(getValue())) {
@@ -211,7 +213,7 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
     return SYMBOL_TYPES.contains(getType());
   }
 
-  private boolean isKeywordSymbol() {
+  private boolean isConstantSymbol() {
     if (!isSymbol()) return false;
     if (! (this instanceof LispSymbolName)) return false;
     Symbol symbol = SymbolResolver.resolve((LispSymbolName) this);
