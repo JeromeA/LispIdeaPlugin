@@ -33,7 +33,10 @@ public class LambdaAnalyzer {
     index++;
     if (index >= list.size()) return;
     // Skip documentation.
-    if (list.get(index).getString() != null && index + 1 < list.size()) index++;
+    if (list.get(index).getString() != null && index + 1 < list.size()) {
+      list.get(index).setType(CODE);
+      index++;
+    }
     // Skip declaration.
     if (isDeclaration(list.get(index))) index++;
 

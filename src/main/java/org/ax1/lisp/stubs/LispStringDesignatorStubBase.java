@@ -31,6 +31,11 @@ import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.*;
 
 public class LispStringDesignatorStubBase<T extends StubElement> extends StubBasedPsiElementBase<T> implements LispStringDesignator {
 
+  private static final Set<Type> SYMBOL_TYPES =
+      Set.of(Type.CONDITION_DEFINITION, Type.FUNCTION_DEFINITION, Type.PACKAGE_DEFINITION, Type.VARIABLE_DEFINITION,
+          Type.LEXICAL_VARIABLE_DEFINITION, Type.CONDITION_USAGE, Type.VARIABLE_USAGE, Type.PACKAGE_USAGE,
+          Type.FUNCTION_USAGE, Type.LEXICAL_VARIABLE_USAGE);
+
   private Type type;
   private String errorMessage;
   private String descriptionString;
@@ -188,6 +193,10 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
 
   @Override
   public @Nullable PsiElement getNameIdentifier() {
-    return this;
+    return isSymbol() ? this : null;
+  }
+
+  private boolean isSymbol() {
+    return SYMBOL_TYPES.contains(getType());
   }
 }
