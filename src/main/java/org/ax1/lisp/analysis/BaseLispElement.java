@@ -10,6 +10,7 @@ public interface BaseLispElement extends AnnotatedElement {
 
   enum Type {
     UNKNOWN,
+    COMMENT,
     DATA,
     CODE,
     ERROR,

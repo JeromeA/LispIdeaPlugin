@@ -1,11 +1,14 @@
 package org.ax1.lisp.analysis;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
 import org.apache.groovy.util.Maps;
 import org.ax1.lisp.SymbolResolver;
 import org.ax1.lisp.analysis.form.*;
 import org.ax1.lisp.analysis.symbol.*;
 import org.ax1.lisp.psi.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -61,7 +64,11 @@ public class SyntaxAnalyzer {
   }
 
   public void analyze(LispFile lispFile) {
-    analyzeForms(lispFile.getSexpList(), 0);
+    CachedValuesManager.getCachedValue(lispFile, () -> {
+      analyzeForms(lispFile.getSexpList(), 0);
+      return CachedValueProvider.Result.create(Boolean.TRUE, lispFile);
+    });
+
   }
 
   public void analyzeForms(Collection<LispSexp> forms, int skip) {

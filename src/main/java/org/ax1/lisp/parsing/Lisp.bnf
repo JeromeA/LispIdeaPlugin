@@ -22,6 +22,9 @@
   implements("reader_feature")="org.ax1.lisp.psi.impl.LispReaderFeatureMixin"
   mixin("reader_feature")="org.ax1.lisp.psi.impl.LispReaderFeatureMixinImpl"
 
+  implements("prefixed_sexp")="org.ax1.lisp.psi.impl.LispPrefixedSexpMixin"
+  mixin("prefixed_sexp")="org.ax1.lisp.psi.impl.LispPrefixedSexpMixinImpl"
+
   mixin("package_prefix")="org.ax1.lisp.psi.impl.LispPackagePrefixMixinImpl"
   implements("symbol_name|package_prefix|string_content")="org.ax1.lisp.psi.impl.LispStringDesignator"
 //  mixin("symbol_name|package_prefix|string_content")="org.ax1.lisp.psi.impl.LispStringDesignatorImpl"

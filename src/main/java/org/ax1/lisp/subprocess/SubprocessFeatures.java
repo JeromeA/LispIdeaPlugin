@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import static com.intellij.openapi.components.Service.Level.PROJECT;
 import static org.ax1.lisp.analysis.BaseLispElement.Type.CODE;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.COMMENT;
 
 /** Evaluate feature expressions, using the list of valid features from the Lisp subprocess. */
 @Service(PROJECT)
@@ -40,10 +41,14 @@ public final class SubprocessFeatures {
         .collect(Collectors.toUnmodifiableList());
   }
 
-  private boolean isValidSexp(LispPrefixedSexp prefixedSexp) {
+  public boolean isValidSexp(LispPrefixedSexp prefixedSexp) {
     @NotNull List<LispReaderFeature> readerFeatureList = prefixedSexp.getReaderFeatureList();
-    if (readerFeatureList.isEmpty()) return true;
-    return this.eval(readerFeatureList.get(0));
+    if (readerFeatureList.isEmpty() || this.eval(readerFeatureList.get(0))) {
+      return true;
+    } else {
+      prefixedSexp.getSexp().setType(COMMENT);
+      return false;
+    }
   }
 
   public boolean eval(LispReaderFeature readerFeature) {
@@ -62,7 +67,6 @@ public final class SubprocessFeatures {
   }
 
   private boolean eval(@NotNull LispSymbolName symbolName) {
-    symbolName.setType(CODE);
     return getFeatures().contains(symbolName.getValue());
   }
 
@@ -73,7 +77,6 @@ public final class SubprocessFeatures {
     LispFeatureExp exp0 = featureExpList.get(0);
     if (exp0.getSimpleFeatureExp() == null) return false;
     LispSymbolName symbolName = exp0.getSimpleFeatureExp().getSymbolName();
-    symbolName.setType(CODE);
     switch (symbolName.getValue()) {
       case "NOT":
         if (featureExpList.size() != 2) return false;
