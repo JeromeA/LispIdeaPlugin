@@ -110,7 +110,7 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
       return;
     }
     Type type = getType();
-    if (type == Type.DATA) {
+    if (type == Type.DATA && isSymbol()) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(CONSTANT).create();
     } else if (type == Type.KEYWORD) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(KEYWORD).create();
