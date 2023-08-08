@@ -20,7 +20,6 @@ public class AnalyzeDefun implements FormAnalyzer {
   @Override
   public void analyze(LispList form) {
     List<LispSexp> list = form.getSexpList();
-    list.get(0).setType(KEYWORD);
     if (list.size() < 3) {
       form.setErrorMessage(type.name() + " needs at least 2 arguments");
       return;

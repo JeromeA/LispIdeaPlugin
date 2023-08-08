@@ -16,7 +16,6 @@ public class AnalyzeEvalWhen implements FormAnalyzer {
   @Override
   public void analyze(LispList form) {
     List<LispSexp> list = form.getSexpList();
-    list.get(0).setType(KEYWORD);
     if (list.size() < 2) {
       form.setErrorMessage("EVAL-WHEN needs at least 1 argument");
       return;

@@ -12,7 +12,6 @@ public class AnalyzeDefineCondition implements FormAnalyzer {
   @Override
   public void analyze(LispList form) {
     List<LispSexp> list = form.getSexpList();
-    list.get(0).setType(KEYWORD);
     if (list.size() < 4) {
       form.setErrorMessage("DEFINE-CONDITION needs at least 3 arguments");
       return;

@@ -21,7 +21,6 @@ public class AnalyzeDefvar implements FormAnalyzer {
   @Override
   public void analyze(LispList form) {
     List<LispSexp> sexpList = form.getSexpList();
-    sexpList.get(0).setType(KEYWORD);
     if (sexpList.size() < type.getMinArg() + 1) {
       form.setErrorMessage(type.name() + " takes at least 1 argument");
       return;

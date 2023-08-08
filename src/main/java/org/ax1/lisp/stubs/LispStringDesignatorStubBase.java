@@ -15,6 +15,7 @@ import org.ax1.lisp.analysis.ProjectData;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalVariable;
 import org.ax1.lisp.analysis.symbol.Package;
+import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispElementFactory;
 import org.ax1.lisp.psi.LispFile;
 import org.ax1.lisp.psi.LispStringContent;
@@ -35,6 +36,11 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
       Set.of(Type.CONDITION_DEFINITION, Type.FUNCTION_DEFINITION, Type.PACKAGE_DEFINITION, Type.VARIABLE_DEFINITION,
           Type.LEXICAL_VARIABLE_DEFINITION, Type.CONDITION_USAGE, Type.VARIABLE_USAGE, Type.PACKAGE_USAGE,
           Type.FUNCTION_USAGE, Type.LEXICAL_VARIABLE_USAGE);
+
+  // Macros or special forms, whose behavior is closer to keywords, like IF, than to a function call.
+  private static final Set<String> KEYWORDS =
+      Set.of("DEFINE-CONDITION", "DEFPACKAGE", "DEFPARAMETER", "DEFUN", "DEFVAR", "DOLIST", "DOSYMBOLS", "EVAL-WHEN",
+          "IF", "IGNORE", "IN-PACKAGE", "LET", "LET*", "LOOP", "RETURN", "SETF", "SETQ", "SPECIAL", "UNLESS", "WHEN");
 
   private Type type;
   private String errorMessage;
@@ -110,7 +116,10 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(KEYWORD).create();
     } else if (type == Type.UNKNOWN) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(REASSIGNED_LOCAL_VARIABLE).create();
+    } else if (type == Type.FUNCTION_USAGE && KEYWORDS.contains(getValue())) {
+      holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(KEYWORD).create();
     }
+
     // TODO: "Function '%s' does not exist"
     // TODO: "Variable '%s' is not defined"
     // TODO: unused lexical variables

@@ -29,7 +29,6 @@ public class AnalyzeLoop implements FormAnalyzer {
   @Override
   public void analyze(LispList form) {
     List<LispSexp> sexpList = form.getSexpList();
-    sexpList.get(0).setType(KEYWORD);
     String syntaxString = sexpList.stream().map(AnalyzeLoop::toSyntaxString).collect(Collectors.joining(" "));
     ByteArrayInputStream syntaxInput = new ByteArrayInputStream(syntaxString.getBytes());
     LoopParser parser = new LoopParser(syntaxInput);
