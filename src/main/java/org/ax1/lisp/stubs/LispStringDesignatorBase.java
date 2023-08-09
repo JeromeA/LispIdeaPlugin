@@ -206,6 +206,11 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
     if (getType() == Type.LEXICAL_VARIABLE_USAGE) {
       return getReference(lexicalVariable.definition);
     }
+    if (getType() == Type.SYMBOL_USAGE) {
+      LispStringDesignator designator = projectData.getFunctionDefinition(getLispName());
+      if (designator == null) designator = projectData.getVariableDefinition(getLispName());
+      return getReference(designator);
+    }
     return null;
   }
 
