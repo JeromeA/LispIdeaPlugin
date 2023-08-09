@@ -27,7 +27,7 @@
 
   implements("symbol_name|package_prefix|string_content")="org.ax1.lisp.psi.impl.LispStringDesignator"
 //  mixin("symbol_name|package_prefix|string_content")="org.ax1.lisp.psi.impl.LispStringDesignatorImpl"
-  extends("symbol_name|package_prefix|string_content")="org.ax1.lisp.stubs.LispStringDesignatorStubBase<?>"
+  extends("symbol_name|package_prefix|string_content")="org.ax1.lisp.stubs.LispStringDesignatorBase<?>"
   elementTypeFactory("symbol_name|package_prefix|string_content")="org.ax1.lisp.stubs.LispElementTypeFactory.stubFactory"
 }
 

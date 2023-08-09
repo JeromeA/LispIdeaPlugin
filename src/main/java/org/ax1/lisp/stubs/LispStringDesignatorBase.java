@@ -32,7 +32,7 @@ import java.util.Set;
 import static com.intellij.lang.annotation.HighlightSeverity.INFORMATION;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.*;
 
-public class LispStringDesignatorStubBase<T extends StubElement> extends StubBasedPsiElementBase<T> implements LispStringDesignator {
+public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPsiElementBase<T> implements LispStringDesignator {
 
   private static final Set<Type> SYMBOL_TYPES =
       Set.of(Type.CONDITION_DEFINITION, Type.FUNCTION_DEFINITION, Type.PACKAGE_DEFINITION, Type.VARIABLE_DEFINITION,
@@ -41,9 +41,9 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
 
   // Macros or special forms, whose behavior is closer to keywords, like IF, than to a function call.
   private static final Set<String> KEYWORDS =
-      Set.of("DEFINE-CONDITION", "DEFPACKAGE", "DEFPARAMETER", "DEFUN", "DEFVAR", "DOLIST", "DOSYMBOLS", "EVAL-WHEN",
-          "FLET", "IF", "IGNORE", "IN-PACKAGE", "LAMBDA", "LET", "LET*", "LOOP", "RETURN", "SETF", "SETQ", "SPECIAL",
-          "UNLESS", "WHEN");
+      Set.of("DEFCONSTANT", "DEFINE-CONDITION", "DEFPACKAGE", "DEFPARAMETER", "DEFMACRO", "DEFUN", "DEFVAR", "DOLIST",
+          "DOSYMBOLS", "EVAL-WHEN", "FLET", "IF", "IGNORE", "IN-PACKAGE", "LAMBDA", "LET", "LET*", "LOOP", "PROCLAIM",
+          "RETURN", "SETF", "SETQ", "SPECIAL", "UNLESS", "WHEN");
 
   private Type type;
   private String errorMessage;
@@ -52,15 +52,15 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
   private final Set<String> functionDefinitions = new HashSet<>();
   private LexicalVariable lexicalVariable;
 
-  public LispStringDesignatorStubBase(@NotNull T stub, @NotNull IStubElementType<?, ?> nodeType) {
+  public LispStringDesignatorBase(@NotNull T stub, @NotNull IStubElementType<?, ?> nodeType) {
     super(stub, nodeType);
   }
 
-  public LispStringDesignatorStubBase(@NotNull ASTNode node) {
+  public LispStringDesignatorBase(@NotNull ASTNode node) {
     super(node);
   }
 
-  public LispStringDesignatorStubBase(T stub, IElementType nodeType, ASTNode node) {
+  public LispStringDesignatorBase(T stub, IElementType nodeType, ASTNode node) {
     super(stub, nodeType, node);
   }
 
@@ -135,7 +135,20 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
 
   @Override
   public String getDescriptionString() {
-    return descriptionString;
+    return String.format("Class: %s<br>" +
+            "Type: %s<br>" +
+            "Lisp name: %s<br>" +
+            "Description: %s<br>" +
+            "Package definition: %s<br>" +
+            "Function definitions: %s<br>" +
+            "Lexical variable: %s",
+        getClass().getName(),
+        getType(),
+        getLispName(),
+        descriptionString,
+        packageDefinition,
+        functionDefinitions,
+        lexicalVariable);
   }
 
   @Override
