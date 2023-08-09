@@ -23,7 +23,11 @@ public class AnalyzeEcase implements FormAnalyzer {
       if (list == null || list.getSexpList().size() < 2) {
         sexp.setErrorMessage("key-form clause expected");
       } else {
-        list.getSexpList().get(0).setType(DATA);
+        LispSexp keyListDesignator = list.getSexpList().get(0);
+        keyListDesignator.setType(DATA);
+        if (keyListDesignator.getList() != null) {
+          keyListDesignator.getList().getSexpList().forEach(s -> s.setType(DATA));
+        }
         SyntaxAnalyzer.INSTANCE.analyzeForms(list.getSexpList(), 1);
       }
     });
