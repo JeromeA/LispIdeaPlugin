@@ -76,7 +76,7 @@ public class AnalyzeDefmethod implements FormAnalyzer {
     }
     LispSymbolName symbolName = sexp.getSymbolName();
     if (symbolName == null) return null;
-    if (KEYWORDS.contains(symbolName.getValue())) {
+    if (KEYWORDS.contains(symbolName.getLispName())) {
       symbolName.setType(KEYWORD);
       return null;
     }

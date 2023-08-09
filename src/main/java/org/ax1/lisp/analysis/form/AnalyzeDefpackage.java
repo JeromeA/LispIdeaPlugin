@@ -27,7 +27,7 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       return;
     }
     packageName.setType(PACKAGE_DEFINITION);
-    Package definition = new Package(packageName.getValue());
+    Package definition = new Package(packageName.getLispName());
     formList.stream().skip(2).forEach(sexp -> analyzeOption(sexp, definition));
     packageName.setPackageDefinition(definition);
   }
@@ -46,7 +46,7 @@ public class AnalyzeDefpackage implements FormAnalyzer {
     }
     LispSymbolName optionName = sexp0.getSymbolName();
     optionName.setType(KEYWORD);
-    switch(optionName.getValue()) {
+    switch(optionName.getLispName()) {
       case "EXPORT":
         analyzeOptionExport(definition, list);
         break;
@@ -84,7 +84,7 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       if (stringDesignator == null) {
         sexp.setErrorMessage("Symbol name (string designator) expected");
       } else {
-        definition.addNickname(stringDesignator.getValue());
+        definition.addNickname(stringDesignator.getLispName());
       }
     }
   }
@@ -100,14 +100,14 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       list.get(1).setErrorMessage("Package name (string designator) expected");
       return;
     }
-    String packageName = packageNameDesignator.getValue();
+    String packageName = packageNameDesignator.getLispName();
     for (int i = 2; i < list.size(); i++) {
       LispSexp sexp = list.get(i);
       LispStringDesignator stringDesignator = getLispStringDesignator(sexp);
       if (stringDesignator == null) {
         sexp.setErrorMessage("Symbol name (string designator) expected");
       } else {
-        definition.addImportFrom(stringDesignator.getValue(), packageName);
+        definition.addImportFrom(stringDesignator.getLispName(), packageName);
       }
     }
   }
@@ -122,7 +122,7 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       descriptionSexp.setErrorMessage("Description string expected");
       return;
     }
-    definition.description = descriptionSexp.getString().getStringContent().getValue();
+    definition.description = descriptionSexp.getString().getStringContent().getLispName();
   }
 
   private void analyzeOptionUses(Package definition, List<LispSexp> list) {
@@ -133,7 +133,7 @@ public class AnalyzeDefpackage implements FormAnalyzer {
         sexp.setErrorMessage("package name (string designator) expected");
       } else {
         stringDesignator.setType(PACKAGE_USAGE);
-        definition.addUse(stringDesignator.getValue());
+        definition.addUse(stringDesignator.getLispName());
       }
     }
   }
@@ -145,7 +145,8 @@ public class AnalyzeDefpackage implements FormAnalyzer {
       if (stringDesignator == null) {
         sexp.setErrorMessage("Symbol name (string designator) expected");
       } else {
-        definition.addExport(stringDesignator.getValue());
+        stringDesignator.setType(SYMBOL_USAGE);
+        definition.addExport(stringDesignator.getLispName());
       }
     }
   }

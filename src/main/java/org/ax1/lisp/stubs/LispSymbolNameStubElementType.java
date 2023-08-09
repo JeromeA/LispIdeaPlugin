@@ -20,7 +20,7 @@ public class LispSymbolNameStubElementType extends LispStubElementType<LispSymbo
   }
 
   @Override
-  protected LispSymbolNameStub createStub(StubElement parentStub, String stringValue, BaseLispElement.Type type) {
-    return new LispSymbolNameStub(parentStub, INSTANCE, stringValue, type);
+  protected LispSymbolNameStub createStub(StubElement parentStub, String symbolName, BaseLispElement.Type type) {
+    return new LispSymbolNameStub(parentStub, INSTANCE, symbolName, type);
   }
 }

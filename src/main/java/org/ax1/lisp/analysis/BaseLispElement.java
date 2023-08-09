@@ -21,6 +21,7 @@ public interface BaseLispElement extends AnnotatedElement {
     CONDITION_USAGE,
     FUNCTION_DEFINITION,
     FUNCTION_USAGE,
+    SYMBOL_USAGE,
     METHOD_DEFINITION,
     VARIABLE_DEFINITION,
     VARIABLE_USAGE,

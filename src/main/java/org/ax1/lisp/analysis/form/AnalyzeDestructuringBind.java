@@ -39,7 +39,7 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
       LispList list = sexp.getList();
       if (sexp.isSymbol()) {
         LispSymbolName symbolName = sexp.getSymbolName();
-        if (KEYWORDS.contains(symbolName.getValue())) {
+        if (KEYWORDS.contains(symbolName.getLispName())) {
           symbolName.setType(KEYWORD);
         } else {
           result.add(new LexicalVariable(symbolName));

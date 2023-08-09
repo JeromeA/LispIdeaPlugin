@@ -8,8 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class LispSymbolNameStub extends LispStringDesignatorStub<LispSymbolName> {
 
-  protected LispSymbolNameStub(@Nullable StubElement parent, IStubElementType elementType, String stringValue, BaseLispElement.Type type) {
-    super(parent, elementType, stringValue, type);
+  protected LispSymbolNameStub(@Nullable StubElement parent, IStubElementType elementType, String symbolName, BaseLispElement.Type type) {
+    super(parent, elementType, symbolName, type);
   }
 
 }

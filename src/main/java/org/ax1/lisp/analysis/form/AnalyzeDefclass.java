@@ -63,7 +63,7 @@ public class AnalyzeDefclass implements FormAnalyzer {
         slotOptions.get(i).setErrorMessage("Slot option expected");
         continue;
       }
-      String slotOptionName = slotOption.getSymbolName().getValue();
+      String slotOptionName = slotOption.getSymbolName().getLispName();
       if (METHOD_GENERATORS.contains(slotOptionName)) {
         slotOption.setType(KEYWORD);
         LispSexp name = slotOptions.get(i + 1);

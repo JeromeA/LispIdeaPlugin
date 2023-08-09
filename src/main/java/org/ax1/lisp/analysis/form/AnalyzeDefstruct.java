@@ -56,7 +56,7 @@ public class AnalyzeDefstruct implements FormAnalyzer {
     LispList list = slot.getList();
     if (list != null && list.getSexpList().size() >= 1 && list.getSexpList().get(0).isSymbol()) {
       LispSymbolName symbolName = list.getSexpList().get(0).getSymbolName();
-      symbolName.addFunctionDefinition(struct.name + "-" + symbolName.getValue());
+      symbolName.addFunctionDefinition(struct.name + "-" + symbolName.getLispName());
       // TODO: analyze slot options.
       return;
     }

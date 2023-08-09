@@ -51,7 +51,7 @@ public class LambdaAnalyzer {
     LispSexp firstSexp = sexpList.get(0);
     LispSymbolName firstSymbolName = firstSexp.getSymbolName();
     if (firstSymbolName == null) return false;
-    return firstSymbolName.getValue().equals("DECLARE");
+    return firstSymbolName.getLispName().equals("DECLARE");
   }
 
   @NotNull
@@ -60,7 +60,7 @@ public class LambdaAnalyzer {
     for (LispSexp parameterSpecifier : lambdaList.getSexpList()) {
       if (parameterSpecifier.isSymbol()) {
         LispSymbolName symbolName = parameterSpecifier.getSymbolName();
-        if (KEYWORDS.contains(symbolName.getValue())) {
+        if (KEYWORDS.contains(symbolName.getLispName())) {
           symbolName.setType(KEYWORD);
         } else {
           result.add(new LexicalVariable(symbolName));

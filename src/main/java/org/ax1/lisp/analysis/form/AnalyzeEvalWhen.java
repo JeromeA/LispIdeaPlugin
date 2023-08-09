@@ -26,7 +26,7 @@ public class AnalyzeEvalWhen implements FormAnalyzer {
       return;
     }
     for (LispSexp situation : situationList.getSexpList()) {
-      if (situation.isSymbol() && SITUATIONS.contains(situation.getSymbolName().getValue())) {
+      if (situation.isSymbol() && SITUATIONS.contains(situation.getSymbolName().getLispName())) {
         situation.setType(KEYWORD);
       } else {
         situation.setErrorMessage("Invalid situation");

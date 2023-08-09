@@ -5,7 +5,6 @@ import com.intellij.find.findUsages.FindUsagesHandler;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.SearchScope;
-import org.ax1.lisp.analysis.BaseLispElement;
 import org.ax1.lisp.analysis.ProjectData;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.NotNull;
@@ -29,13 +28,13 @@ public class LispFindUsagesHandler extends FindUsagesHandler {
         return getUsageReferences(searchScope, stringDesignator.getLexicalVariable().usages);
       }
       if (stringDesignator.getType() == LispStringDesignator.Type.VARIABLE_DEFINITION) {
-        return getUsageReferences(searchScope, projectData.getVariableUsages(stringDesignator.getValue()));
+        return getUsageReferences(searchScope, projectData.getVariableUsages(stringDesignator.getLispName()));
       }
       if (stringDesignator.getType() == LispStringDesignator.Type.FUNCTION_DEFINITION) {
-        return getUsageReferences(searchScope, projectData.getFunctionUsages(stringDesignator.getValue()));
+        return getUsageReferences(searchScope, projectData.getFunctionUsages(stringDesignator.getLispName()));
       }
       if (stringDesignator.getType() == LispStringDesignator.Type.PACKAGE_DEFINITION) {
-        return getUsageReferences(searchScope, projectData.getPackageUsages(stringDesignator.getValue()));
+        return getUsageReferences(searchScope, projectData.getPackageUsages(stringDesignator.getLispName()));
       }
     }
     return List.of();

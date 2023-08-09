@@ -6,7 +6,6 @@ import org.ax1.lisp.psi.LispString;
 
 import java.util.List;
 
-import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
 import static org.ax1.lisp.analysis.form.LambdaAnalyzer.analyzeLambda;
 
 public class AnalyzeDefun implements FormAnalyzer {
@@ -37,7 +36,7 @@ public class AnalyzeDefun implements FormAnalyzer {
     if (list.size() < 4) return null;
     LispString string3 = list.get(3).getString();
     if (string3 == null) return null;
-    return string3.getStringContent().getValue();
+    return string3.getStringContent().getLispName();
   }
 
   public enum Type {

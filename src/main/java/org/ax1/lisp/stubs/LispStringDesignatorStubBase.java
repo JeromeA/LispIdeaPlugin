@@ -121,7 +121,7 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(KEYWORD).create();
     } else if (type == Type.UNKNOWN) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(REASSIGNED_LOCAL_VARIABLE).create();
-    } else if (type == Type.FUNCTION_USAGE && KEYWORDS.contains(getValue())) {
+    } else if (type == Type.FUNCTION_USAGE && KEYWORDS.contains(getLispName())) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(KEYWORD).create();
     }
 
@@ -165,7 +165,7 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
   }
 
   @Override
-  public String getValue() {
+  public String getLispName() {
     // TODO: take escapes into account.
     if (this instanceof LispStringContent) {
       return getText();
@@ -182,13 +182,13 @@ public class LispStringDesignatorStubBase<T extends StubElement> extends StubBas
   public PsiReference getReference() {
     ProjectData projectData = ProjectData.getInstance(getProject());
     if (getType() == Type.FUNCTION_USAGE) {
-      return getReference(projectData.getFunctionDefinition(getValue()));
+      return getReference(projectData.getFunctionDefinition(getLispName()));
     }
     if (getType() == Type.VARIABLE_USAGE) {
-      return getReference(projectData.getVariableDefinition(getValue()));
+      return getReference(projectData.getVariableDefinition(getLispName()));
     }
     if (getType() == Type.PACKAGE_USAGE) {
-      return getReference(projectData.getPackageDefinition(getValue()));
+      return getReference(projectData.getPackageDefinition(getLispName()));
     }
     if (getType() == Type.LEXICAL_VARIABLE_USAGE) {
       return getReference(lexicalVariable.definition);

@@ -16,7 +16,7 @@ import java.util.Map;
 public abstract class LispStubElementType<A extends StubElement<?> & LispStringDesignatorStubInterface, B extends PsiElement & LispStringDesignator>
     extends IStubElementType<A, B>  {
 
-  private static Map<BaseLispElement.Type, StubIndexKey<String, LispStringDesignator>> index = Map.of(
+  private static final Map<BaseLispElement.Type, StubIndexKey<String, LispStringDesignator>> INDEX = Map.of(
       BaseLispElement.Type.FUNCTION_DEFINITION, LispFunctionDefinitionIndex.FUNCTION_DEFINITIONS,
       BaseLispElement.Type.FUNCTION_USAGE, LispFunctionUsageIndex.FUNCTION_USAGES,
       BaseLispElement.Type.PACKAGE_DEFINITION, LispPackageDefinitionIndex.PACKAGE_DEFINITIONS,
@@ -31,7 +31,7 @@ public abstract class LispStubElementType<A extends StubElement<?> & LispStringD
 
   @Override
   public void serialize(@NotNull A stub, @NotNull StubOutputStream dataStream) throws IOException {
-    dataStream.writeName(stub.getStringValue());
+    dataStream.writeName(stub.getLispName());
     dataStream.writeChar(stub.getType().ordinal());
   }
 
@@ -44,10 +44,10 @@ public abstract class LispStubElementType<A extends StubElement<?> & LispStringD
 
   @Override
   public @NotNull A createStub(@NotNull B psi, StubElement<? extends PsiElement> parentStub) {
-    return createStub(parentStub, psi.getValue(), psi.getType());
+    return createStub(parentStub, psi.getLispName(), psi.getType());
   }
 
-  protected abstract A createStub(StubElement parentStub, String stringValue, BaseLispElement.Type type);
+  protected abstract A createStub(StubElement parentStub, String lispName, BaseLispElement.Type type);
 
   @Override
   public @NotNull String getExternalId() {
@@ -56,10 +56,14 @@ public abstract class LispStubElementType<A extends StubElement<?> & LispStringD
 
   @Override
   public void indexStub(@NotNull A stub, @NotNull IndexSink sink) {
-    StubIndexKey<String, LispStringDesignator> indexKey = index.get(stub.getType());
+    StubIndexKey<String, LispStringDesignator> indexKey = INDEX.get(stub.getType());
     if (indexKey != null) {
 //      System.err.println("Indexing "  + stub.getStringValue() + " as " + stub.getType());
-      sink.occurrence(indexKey, stub.getStringValue());
+      sink.occurrence(indexKey, stub.getLispName());
+    }
+    if (stub.getType() == BaseLispElement.Type.SYMBOL_USAGE) {
+      sink.occurrence(LispFunctionUsageIndex.FUNCTION_USAGES, stub.getLispName());
+      sink.occurrence(LispVariableUsageIndex.VARIABLE_USAGES, stub.getLispName());
     }
   }
 }

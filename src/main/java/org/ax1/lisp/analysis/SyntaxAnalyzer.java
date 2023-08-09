@@ -8,7 +8,6 @@ import org.ax1.lisp.SymbolResolver;
 import org.ax1.lisp.analysis.form.*;
 import org.ax1.lisp.analysis.symbol.*;
 import org.ax1.lisp.psi.*;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -172,7 +171,7 @@ public class SyntaxAnalyzer {
     LispSexp sexp0 = sexpList.get(0);
     LispSymbol symbol0 = sexp0.getSymbol();
     if (symbol0 == null) return false;
-    return symbol0.getSymbolName().getValue().equals("LAMBDA");
+    return symbol0.getSymbolName().getLispName().equals("LAMBDA");
   }
 
   private static synchronized FormAnalyzer getAnalyzer(Symbol symbol) {

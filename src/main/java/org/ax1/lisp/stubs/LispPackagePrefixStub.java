@@ -8,8 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class LispPackagePrefixStub extends LispStringDesignatorStub<LispPackagePrefix> {
 
-  protected LispPackagePrefixStub(@Nullable StubElement parent, IStubElementType elementType, String stringValue, BaseLispElement.Type type) {
-    super(parent, elementType, stringValue, type);
+  protected LispPackagePrefixStub(@Nullable StubElement parent, IStubElementType elementType, String packageName, BaseLispElement.Type type) {
+    super(parent, elementType, packageName, type);
   }
 
 }

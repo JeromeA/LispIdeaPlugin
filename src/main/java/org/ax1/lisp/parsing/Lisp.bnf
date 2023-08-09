@@ -25,10 +25,9 @@
   implements("prefixed_sexp")="org.ax1.lisp.psi.impl.LispPrefixedSexpMixin"
   mixin("prefixed_sexp")="org.ax1.lisp.psi.impl.LispPrefixedSexpMixinImpl"
 
-  mixin("package_prefix")="org.ax1.lisp.psi.impl.LispPackagePrefixMixinImpl"
   implements("symbol_name|package_prefix|string_content")="org.ax1.lisp.psi.impl.LispStringDesignator"
 //  mixin("symbol_name|package_prefix|string_content")="org.ax1.lisp.psi.impl.LispStringDesignatorImpl"
-  extends("symbol_name|string_content")="org.ax1.lisp.stubs.LispStringDesignatorStubBase<?>"
+  extends("symbol_name|package_prefix|string_content")="org.ax1.lisp.stubs.LispStringDesignatorStubBase<?>"
   elementTypeFactory("symbol_name|package_prefix|string_content")="org.ax1.lisp.stubs.LispElementTypeFactory.stubFactory"
 }
 

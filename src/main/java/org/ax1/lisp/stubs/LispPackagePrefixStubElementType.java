@@ -22,7 +22,7 @@ public class LispPackagePrefixStubElementType extends LispStubElementType<LispPa
   }
 
   @Override
-  protected LispPackagePrefixStub createStub(StubElement parentStub, String stringValue, BaseLispElement.Type type) {
-    return new LispPackagePrefixStub(parentStub, INSTANCE, stringValue, type);
+  protected LispPackagePrefixStub createStub(StubElement parentStub, String packageName, BaseLispElement.Type type) {
+    return new LispPackagePrefixStub(parentStub, INSTANCE, packageName, type);
   }
 }

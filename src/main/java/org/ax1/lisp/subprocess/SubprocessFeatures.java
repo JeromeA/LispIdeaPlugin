@@ -67,7 +67,7 @@ public final class SubprocessFeatures {
   }
 
   private boolean eval(@NotNull LispSymbolName symbolName) {
-    boolean isValid = getFeatures().contains(symbolName.getValue());
+    boolean isValid = getFeatures().contains(symbolName.getLispName());
     symbolName.setType(isValid ? CODE : COMMENT);
     return isValid;
   }
@@ -79,7 +79,7 @@ public final class SubprocessFeatures {
     LispFeatureExp exp0 = featureExpList.get(0);
     if (exp0.getSimpleFeatureExp() == null) return false;
     LispSymbolName symbolName = exp0.getSimpleFeatureExp().getSymbolName();
-    switch (symbolName.getValue()) {
+    switch (symbolName.getLispName()) {
       case "NOT":
         if (featureExpList.size() != 2) return false;
         return !eval(featureExpList.get(1));

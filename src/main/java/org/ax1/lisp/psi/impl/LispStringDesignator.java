@@ -9,7 +9,7 @@ import org.ax1.lisp.analysis.symbol.Package;
 import org.jetbrains.annotations.NotNull;
 
 public interface LispStringDesignator extends PsiNameIdentifierOwner, BaseLispElement {
-  String getValue();
+  String getLispName();
   ASTNode createNewNode(@NotNull String newName);
 
   void annotate(@NotNull AnnotationHolder holder);

@@ -56,7 +56,7 @@ public class Lambda {
   private static String getKeyName(LispSexp sexp) {
     // Lone var symbol.
     LispSymbolName symbolName = sexp.getSymbolName();
-    if (symbolName != null) return symbolName.getValue();
+    if (symbolName != null) return symbolName.getLispName();
 
     // (var init-form)
     LispList list = sexp.getList();
@@ -65,7 +65,7 @@ public class Lambda {
     if (sexpList.isEmpty()) return null;
     LispSexp sexp0 = sexpList.get(0);
     symbolName = sexp0.getSymbolName();
-    if (symbolName != null) return symbolName.getValue();
+    if (symbolName != null) return symbolName.getLispName();
 
     // ((keyword var) init-form)
     LispList innerList = sexp0.getList();
@@ -73,29 +73,29 @@ public class Lambda {
     List<LispSexp> innerSexpList = innerList.getSexpList();
     if (innerSexpList.isEmpty()) return null;
     symbolName = innerSexpList.get(0).getSymbolName();
-    if (symbolName != null) return symbolName.getValue();
+    if (symbolName != null) return symbolName.getLispName();
     return null;
   }
 
   private static boolean isVariableName(LispSexp sexp) {
     LispSymbol symbol = sexp.getSymbol();
-    return symbol != null && !symbol.getSymbolName().getValue().startsWith("&");
+    return symbol != null && !symbol.getSymbolName().getLispName().startsWith("&");
   }
 
   private static boolean isOptionalKeyword(LispSexp sexp) {
     LispSymbol symbol = sexp.getSymbol();
-    return symbol != null && symbol.getSymbolName().getValue().equals("&OPTIONAL");
+    return symbol != null && symbol.getSymbolName().getLispName().equals("&OPTIONAL");
   }
 
   private static boolean isKeyKeyword(LispSexp sexp) {
     LispSymbol symbol = sexp.getSymbol();
-    return symbol != null && symbol.getSymbolName().getValue().equals("&KEY");
+    return symbol != null && symbol.getSymbolName().getLispName().equals("&KEY");
   }
 
   private static boolean isRestKeyword(LispSexp sexp) {
     LispSymbol symbol = sexp.getSymbol();
     if (symbol == null) return false;
-    String name = symbol.getSymbolName().getValue();
+    String name = symbol.getSymbolName().getLispName();
     return name.equals("&REST") || name.equals("&BODY");
   }
 

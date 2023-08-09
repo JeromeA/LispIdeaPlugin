@@ -40,8 +40,8 @@ public final class SymbolResolver {
       return new Symbol(packagePrefix.getText(), symbolName.getText());
     }
     LispColon colon = symbol.getColon();
-    if (colon != null) return new Symbol("", symbolName.getValue());
-    return findSymbol(getPackageContext(symbolName), symbolName.getValue());
+    if (colon != null) return new Symbol("", symbolName.getLispName());
+    return findSymbol(getPackageContext(symbolName), symbolName.getLispName());
   }
 
   private Package getPackageContext(LispSymbolName symbolName) {

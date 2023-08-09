@@ -11,8 +11,6 @@ import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
-
 /**
  * <a href="http://www.lispworks.com/documentation/lw51/CLHS/Body/m_loop.htm">Reference</a>
  */
@@ -53,7 +51,7 @@ public class AnalyzeLoop implements FormAnalyzer {
     }
     LispSymbol symbol = sexp.getSymbol();
     if (symbol != null) {
-      String symbolName = symbol.getSymbolName().getValue();
+      String symbolName = symbol.getSymbolName().getLispName();
       if (LOOP_KEYWORDS.contains(symbolName)) return symbolName;
     }
     return "X";

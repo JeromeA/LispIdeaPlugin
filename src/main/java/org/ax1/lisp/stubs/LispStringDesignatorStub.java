@@ -9,17 +9,17 @@ import org.jetbrains.annotations.Nullable;
 
 public class LispStringDesignatorStub<T extends PsiElement> extends StubBase<T> implements LispStringDesignatorStubInterface {
 
-  private final String stringValue;
+  private final String lispName;
   private final BaseLispElement.Type type;
 
-  protected LispStringDesignatorStub(@Nullable StubElement parent, IStubElementType elementType, String stringValue, BaseLispElement.Type type) {
+  protected LispStringDesignatorStub(@Nullable StubElement parent, IStubElementType elementType, String lispName, BaseLispElement.Type type) {
     super(parent, elementType);
-    this.stringValue = stringValue;
+    this.lispName = lispName;
     this.type = type;
   }
 
-  public String getStringValue() {
-    return stringValue;
+  public String getLispName() {
+    return lispName;
   }
 
   public BaseLispElement.Type getType() {

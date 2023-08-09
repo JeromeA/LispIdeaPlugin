@@ -4,7 +4,7 @@ import org.ax1.lisp.analysis.BaseLispElement;
 
 public interface LispStringDesignatorStubInterface {
 
-  String getStringValue();
+  String getLispName();
 
   BaseLispElement.Type getType();
 }

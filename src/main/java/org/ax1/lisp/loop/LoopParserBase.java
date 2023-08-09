@@ -5,7 +5,6 @@ import org.ax1.lisp.analysis.symbol.LexicalVariable;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbolName;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +49,7 @@ public class LoopParserBase {
     if (!compoundSexpList.get(0).isSymbol()) return false;
     if (!compoundSexpList.get(1).isSymbol()) return false;
     LispSymbolName symbolName0 = compoundSexpList.get(0).getSymbolName();
-    String value0 = symbolName0.getValue();
+    String value0 = symbolName0.getLispName();
     if (! (value0.equals("HASH-VALUE") || value0.equals("HASH-KEY"))) return false;
     symbolName0.setType(CODE);
     LispSymbolName symbolName1 = compoundSexpList.get(1).getSymbolName();

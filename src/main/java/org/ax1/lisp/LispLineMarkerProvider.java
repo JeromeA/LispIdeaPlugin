@@ -35,14 +35,14 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
     if (!(element.getParent() instanceof LispSymbolName)) return null;
     LispSymbolName symbolName = (LispSymbolName) element.getParent();
     if (symbolName.getType() == LispStringDesignator.Type.METHOD_DEFINITION) {
-      LispStringDesignator functionDefinition = ProjectData.getInstance(element.getProject()).getFunctionDefinition(symbolName.getValue());
+      LispStringDesignator functionDefinition = ProjectData.getInstance(element.getProject()).getFunctionDefinition(symbolName.getLispName());
       return new LineMarkerInfo<>(element, element.getTextRange(), TO_GENERIC,
           null, new DefaultGutterIconNavigationHandler<>(List.of((NavigatablePsiElement) functionDefinition), "Generic Definition"),
           GutterIconRenderer.Alignment.RIGHT, () -> "Go to generic");
     }
     if (symbolName.getType() == LispStringDesignator.Type.FUNCTION_DEFINITION) {
       List<NavigatablePsiElement> targets =
-          ProjectData.getInstance(element.getProject()).getMethodDefinitions(symbolName.getValue()).stream()
+          ProjectData.getInstance(element.getProject()).getMethodDefinitions(symbolName.getLispName()).stream()
               .map(NavigatablePsiElement.class::cast)
               .collect(Collectors.toUnmodifiableList());
       return new LineMarkerInfo<>(element, element.getTextRange(), TO_METHOD,

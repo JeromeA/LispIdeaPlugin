@@ -69,7 +69,7 @@ public class ArgumentChecker {
   private boolean isKeyword(LispSexp lispSexp) {
     LispSymbolName symbolName = lispSexp.getSymbolName();
     if (symbolName == null) return false;
-    String name = symbolName.getValue();
+    String name = symbolName.getLispName();
     return lambda.keys.contains(name);
   }
 }

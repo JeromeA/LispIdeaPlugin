@@ -22,7 +22,7 @@ public class LispStringContentStubElementType extends LispStubElementType<LispSt
   }
 
   @Override
-  protected LispStringContentStub createStub(StubElement parentStub, String stringValue, BaseLispElement.Type type) {
-    return new LispStringContentStub(parentStub, INSTANCE, stringValue, type);
+  protected LispStringContentStub createStub(StubElement parentStub, String lispName, BaseLispElement.Type type) {
+    return new LispStringContentStub(parentStub, INSTANCE, lispName, type);
   }
 }
