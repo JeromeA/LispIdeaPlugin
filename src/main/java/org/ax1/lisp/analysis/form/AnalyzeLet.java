@@ -1,17 +1,12 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.BaseLispElement;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalVariable;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbolName;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-
-import static org.ax1.lisp.analysis.BaseLispElement.Type.LEXICAL_VARIABLE_DEFINITION;
-import static org.ax1.lisp.analysis.BaseLispElement.Type.VARIABLE_DEFINITION;
 
 public class AnalyzeLet implements FormAnalyzer {
 
@@ -65,5 +60,4 @@ public class AnalyzeLet implements FormAnalyzer {
     }
     return result;
   }
-
 }

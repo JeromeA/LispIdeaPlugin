@@ -67,7 +67,9 @@ public final class SubprocessFeatures {
   }
 
   private boolean eval(@NotNull LispSymbolName symbolName) {
-    return getFeatures().contains(symbolName.getValue());
+    boolean isValid = getFeatures().contains(symbolName.getValue());
+    symbolName.setType(isValid ? CODE : COMMENT);
+    return isValid;
   }
 
   private boolean eval(LispCompoundFeatureExp compoundFeatureExp) {
