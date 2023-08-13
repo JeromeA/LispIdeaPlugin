@@ -12,15 +12,13 @@ import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.IncorrectOperationException;
 import org.ax1.lisp.SymbolResolver;
+import org.ax1.lisp.analysis.BaseLispElement;
 import org.ax1.lisp.analysis.ProjectData;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalVariable;
 import org.ax1.lisp.analysis.symbol.Package;
 import org.ax1.lisp.analysis.symbol.Symbol;
-import org.ax1.lisp.psi.LispElementFactory;
-import org.ax1.lisp.psi.LispFile;
-import org.ax1.lisp.psi.LispStringContent;
-import org.ax1.lisp.psi.LispSymbolName;
+import org.ax1.lisp.psi.*;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.ax1.lisp.usages.LispStringDesignatorReference;
 import org.jetbrains.annotations.NotNull;
@@ -72,8 +70,8 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   }
 
   public ASTNode createNewNode(@NotNull String newName) {
+    // TODO: replace this with overloading.
     if (this instanceof LispStringContent) {
-      // Inheritance is generated code, so it's inconvenient to overload this method there.
       return LispElementFactory.createStringContent(getProject(), newName).getNode();
     }
     return LispElementFactory.createSymbolName(getProject(), newName).getNode();
@@ -82,13 +80,10 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   @Override
   public Type getType() {
     LispFile containingFile = (LispFile) getContainingFile();
-    synchronized (containingFile) {
-      if (type == null) {
-        SyntaxAnalyzer.INSTANCE.analyze(containingFile);
-      }
+    if (type == null) {
+      SyntaxAnalyzer.INSTANCE.analyze(containingFile);
       if (type == null) {
         type = Type.UNKNOWN;
-//        SyntaxAnalyzer.INSTANCE.analyze((LispFile)getContainingFile());
       }
     }
     return type;
@@ -97,6 +92,14 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   @Override
   public void setType(Type type) {
     this.type = type;
+    // TODO: replace this with overloading.
+    if (this instanceof LispSymbolName && getParent() instanceof LispSymbol && type != Type.UNKNOWN && type != Type.COMMENT) {
+      LispSymbol lispSymbol = (LispSymbol) getParent();
+      LispPackagePrefix packagePrefix = lispSymbol.getPackagePrefix();
+      if (packagePrefix != null) {
+        packagePrefix.setType(Type.PACKAGE_USAGE);
+      }
+    }
   }
 
   @Override
