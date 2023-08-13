@@ -41,9 +41,9 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
 
   // Macros or special forms, whose behavior is closer to keywords, like IF, than to a function call.
   private static final Set<String> KEYWORDS =
-      Set.of("DEFCONSTANT", "DEFINE-CONDITION", "DEFPACKAGE", "DEFPARAMETER", "DEFMACRO", "DEFUN", "DEFVAR", "DOLIST",
-          "DOSYMBOLS", "EVAL-WHEN", "FLET", "IF", "IGNORE", "IN-PACKAGE", "LAMBDA", "LET", "LET*", "LOOP", "PROCLAIM",
-          "RETURN", "SETF", "SETQ", "SPECIAL", "UNLESS", "WHEN");
+      Set.of("DECLARE", "DEFCONSTANT", "DEFINE-CONDITION", "DEFPACKAGE", "DEFPARAMETER", "DEFMACRO", "DEFUN", "DEFVAR",
+          "DOLIST", "DOSYMBOLS", "EVAL-WHEN", "FLET", "IF", "IGNORE", "IN-PACKAGE", "INCF", "LAMBDA", "LET", "LET*",
+          "LOOP", "PROCLAIM", "RETURN", "SETF", "SETQ", "SPECIAL", "THROW", "UNLESS", "WHEN");
 
   private Type type;
   private String errorMessage;
