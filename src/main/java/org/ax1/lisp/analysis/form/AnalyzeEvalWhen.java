@@ -11,7 +11,8 @@ import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
 
 public class AnalyzeEvalWhen implements FormAnalyzer {
 
-  private static final Set<String> SITUATIONS = Set.of("COMPILE-TOPLEVEL", "LOAD-TOPLEVEL", "EXECUTE");
+  private static final Set<String> SITUATIONS =
+      Set.of("COMPILE-TOPLEVEL", "LOAD-TOPLEVEL", "EXECUTE", "COMPILE", "LOAD", "EVAL");
 
   @Override
   public void analyze(LispList form) {
