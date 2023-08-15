@@ -38,6 +38,7 @@ public class SyntaxAnalyzer {
       clSymbol("DEFUN"), new AnalyzeDefun(AnalyzeDefun.Type.DEFUN),
       clSymbol("DEFVAR"), new AnalyzeDefvar(AnalyzeDefvar.Type.DEFVAR),
       clSymbol("DESTRUCTURING-BIND"), new AnalyzeDestructuringBind(),
+      clSymbol("DO"), new AnalyzeDo(),
       clSymbol("DO-ALL-SYMBOLS"), new AnalyzeDoSymbols(AnalyzeDoSymbols.Type.DO_ALL_SYMBOLS),
       clSymbol("DO-EXTERNAL-SYMBOLS"), new AnalyzeDoSymbols(AnalyzeDoSymbols.Type.DO_EXTERNAL_SYMBOLS),
       clSymbol("DO-SYMBOLS"), new AnalyzeDoSymbols(AnalyzeDoSymbols.Type.DO_SYMBOLS),
