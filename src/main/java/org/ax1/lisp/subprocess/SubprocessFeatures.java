@@ -53,17 +53,14 @@ public final class SubprocessFeatures {
 
   public boolean eval(LispReaderFeature readerFeature) {
     boolean positive = isPositive(readerFeature);
-    boolean featureValue = eval(readerFeature.getFeatureExp());
+    boolean featureValue = eval(readerFeature.getSexp());
     return positive == featureValue;
   }
 
-  private boolean eval(LispFeatureExp featureExp) {
-    if (featureExp.getSimpleFeatureExp() != null) return eval(featureExp.getSimpleFeatureExp());
-    return eval(featureExp.getCompoundFeatureExp());
-  }
-
-  private boolean eval(LispSimpleFeatureExp simpleFeatureExp) {
-    return eval(simpleFeatureExp.getSymbolName());
+  private boolean eval(LispSexp featureSexp) {
+    if (featureSexp.getSymbol() != null) return eval(featureSexp.getSymbolName());
+    if (featureSexp.getList() != null) return eval(featureSexp.getList());
+    return false;
   }
 
   private boolean eval(@NotNull LispSymbolName symbolName) {
@@ -72,13 +69,13 @@ public final class SubprocessFeatures {
     return isValid;
   }
 
-  private boolean eval(LispCompoundFeatureExp compoundFeatureExp) {
-    @NotNull List<LispFeatureExp> featureExpList = compoundFeatureExp.getFeatureExpList();
+  private boolean eval(LispList compoundFeatureExp) {
+    @NotNull List<LispSexp> featureExpList = compoundFeatureExp.getSexpList();
     if (featureExpList.isEmpty()) return false;
     featureExpList.forEach(this::eval); // To mark all sexps as CODE.
-    LispFeatureExp exp0 = featureExpList.get(0);
-    if (exp0.getSimpleFeatureExp() == null) return false;
-    LispSymbolName symbolName = exp0.getSimpleFeatureExp().getSymbolName();
+    LispSexp exp0 = featureExpList.get(0);
+    if (exp0.getSymbol() == null) return false;
+    LispSymbolName symbolName = exp0.getSymbolName();
     switch (symbolName.getLispName()) {
       case "NOT":
         if (featureExpList.size() != 2) return false;

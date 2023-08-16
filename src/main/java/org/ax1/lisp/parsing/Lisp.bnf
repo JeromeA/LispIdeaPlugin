@@ -37,11 +37,7 @@ private topLevelUnit_ ::= syntaxUnit_ | invalidClose
 private syntaxUnit_ ::= COMMENT | SHARP_UNSUPPORTED | prefixed_sexp
 prefixed_sexp ::= reader_feature* reader_prefix? sexp
 reader_prefix ::= SHARP_PREFIX
-
-reader_feature ::= SHARP_PLUS feature_exp
-feature_exp ::= simple_feature_exp | compound_feature_exp
-simple_feature_exp ::= colon? symbol_name
-compound_feature_exp ::= LPAREN feature_exp* RPAREN?
+reader_feature ::= SHARP_PLUS sexp
 
 sexp ::= string | NUMBER | CHARACTER | SHARP_REF | symbol | list | vector | quoted
 string ::= STRING_QUOTE string_content STRING_QUOTE
