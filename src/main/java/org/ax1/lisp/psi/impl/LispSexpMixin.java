@@ -18,4 +18,5 @@ public interface LispSexpMixin extends PsiElement, BaseLispElement {
   void addLexicalFunctions(Collection<LexicalSymbol> functions);
 
   Map<Symbol, LexicalSymbol> getLexicalVariables();
+  Map<Symbol, LexicalSymbol> getLexicalFunctions();
 }

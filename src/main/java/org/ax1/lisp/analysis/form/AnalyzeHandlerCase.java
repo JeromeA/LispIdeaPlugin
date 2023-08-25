@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 
 public class AnalyzeHandlerCase implements FormAnalyzer {
 
@@ -35,7 +36,7 @@ public class AnalyzeHandlerCase implements FormAnalyzer {
       if (sexp1.getList().getSexpList().isEmpty()) {
         SyntaxAnalyzer.INSTANCE.analyzeForms(clause.getSexpList(), 2);
       } else {
-        LexicalSymbol variable = new LexicalSymbol(sexp1.getList().getSexpList().get(0).getSymbolName());
+        LexicalSymbol variable = newLexicalVariable(sexp1.getList().getSexpList().get(0).getSymbolName());
         SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(clause.getSexpList(), 2, Set.of(variable));
       }
     }

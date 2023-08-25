@@ -8,6 +8,8 @@ import org.ax1.lisp.psi.LispSexp;
 import java.util.List;
 import java.util.Set;
 
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
+
 public class AnalyzeWithOutputToString implements FormAnalyzer {
 
   @Override
@@ -26,7 +28,7 @@ public class AnalyzeWithOutputToString implements FormAnalyzer {
       list.get(1).setErrorMessage("(var) expected");
       return;
     }
-    LexicalSymbol variable = new LexicalSymbol(varList.getSexpList().get(0).getSymbolName());
+    LexicalSymbol variable = newLexicalVariable(varList.getSexpList().get(0).getSymbolName());
     SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, Set.of(variable));
   }
 

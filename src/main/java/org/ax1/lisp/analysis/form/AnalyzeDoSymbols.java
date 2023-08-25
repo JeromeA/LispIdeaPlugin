@@ -9,6 +9,8 @@ import org.ax1.lisp.psi.LispSymbolName;
 import java.util.List;
 import java.util.Set;
 
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
+
 public class AnalyzeDoSymbols implements FormAnalyzer {
 
   private final Type type;
@@ -35,7 +37,7 @@ public class AnalyzeDoSymbols implements FormAnalyzer {
       return;
     }
     LispSymbolName symbolName = varName.getSymbolName();
-    Set<LexicalSymbol> variables = Set.of(new LexicalSymbol(symbolName));
+    Set<LexicalSymbol> variables = Set.of(newLexicalVariable(symbolName));
     SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(varList.getSexpList(), 1, variables);
     SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, variables);
   }

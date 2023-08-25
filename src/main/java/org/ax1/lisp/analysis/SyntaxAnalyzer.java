@@ -12,7 +12,8 @@ import org.ax1.lisp.psi.*;
 import java.util.*;
 
 import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
-import static org.ax1.lisp.analysis.symbol.LexicalVariables.find;
+import static org.ax1.lisp.analysis.symbol.LexicalSymbols.findLexicalFunction;
+import static org.ax1.lisp.analysis.symbol.LexicalSymbols.findLexicalVariable;
 import static org.ax1.lisp.analysis.symbol.Symbol.clSymbol;
 
 public class SyntaxAnalyzer {
@@ -88,7 +89,7 @@ public class SyntaxAnalyzer {
   public void analyzeForm(LispSexp form) {
     if (form.isSymbol()) {
       LispSymbolName symbolName = form.getSymbolName();
-      LexicalSymbol lexicalVariable = find(symbolName);
+      LexicalSymbol lexicalVariable = findLexicalVariable(symbolName);
       if (lexicalVariable != null) {
         symbolName.setType(LEXICAL_VARIABLE_USAGE);
         symbolName.setLexicalVariable(lexicalVariable);
@@ -154,9 +155,18 @@ public class SyntaxAnalyzer {
     if (list.isEmpty()) return;
     LispSexp sexp0 = list.get(0);
     if (sexp0.isSymbol()) {
-      sexp0.getSymbolName().setType(FUNCTION_USAGE);
-      Symbol symbol = SymbolResolver.resolve(sexp0.getSymbolName());
-      getAnalyzer(symbol).analyze(form);
+      LispSymbolName symbolName = sexp0.getSymbolName();
+      LexicalSymbol lexicalFunction = findLexicalFunction(symbolName);
+      if (lexicalFunction != null) {
+        symbolName.setType(LEXICAL_FUNCTION_USAGE);
+        symbolName.setLexicalFunction(lexicalFunction);
+        lexicalFunction.usages.add(symbolName);
+        ANALYZE_FUNCTION_CALL.analyze(form);
+      } else {
+        symbolName.setType(FUNCTION_USAGE);
+        Symbol symbol = SymbolResolver.resolve(symbolName);
+        getAnalyzer(symbol).analyze(form);
+      }
     } else if (isLambda(sexp0)) {
       // TODO: handle lambda expression case.
     } else {

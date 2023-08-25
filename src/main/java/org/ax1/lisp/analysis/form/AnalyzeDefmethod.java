@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 
 import static org.ax1.lisp.analysis.BaseLispElement.Type.FUNCTION_DEFINITION;
 import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 
 public class AnalyzeDefmethod implements FormAnalyzer {
 
@@ -59,7 +60,7 @@ public class AnalyzeDefmethod implements FormAnalyzer {
     List<LexicalSymbol> result = new ArrayList<>();
     for (LispSexp lispSexp : lambdaList.getSexpList()) {
       LispSymbolName variable = getVariable(lispSexp);
-      if (variable != null) result.add(new LexicalSymbol(variable));
+      if (variable != null) result.add(newLexicalVariable(variable));
     }
     return result;
   }

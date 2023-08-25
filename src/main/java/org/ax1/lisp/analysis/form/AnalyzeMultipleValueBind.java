@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 
 public class AnalyzeMultipleValueBind implements FormAnalyzer {
 
@@ -36,7 +37,7 @@ public class AnalyzeMultipleValueBind implements FormAnalyzer {
     for (LispSexp sexp : lambdaList) {
       if (sexp.isSymbol()) {
         LispSymbolName symbolName = sexp.getSymbolName();
-        result.add(new LexicalSymbol(symbolName));
+        result.add(newLexicalVariable(symbolName));
       } else {
         sexp.setErrorMessage("Variable name expected");
       }

@@ -86,4 +86,9 @@ public abstract class LispSexpMixinImpl extends BaseMixinImpl implements LispSex
   public Map<Symbol, LexicalSymbol> getLexicalVariables() {
     return lexicalVariables;
   }
+
+  @Override
+  public Map<Symbol, LexicalSymbol> getLexicalFunctions() {
+    return lexicalFunctions;
+  }
 }

@@ -7,6 +7,8 @@ import org.ax1.lisp.psi.LispSexp;
 
 import java.util.List;
 
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
+
 public class AnalyzeWithOpenFile implements FormAnalyzer {
 
   @Override
@@ -22,7 +24,7 @@ public class AnalyzeWithOpenFile implements FormAnalyzer {
       return;
     }
     SyntaxAnalyzer.INSTANCE.analyzeForms(varList.getSexpList(), 1);
-    LexicalSymbol variable = new LexicalSymbol(varList.getSexpList().get(0).getSymbolName());
+    LexicalSymbol variable = newLexicalVariable(varList.getSexpList().get(0).getSymbolName());
     SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, List.of(variable));
   }
 

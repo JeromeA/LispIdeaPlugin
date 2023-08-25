@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
+
 public class AnalyzeLetStar implements FormAnalyzer {
 
   @Override
@@ -57,6 +59,6 @@ public class AnalyzeLetStar implements FormAnalyzer {
         SyntaxAnalyzer.INSTANCE.analyzeForm(init);
       }
     }
-    return new LexicalSymbol(sexp.getSymbolName());
+    return newLexicalVariable(sexp.getSymbolName());
   }
 }

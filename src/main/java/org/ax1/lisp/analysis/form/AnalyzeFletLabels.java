@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.ax1.lisp.analysis.form.LambdaAnalyzer.analyzeLambda;
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalFunction;
 
 public class AnalyzeFletLabels implements FormAnalyzer {
 
@@ -59,7 +60,7 @@ public class AnalyzeFletLabels implements FormAnalyzer {
         function.setErrorMessage("Function name expected");
         continue;
       }
-      result.add(new LexicalSymbol(functionName.getSymbolName()));
+      result.add(newLexicalFunction(functionName.getSymbolName()));
     }
     return result;
   }

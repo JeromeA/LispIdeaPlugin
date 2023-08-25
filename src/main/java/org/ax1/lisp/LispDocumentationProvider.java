@@ -10,8 +10,8 @@ public class LispDocumentationProvider extends AbstractDocumentationProvider {
 
   @Override
   public @Nullable @Nls String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
-    if (element instanceof LispStringDesignator) {
-      return ((LispStringDesignator) element).getDescriptionString();
+    if (originalElement.getParent() instanceof LispStringDesignator) {
+      return ((LispStringDesignator) originalElement.getParent()).getDescriptionString();
     }
     return null;
   }

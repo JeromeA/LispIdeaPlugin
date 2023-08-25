@@ -28,13 +28,15 @@ import java.util.Set;
 
 import static com.intellij.lang.annotation.HighlightSeverity.INFORMATION;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.*;
+import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.KEYWORD;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
 
 public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPsiElementBase<T> implements LispStringDesignator {
 
   private static final Set<Type> SYMBOL_TYPES =
-      Set.of(Type.CONDITION_DEFINITION, Type.FUNCTION_DEFINITION, Type.PACKAGE_DEFINITION, Type.VARIABLE_DEFINITION,
-          Type.LEXICAL_VARIABLE_DEFINITION, Type.CONDITION_USAGE, Type.VARIABLE_USAGE, Type.PACKAGE_USAGE,
-          Type.FUNCTION_USAGE, Type.LEXICAL_VARIABLE_USAGE);
+      Set.of(CONDITION_DEFINITION, FUNCTION_DEFINITION, PACKAGE_DEFINITION, VARIABLE_DEFINITION,
+          LEXICAL_VARIABLE_DEFINITION, LEXICAL_FUNCTION_DEFINITION, CONDITION_USAGE, VARIABLE_USAGE, PACKAGE_USAGE,
+          FUNCTION_USAGE, LEXICAL_VARIABLE_USAGE, LEXICAL_FUNCTION_USAGE);
 
   // Macros or special forms, whose behavior is closer to keywords, like IF, than to a function call.
   private static final Set<String> KEYWORDS =
@@ -49,6 +51,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   private Package packageDefinition;
   private final Set<String> functionDefinitions = new HashSet<>();
   private LexicalSymbol lexicalVariable;
+  private LexicalSymbol lexicalFunction;
 
   public LispStringDesignatorBase(@NotNull T stub, @NotNull IStubElementType<?, ?> nodeType) {
     super(stub, nodeType);
@@ -97,7 +100,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
       LispSymbol lispSymbol = (LispSymbol) getParent();
       LispPackagePrefix packagePrefix = lispSymbol.getPackagePrefix();
       if (packagePrefix != null) {
-        packagePrefix.setType(Type.PACKAGE_USAGE);
+        packagePrefix.setType(PACKAGE_USAGE);
       }
     }
   }
@@ -124,7 +127,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(KEYWORD).create();
     } else if (type == Type.UNKNOWN) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(REASSIGNED_LOCAL_VARIABLE).create();
-    } else if (type == Type.FUNCTION_USAGE && KEYWORDS.contains(getLispName())) {
+    } else if (type == FUNCTION_USAGE && KEYWORDS.contains(getLispName())) {
       holder.newSilentAnnotation(INFORMATION).range(this).textAttributes(KEYWORD).create();
     }
 
@@ -144,14 +147,18 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
             "Description: %s<br>" +
             "Package definition: %s<br>" +
             "Function definitions: %s<br>" +
-            "Lexical variable: %s",
+            "Lexical variable: %s<br>" +
+            "Lexical function: %s<br>" +
+            "Hash: %d",
         getClass().getName(),
         getType(),
         getLispName(),
         descriptionString,
         packageDefinition,
         functionDefinitions,
-        lexicalVariable);
+        lexicalVariable,
+        lexicalFunction,
+        hashCode());
   }
 
   @Override
@@ -166,7 +173,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
 
   @Override
   public void addFunctionDefinition(String functionName) {
-    if (type == null) setType(Type.FUNCTION_DEFINITION);
+    if (type == null) setType(FUNCTION_DEFINITION);
     functionDefinitions.add(functionName);
   }
 
@@ -176,8 +183,18 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   }
 
   @Override
+  public void setLexicalFunction(LexicalSymbol lexicalFunction) {
+    this.lexicalFunction = lexicalFunction;
+  }
+
+  @Override
   public LexicalSymbol getLexicalVariable() {
     return lexicalVariable;
+  }
+
+  @Override
+  public LexicalSymbol getLexicalFunction() {
+    return lexicalFunction;
   }
 
   @Override
@@ -197,17 +214,20 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   @Override
   public PsiReference getReference() {
     ProjectData projectData = ProjectData.getInstance(getProject());
-    if (getType() == Type.FUNCTION_USAGE) {
+    if (getType() == FUNCTION_USAGE) {
       return getReference(projectData.getFunctionDefinition(getLispName()));
     }
-    if (getType() == Type.VARIABLE_USAGE) {
+    if (getType() == VARIABLE_USAGE) {
       return getReference(projectData.getVariableDefinition(getLispName()));
     }
-    if (getType() == Type.PACKAGE_USAGE) {
+    if (getType() == PACKAGE_USAGE) {
       return getReference(projectData.getPackageDefinition(getLispName()));
     }
-    if (getType() == Type.LEXICAL_VARIABLE_USAGE) {
+    if (getType() == LEXICAL_VARIABLE_USAGE) {
       return getReference(lexicalVariable.definition);
+    }
+    if (getType() == LEXICAL_FUNCTION_USAGE) {
+      return getReference(lexicalFunction.definition);
     }
     if (getType() == Type.SYMBOL_USAGE) {
       LispStringDesignator designator = projectData.getFunctionDefinition(getLispName());

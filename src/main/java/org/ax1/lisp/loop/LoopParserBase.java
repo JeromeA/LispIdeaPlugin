@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 
 public class LoopParserBase {
   private List<LispSexp> sexpList;
@@ -53,7 +54,7 @@ public class LoopParserBase {
     if (! (value0.equals("HASH-VALUE") || value0.equals("HASH-KEY"))) return false;
     symbolName0.setType(CODE);
     LispSymbolName symbolName1 = compoundSexpList.get(1).getSymbolName();
-    ((LispSexp)form.getParent()).addLexicalVariables(Set.of(new LexicalSymbol(symbolName1)));
+    ((LispSexp)form.getParent()).addLexicalVariables(Set.of(newLexicalVariable(symbolName1)));
     return true;
   }
 
@@ -87,7 +88,7 @@ public class LoopParserBase {
         sexp.setType(KEYWORD);
         return List.of();
       }
-      return List.of(new LexicalSymbol(sexp.getSymbolName()));
+      return List.of(newLexicalVariable(sexp.getSymbolName()));
     }
     LispList list = sexp.getList();
     if (list != null) {

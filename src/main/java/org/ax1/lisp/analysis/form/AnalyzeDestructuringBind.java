@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 
 public class AnalyzeDestructuringBind implements FormAnalyzer {
 
@@ -42,7 +43,7 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
         if (KEYWORDS.contains(symbolName.getLispName())) {
           symbolName.setType(KEYWORD);
         } else {
-          result.add(new LexicalSymbol(symbolName));
+          result.add(newLexicalVariable(symbolName));
         }
       } else if (list != null) {
         result.addAll(getDestructuringBindVariables(list.getSexpList()));

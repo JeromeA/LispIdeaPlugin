@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 
 public class LambdaAnalyzer {
 
@@ -63,7 +64,7 @@ public class LambdaAnalyzer {
         if (KEYWORDS.contains(symbolName.getLispName())) {
           symbolName.setType(KEYWORD);
         } else {
-          result.add(new LexicalSymbol(symbolName));
+          result.add(newLexicalVariable(symbolName));
         }
         continue;
       }
@@ -75,7 +76,7 @@ public class LambdaAnalyzer {
           varName.setErrorMessage("Variable name expected");
           continue;
         }
-        result.add(new LexicalSymbol(varName.getSymbolName()));
+        result.add(newLexicalVariable(varName.getSymbolName()));
         if (varInit.size() > 1) {
           SyntaxAnalyzer.INSTANCE.analyzeForm(varInit.get(1));
         }

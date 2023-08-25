@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
+
 public class AnalyzeLet implements FormAnalyzer {
 
   @Override
@@ -46,14 +48,14 @@ public class AnalyzeLet implements FormAnalyzer {
     for (LispSexp sexp : varList) {
       LispList list = sexp.getList();
       if (sexp.isSymbol()) {
-        result.add(new LexicalSymbol(sexp.getSymbolName()));
+        result.add(newLexicalVariable(sexp.getSymbolName()));
       } else if (list != null) {
         List<LispSexp> sexpList = list.getSexpList();
         if (sexpList.size() < 1 || sexpList.get(0).getSymbol() == null) {
           list.setErrorMessage("Expected var init form");
           continue;
         }
-        result.add(new LexicalSymbol(sexpList.get(0).getSymbolName()));
+        result.add(newLexicalVariable(sexpList.get(0).getSymbolName()));
       } else {
         sexp.setErrorMessage("Expected var binding");
       }
