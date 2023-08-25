@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbolName;
@@ -31,12 +31,12 @@ public class AnalyzeMultipleValueBind implements FormAnalyzer {
     SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, getVariables(list1.getSexpList()));
   }
 
-  private List<LexicalVariable> getVariables(@NotNull List<LispSexp> lambdaList) {
-    List<LexicalVariable> result = new ArrayList<>();
+  private List<LexicalSymbol> getVariables(@NotNull List<LispSexp> lambdaList) {
+    List<LexicalSymbol> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
       if (sexp.isSymbol()) {
         LispSymbolName symbolName = sexp.getSymbolName();
-        result.add(new LexicalVariable(symbolName));
+        result.add(new LexicalSymbol(symbolName));
       } else {
         sexp.setErrorMessage("Variable name expected");
       }

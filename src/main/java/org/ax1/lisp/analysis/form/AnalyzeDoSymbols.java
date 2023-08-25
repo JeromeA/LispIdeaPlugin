@@ -1,15 +1,13 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbolName;
 
 import java.util.List;
 import java.util.Set;
-
-import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
 
 public class AnalyzeDoSymbols implements FormAnalyzer {
 
@@ -37,7 +35,7 @@ public class AnalyzeDoSymbols implements FormAnalyzer {
       return;
     }
     LispSymbolName symbolName = varName.getSymbolName();
-    Set<LexicalVariable> variables = Set.of(new LexicalVariable(symbolName));
+    Set<LexicalSymbol> variables = Set.of(new LexicalSymbol(symbolName));
     SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(varList.getSexpList(), 1, variables);
     SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, variables);
   }

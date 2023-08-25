@@ -12,10 +12,9 @@ import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.IncorrectOperationException;
 import org.ax1.lisp.SymbolResolver;
-import org.ax1.lisp.analysis.BaseLispElement;
 import org.ax1.lisp.analysis.ProjectData;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.analysis.symbol.Package;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.*;
@@ -49,7 +48,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   private String descriptionString;
   private Package packageDefinition;
   private final Set<String> functionDefinitions = new HashSet<>();
-  private LexicalVariable lexicalVariable;
+  private LexicalSymbol lexicalVariable;
 
   public LispStringDesignatorBase(@NotNull T stub, @NotNull IStubElementType<?, ?> nodeType) {
     super(stub, nodeType);
@@ -172,12 +171,12 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   }
 
   @Override
-  public void setLexicalVariable(LexicalVariable lexicalVariable) {
+  public void setLexicalVariable(LexicalSymbol lexicalVariable) {
     this.lexicalVariable = lexicalVariable;
   }
 
   @Override
-  public LexicalVariable getLexicalVariable() {
+  public LexicalSymbol getLexicalVariable() {
     return lexicalVariable;
   }
 

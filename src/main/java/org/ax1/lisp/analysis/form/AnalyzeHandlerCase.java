@@ -1,10 +1,9 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbolName;
 
 import java.util.List;
 import java.util.Set;
@@ -36,7 +35,7 @@ public class AnalyzeHandlerCase implements FormAnalyzer {
       if (sexp1.getList().getSexpList().isEmpty()) {
         SyntaxAnalyzer.INSTANCE.analyzeForms(clause.getSexpList(), 2);
       } else {
-        LexicalVariable variable = new LexicalVariable(sexp1.getList().getSexpList().get(0).getSymbolName());
+        LexicalSymbol variable = new LexicalSymbol(sexp1.getList().getSexpList().get(0).getSymbolName());
         SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(clause.getSexpList(), 2, Set.of(variable));
       }
     }

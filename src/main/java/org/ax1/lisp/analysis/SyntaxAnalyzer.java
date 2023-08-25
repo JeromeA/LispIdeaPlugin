@@ -46,11 +46,11 @@ public class SyntaxAnalyzer {
       clSymbol("DOTIMES"), new AnalyzeDoTimes(),
       clSymbol("ECASE"), new AnalyzeEcase(),
       clSymbol("EVAL-WHEN"), new AnalyzeEvalWhen(),
-      clSymbol("FLET"), new AnalyzeLabels(AnalyzeLabels.Type.FLET),
+      clSymbol("FLET"), new AnalyzeFletLabels(AnalyzeFletLabels.Type.FLET),
       clSymbol("HANDLER-BIND"), new AnalyzeHandlerBind(),
       clSymbol("HANDLER-CASE"), new AnalyzeHandlerCase(),
       clSymbol("IN-PACKAGE"), new AnalyzeInPackage(),
-      clSymbol("LABELS"), new AnalyzeLabels(AnalyzeLabels.Type.LABELS),
+      clSymbol("LABELS"), new AnalyzeFletLabels(AnalyzeFletLabels.Type.LABELS),
       clSymbol("LAMBDA"), ANALYZE_LAMBDA,
       clSymbol("LET"), new AnalyzeLet(),
       clSymbol("LET*"), new AnalyzeLetStar(),
@@ -75,12 +75,12 @@ public class SyntaxAnalyzer {
     forms.stream().skip(skip).forEach(this::analyzeForm);
   }
 
-  public void analyzeFormsWithVariables(Collection<LispSexp> forms, int skip, Collection<LexicalVariable> variables) {
+  public void analyzeFormsWithVariables(Collection<LispSexp> forms, int skip, Collection<LexicalSymbol> variables) {
     forms.stream().skip(skip).forEach(f -> f.addLexicalVariables(variables));
     forms.stream().skip(skip).forEach(this::analyzeForm);
   }
 
-  public void analyzeFormsWithFunctions(Collection<LispSexp> forms, int skip, Collection<LispSymbolName> functions) {
+  public void analyzeFormsWithFunctions(Collection<LispSexp> forms, int skip, Collection<LexicalSymbol> functions) {
     forms.stream().skip(skip).forEach(f -> f.addLexicalFunctions(functions));
     forms.stream().skip(skip).forEach(this::analyzeForm);
   }
@@ -88,7 +88,7 @@ public class SyntaxAnalyzer {
   public void analyzeForm(LispSexp form) {
     if (form.isSymbol()) {
       LispSymbolName symbolName = form.getSymbolName();
-      LexicalVariable lexicalVariable = find(symbolName);
+      LexicalSymbol lexicalVariable = find(symbolName);
       if (lexicalVariable != null) {
         symbolName.setType(LEXICAL_VARIABLE_USAGE);
         symbolName.setLexicalVariable(lexicalVariable);

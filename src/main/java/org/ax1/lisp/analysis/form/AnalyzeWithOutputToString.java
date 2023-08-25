@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 
@@ -26,7 +26,7 @@ public class AnalyzeWithOutputToString implements FormAnalyzer {
       list.get(1).setErrorMessage("(var) expected");
       return;
     }
-    LexicalVariable variable = new LexicalVariable(varList.getSexpList().get(0).getSymbolName());
+    LexicalSymbol variable = new LexicalSymbol(varList.getSexpList().get(0).getSymbolName());
     SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, Set.of(variable));
   }
 

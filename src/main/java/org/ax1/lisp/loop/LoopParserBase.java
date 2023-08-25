@@ -1,7 +1,7 @@
 package org.ax1.lisp.loop;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbolName;
@@ -53,7 +53,7 @@ public class LoopParserBase {
     if (! (value0.equals("HASH-VALUE") || value0.equals("HASH-KEY"))) return false;
     symbolName0.setType(CODE);
     LispSymbolName symbolName1 = compoundSexpList.get(1).getSymbolName();
-    ((LispSexp)form.getParent()).addLexicalVariables(Set.of(new LexicalVariable(symbolName1)));
+    ((LispSexp)form.getParent()).addLexicalVariables(Set.of(new LexicalSymbol(symbolName1)));
     return true;
   }
 
@@ -81,13 +81,13 @@ public class LoopParserBase {
     index++;
   }
 
-  private List<LexicalVariable> getVariables(LispSexp sexp) {
+  private List<LexicalSymbol> getVariables(LispSexp sexp) {
     if (sexp.getSymbol() != null) {
       if (sexp.getText().equals("nil")) {
         sexp.setType(KEYWORD);
         return List.of();
       }
-      return List.of(new LexicalVariable(sexp.getSymbolName()));
+      return List.of(new LexicalSymbol(sexp.getSymbolName()));
     }
     LispList list = sexp.getList();
     if (list != null) {

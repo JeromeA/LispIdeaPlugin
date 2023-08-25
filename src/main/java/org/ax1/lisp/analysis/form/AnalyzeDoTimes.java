@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 
@@ -27,7 +27,7 @@ public class AnalyzeDoTimes implements FormAnalyzer {
       varList.getSexpList().get(0).setErrorMessage("variable name expected");
       return;
     }
-    LexicalVariable variable = new LexicalVariable(varName.getSymbolName());
+    LexicalSymbol variable = new LexicalSymbol(varName.getSymbolName());
     SyntaxAnalyzer.INSTANCE.analyzeForms(varList.getSexpList(), 1);
     SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, Set.of(variable));
   }

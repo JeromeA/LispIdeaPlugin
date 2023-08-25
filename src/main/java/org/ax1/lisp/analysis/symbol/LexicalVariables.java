@@ -7,11 +7,11 @@ import org.ax1.lisp.psi.LispSymbolName;
 
 public class LexicalVariables {
 
-  public static LexicalVariable find(LispSymbolName symbolName) {
+  public static LexicalSymbol find(LispSymbolName symbolName) {
     Symbol symbol = SymbolResolver.resolve(symbolName);
     LispSexp parent = getParent(symbolName);
     while (parent != null) {
-      LexicalVariable variable = parent.getLexicalVariables().get(symbol);
+      LexicalSymbol variable = parent.getLexicalVariables().get(symbol);
       if (variable != null) return variable;
       parent = getParent(parent);
     }

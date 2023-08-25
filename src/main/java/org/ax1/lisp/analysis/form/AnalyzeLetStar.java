@@ -1,12 +1,10 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
-import org.ax1.lisp.analysis.symbol.LexicalVariables;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbol;
-import org.ax1.lisp.psi.LispSymbolName;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -26,17 +24,17 @@ public class AnalyzeLetStar implements FormAnalyzer {
       list.get(1).setErrorMessage("Variable binding list expected");
       return;
     }
-    List<LexicalVariable> variables = new ArrayList<>();
+    List<LexicalSymbol> variables = new ArrayList<>();
     List<LispSexp> varList = list1.getSexpList();
     for (LispSexp var : varList) {
       var.addLexicalVariables(variables);
-      LexicalVariable newLexicalVariable = analyzeLetStarVar(var);
+      LexicalSymbol newLexicalVariable = analyzeLetStarVar(var);
       if (newLexicalVariable != null) variables.add(newLexicalVariable);
     }
     SyntaxAnalyzer.INSTANCE.analyzeForms(form.getSexpList(), 2);
   }
 
-  private LexicalVariable analyzeLetStarVar(@NotNull LispSexp sexp) {
+  private LexicalSymbol analyzeLetStarVar(@NotNull LispSexp sexp) {
     LispSymbol symbol = sexp.getSymbol();
     LispList varWithInit = sexp.getList();
     if (symbol == null && varWithInit == null) {
@@ -59,6 +57,6 @@ public class AnalyzeLetStar implements FormAnalyzer {
         SyntaxAnalyzer.INSTANCE.analyzeForm(init);
       }
     }
-    return new LexicalVariable(sexp.getSymbolName());
+    return new LexicalSymbol(sexp.getSymbolName());
   }
 }

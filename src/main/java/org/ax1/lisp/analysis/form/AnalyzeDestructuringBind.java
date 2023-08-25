@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.*;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbolName;
@@ -33,8 +33,8 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
     SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, getDestructuringBindVariables(list1.getSexpList()));
   }
 
-  private List<LexicalVariable> getDestructuringBindVariables(@NotNull List<LispSexp> lambdaList) {
-    List<LexicalVariable> result = new ArrayList<>();
+  private List<LexicalSymbol> getDestructuringBindVariables(@NotNull List<LispSexp> lambdaList) {
+    List<LexicalSymbol> result = new ArrayList<>();
     for (LispSexp sexp : lambdaList) {
       LispList list = sexp.getList();
       if (sexp.isSymbol()) {
@@ -42,7 +42,7 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
         if (KEYWORDS.contains(symbolName.getLispName())) {
           symbolName.setType(KEYWORD);
         } else {
-          result.add(new LexicalVariable(symbolName));
+          result.add(new LexicalSymbol(symbolName));
         }
       } else if (list != null) {
         result.addAll(getDestructuringBindVariables(list.getSexpList()));

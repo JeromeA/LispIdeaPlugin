@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbolName;
@@ -55,11 +55,11 @@ public class AnalyzeDefmethod implements FormAnalyzer {
   }
 
   @NotNull
-  private static List<LexicalVariable> getVariables(LispList lambdaList) {
-    List<LexicalVariable> result = new ArrayList<>();
+  private static List<LexicalSymbol> getVariables(LispList lambdaList) {
+    List<LexicalSymbol> result = new ArrayList<>();
     for (LispSexp lispSexp : lambdaList.getSexpList()) {
       LispSymbolName variable = getVariable(lispSexp);
-      if (variable != null) result.add(new LexicalVariable(variable));
+      if (variable != null) result.add(new LexicalSymbol(variable));
     }
     return result;
   }

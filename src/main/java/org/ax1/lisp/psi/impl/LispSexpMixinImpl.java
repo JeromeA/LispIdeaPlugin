@@ -2,7 +2,7 @@ package org.ax1.lisp.psi.impl;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbolName;
@@ -12,8 +12,8 @@ import java.util.*;
 
 public abstract class LispSexpMixinImpl extends BaseMixinImpl implements LispSexp {
 
-  private final Map<Symbol, LexicalVariable> lexicalVariables = new HashMap<>();
-  private final Set<LispSymbolName> lexicalFunctions = new HashSet<>();
+  private final Map<Symbol, LexicalSymbol> lexicalVariables = new HashMap<>();
+  private final Map<Symbol, LexicalSymbol> lexicalFunctions = new HashMap<>();
 
   public LispSexpMixinImpl(@NotNull ASTNode node) {
     super(node);
@@ -73,17 +73,17 @@ public abstract class LispSexpMixinImpl extends BaseMixinImpl implements LispSex
   }
 
   @Override
-  public void addLexicalVariables(Collection<LexicalVariable> variables) {
+  public void addLexicalVariables(Collection<LexicalSymbol> variables) {
     variables.forEach(variable -> lexicalVariables.put(variable.symbol, variable));
   }
 
   @Override
-  public void addLexicalFunctions(Collection<LispSymbolName> functions) {
-    lexicalFunctions.addAll(functions);
+  public void addLexicalFunctions(Collection<LexicalSymbol> functions) {
+    functions.forEach(function -> lexicalFunctions.put(function.symbol, function));
   }
 
   @Override
-  public Map<Symbol, LexicalVariable> getLexicalVariables() {
+  public Map<Symbol, LexicalSymbol> getLexicalVariables() {
     return lexicalVariables;
   }
 }

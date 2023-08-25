@@ -2,7 +2,7 @@ package org.ax1.lisp.psi.impl;
 
 import com.intellij.psi.PsiElement;
 import org.ax1.lisp.analysis.BaseLispElement;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispSymbolName;
 
@@ -14,8 +14,8 @@ public interface LispSexpMixin extends PsiElement, BaseLispElement {
   LispStringDesignator getStringDesignator();
   LispSymbolName getSymbolName();
 
-  void addLexicalVariables(Collection<LexicalVariable> variables);
-  void addLexicalFunctions(Collection<LispSymbolName> functions);
+  void addLexicalVariables(Collection<LexicalSymbol> variables);
+  void addLexicalFunctions(Collection<LexicalSymbol> functions);
 
-  Map<Symbol, LexicalVariable> getLexicalVariables();
+  Map<Symbol, LexicalSymbol> getLexicalVariables();
 }

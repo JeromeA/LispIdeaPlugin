@@ -4,7 +4,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import org.ax1.lisp.analysis.BaseLispElement;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.analysis.symbol.Package;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +24,7 @@ public interface LispStringDesignator extends PsiNameIdentifierOwner, BaseLispEl
 
   void addFunctionDefinition(String functionName);
 
-  void setLexicalVariable(LexicalVariable lexicalVariable);
+  void setLexicalVariable(LexicalSymbol lexicalVariable);
 
-  LexicalVariable getLexicalVariable();
+  LexicalSymbol getLexicalVariable();
 }

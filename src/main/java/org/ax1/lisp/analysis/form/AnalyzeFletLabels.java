@@ -1,21 +1,22 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbolName;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.ax1.lisp.analysis.form.LambdaAnalyzer.analyzeLambda;
 
-public class AnalyzeLabels implements FormAnalyzer {
+public class AnalyzeFletLabels implements FormAnalyzer {
 
   private final Type type;
 
-  public AnalyzeLabels(Type type) {
+  public AnalyzeFletLabels(Type type) {
     this.type = type;
   }
 
@@ -23,7 +24,7 @@ public class AnalyzeLabels implements FormAnalyzer {
   public void analyze(LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
-      form.setErrorMessage(type.name() + "needs at least 1 argument");
+      form.setErrorMessage(type.name() + " needs at least 1 argument");
       return;
     }
     LispList list1 = list.get(1).getList();
@@ -43,11 +44,11 @@ public class AnalyzeLabels implements FormAnalyzer {
   }
 
   /**
-   *  Quick scan to find the name of the lexical functions. Errors are ignored, annotations will happen at a later
-   *  stage, when each function is analyzed.
+   * Quick scan to find the name of the lexical functions. Errors are ignored, annotations will happen at a later
+   * stage, when each function is analyzed.
    */
-  private List<LispSymbolName> getFunctionSymbols(@NotNull List<LispSexp> functionList) {
-    List<LispSymbolName> result = new ArrayList<>();
+  private Collection<LexicalSymbol> getFunctionSymbols(@NotNull List<LispSexp> functionList) {
+    List<LexicalSymbol> result = new ArrayList<>();
     for (LispSexp function : functionList) {
       if (function.getList() == null || function.getList().getSexpList().size() < 2) {
         function.setErrorMessage("Function definition expected");
@@ -58,7 +59,7 @@ public class AnalyzeLabels implements FormAnalyzer {
         function.setErrorMessage("Function name expected");
         continue;
       }
-      result.add(functionName.getSymbolName());
+      result.add(new LexicalSymbol(functionName.getSymbolName()));
     }
     return result;
   }

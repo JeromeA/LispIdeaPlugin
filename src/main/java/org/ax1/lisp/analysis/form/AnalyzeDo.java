@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public class AnalyzeDo implements FormAnalyzer {
       return;
     }
     List<LispSexp> varList = list1.getSexpList();
-    List<LexicalVariable> variables = getVariables(varList);
+    List<LexicalSymbol> variables = getVariables(varList);
     SyntaxAnalyzer.INSTANCE.analyzeForms(getInitForms(varList), 0);
     SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(getStepForms(varList), 0, variables);
     LispList list2 = list.get(2).getList();
@@ -69,19 +69,19 @@ public class AnalyzeDo implements FormAnalyzer {
     return result;
   }
 
-  private List<LexicalVariable> getVariables(@NotNull List<LispSexp> varList) {
-    List<LexicalVariable> result = new ArrayList<>();
+  private List<LexicalSymbol> getVariables(@NotNull List<LispSexp> varList) {
+    List<LexicalSymbol> result = new ArrayList<>();
     for (LispSexp sexp : varList) {
       LispList list = sexp.getList();
       if (sexp.isSymbol()) {
-        result.add(new LexicalVariable(sexp.getSymbolName()));
+        result.add(new LexicalSymbol(sexp.getSymbolName()));
       } else if (list != null) {
         List<LispSexp> sexpList = list.getSexpList();
         if (sexpList.size() < 1 || sexpList.get(0).getSymbol() == null) {
           list.setErrorMessage("Expected var init form");
           continue;
         }
-        result.add(new LexicalVariable(sexpList.get(0).getSymbolName()));
+        result.add(new LexicalSymbol(sexpList.get(0).getSymbolName()));
       } else {
         sexp.setErrorMessage("Expected var binding");
       }

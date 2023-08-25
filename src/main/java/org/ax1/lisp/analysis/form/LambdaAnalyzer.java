@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.*;
-import org.ax1.lisp.analysis.symbol.LexicalVariable;
+import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispSymbolName;
@@ -28,7 +28,7 @@ public class LambdaAnalyzer {
       return;
     }
     lambdaList.setType(CODE);
-    List<LexicalVariable> variables = getVariables(lambdaList);
+    List<LexicalSymbol> variables = getVariables(lambdaList);
 
     index++;
     if (index >= list.size()) return;
@@ -55,15 +55,15 @@ public class LambdaAnalyzer {
   }
 
   @NotNull
-  private static List<LexicalVariable> getVariables(LispList lambdaList) {
-    List<LexicalVariable> result = new ArrayList<>();
+  private static List<LexicalSymbol> getVariables(LispList lambdaList) {
+    List<LexicalSymbol> result = new ArrayList<>();
     for (LispSexp parameterSpecifier : lambdaList.getSexpList()) {
       if (parameterSpecifier.isSymbol()) {
         LispSymbolName symbolName = parameterSpecifier.getSymbolName();
         if (KEYWORDS.contains(symbolName.getLispName())) {
           symbolName.setType(KEYWORD);
         } else {
-          result.add(new LexicalVariable(symbolName));
+          result.add(new LexicalSymbol(symbolName));
         }
         continue;
       }
@@ -75,7 +75,7 @@ public class LambdaAnalyzer {
           varName.setErrorMessage("Variable name expected");
           continue;
         }
-        result.add(new LexicalVariable(varName.getSymbolName()));
+        result.add(new LexicalSymbol(varName.getSymbolName()));
         if (varInit.size() > 1) {
           SyntaxAnalyzer.INSTANCE.analyzeForm(varInit.get(1));
         }
