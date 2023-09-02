@@ -111,16 +111,21 @@ public class LispBlock extends AbstractBlock {
 
   @Override
   public Indent getIndent() {
-    // Top level blocks are absolutely not indented.
-    if (getNode().getPsi().getParent() instanceof LispFile) {
-      return Indent.getAbsoluteNoneIndent();
+    PsiElement element = getNode().getPsi();
+    // Only a sexp can be indented.
+    if (!(element instanceof LispSexp)) {
+      return Indent.getNoneIndent();
     }
-    // All sexps are indented relative to their parent.
-    if (getNode().getPsi() instanceof LispSexp) {
-      return Indent.getNormalIndent();
+    // We don't care about intermediate psi element, we just want to know if this sexp has a parent (which would be
+    // another sexp), or if it's a top-level (LispFile is the closest relevant parent).
+    PsiElement parent = element.getParent();
+    while (true) {
+      // Top level blocks are absolutely not indented.
+      if (parent instanceof LispFile) return Indent.getAbsoluteNoneIndent();
+      // All sexps are indented relative to their parent.
+      if (parent instanceof LispSexp) return Indent.getNormalIndent();
+      parent = parent.getParent();
     }
-    // Anything else is not indented.
-    return Indent.getNoneIndent();
   }
 
   @Override
