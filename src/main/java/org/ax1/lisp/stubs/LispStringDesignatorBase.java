@@ -42,8 +42,8 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   private static final Set<String> KEYWORDS =
       Set.of("COND", "DECLARE", "DEFCONSTANT", "DEFINE-CONDITION", "DEFPACKAGE", "DEFPARAMETER", "DEFMACRO",
           "DEFUN", "DEFVAR", "DO", "DOLIST", "DOSYMBOLS", "EVAL-WHEN", "FLET", "IF", "IGNORE", "IN-PACKAGE",
-          "INCF", "LAMBDA", "LET", "LET*", "LOOP", "PROCLAIM", "RETURN", "SETF", "SETQ", "SPECIAL", "THROW",
-          "UNLESS", "WHEN");
+          "INCF", "LABELS", "LAMBDA", "LET", "LET*", "LOOP", "MACROLET", "PROCLAIM", "RETURN", "SETF", "SETQ",
+          "SPECIAL", "THROW", "UNLESS", "WHEN");
 
   private Type type;
   private String errorMessage;

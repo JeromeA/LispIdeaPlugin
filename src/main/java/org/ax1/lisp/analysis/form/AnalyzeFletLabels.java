@@ -67,6 +67,7 @@ public class AnalyzeFletLabels implements FormAnalyzer {
 
   public enum Type {
     FLET,
-    LABELS
+    LABELS,
+    MACROLET
   }
 }
