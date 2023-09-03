@@ -52,7 +52,10 @@ public class LambdaAnalyzer {
     LispSexp firstSexp = sexpList.get(0);
     LispSymbolName firstSymbolName = firstSexp.getSymbolName();
     if (firstSymbolName == null) return false;
-    return firstSymbolName.getLispName().equals("DECLARE");
+    if (!firstSymbolName.getLispName().equals("DECLARE")) return false;
+    firstSymbolName.setType(KEYWORD);
+    sexpList.stream().skip(1).forEach(s -> s.setType(DATA));
+    return true;
   }
 
   @NotNull
