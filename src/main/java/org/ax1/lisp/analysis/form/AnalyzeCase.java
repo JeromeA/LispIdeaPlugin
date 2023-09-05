@@ -27,7 +27,7 @@ public class AnalyzeCase implements FormAnalyzer {
     SyntaxAnalyzer.INSTANCE.analyzeForm(sexpList.get(1));
     sexpList.stream().skip(2).forEach(sexp -> {
       LispList list = sexp.getList();
-      if (list == null || list.getSexpList().size() < 2) {
+      if (list == null || list.getSexpList().isEmpty()) {
         sexp.setErrorMessage("key-form clause expected");
         return;
       }
