@@ -21,12 +21,14 @@ public class SyntaxAnalyzer {
   public static final SyntaxAnalyzer INSTANCE = new SyntaxAnalyzer();
   private static final AnalyzeFunctionCall ANALYZE_FUNCTION_CALL = new AnalyzeFunctionCall();
   private static final AnalyzeLambda ANALYZE_LAMBDA = new AnalyzeLambda();
-  private static final AnalyzeQuote ANALYZE_QUOTE = new AnalyzeQuote();
+  public static final AnalyzeQuote ANALYZE_QUOTE = new AnalyzeQuote();
   private static final AnalyzeBackQuote ANALYZE_BACKQUOTE = new AnalyzeBackQuote();
 
   private static final Map<Symbol, FormAnalyzer> ANALYSERS = Maps.of(
-      clSymbol("CASE"), new AnalyzeCase(),
+      clSymbol("CASE"), new AnalyzeCase(AnalyzeCase.Type.CASE),
+      clSymbol("CCASE"), new AnalyzeCase(AnalyzeCase.Type.CCASE),
       clSymbol("COND"), new AnalyzeCond(),
+      clSymbol("CTYPECASE"), new AnalyzeCase(AnalyzeCase.Type.CTYPECASE),
       clSymbol("DEFCLASS"), new AnalyzeDefclass(),
       clSymbol("DEFCONSTANT"), new AnalyzeDefvar(AnalyzeDefvar.Type.DEFCONSTANT),
       clSymbol("DEFGENERIC"), new AnalyzeDefgeneric(),
@@ -45,7 +47,8 @@ public class SyntaxAnalyzer {
       clSymbol("DO-SYMBOLS"), new AnalyzeDoSymbols(AnalyzeDoSymbols.Type.DO_SYMBOLS),
       clSymbol("DOLIST"), new AnalyzeDolist(),
       clSymbol("DOTIMES"), new AnalyzeDoTimes(),
-      clSymbol("ECASE"), new AnalyzeEcase(),
+      clSymbol("ECASE"), new AnalyzeCase(AnalyzeCase.Type.ECASE),
+      clSymbol("ETYPECASE"), new AnalyzeCase(AnalyzeCase.Type.ETYPECASE),
       clSymbol("EVAL-WHEN"), new AnalyzeEvalWhen(),
       clSymbol("FLET"), new AnalyzeFletLabels(AnalyzeFletLabels.Type.FLET),
       clSymbol("HANDLER-BIND"), new AnalyzeHandlerBind(),
@@ -58,6 +61,7 @@ public class SyntaxAnalyzer {
       clSymbol("LOOP"), new AnalyzeLoop(),
       clSymbol("MACROLET"), new AnalyzeFletLabels(AnalyzeFletLabels.Type.MACROLET),
       clSymbol("MULTIPLE-VALUE-BIND"), new AnalyzeMultipleValueBind(),
+      clSymbol("TYPECASE"), new AnalyzeCase(AnalyzeCase.Type.TYPECASE),
       clSymbol("WITH-INPUT-FROM-STRING"), new AnalyzeWithInputFromString(),
       clSymbol("WITH-OPEN-FILE"), new AnalyzeWithOpenFile(),
       clSymbol("WITH-OUTPUT-TO-STRING"), new AnalyzeWithOutputToString());

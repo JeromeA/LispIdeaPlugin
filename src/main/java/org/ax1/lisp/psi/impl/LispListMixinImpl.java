@@ -27,7 +27,8 @@ public abstract class LispListMixinImpl extends BaseMixinImpl implements LispLis
     // It's valid for a List to have a type, for (), for example, or to highlight the parentheses in DATA.
     super.setType(type);
     // Propagate ERROR and COMMENT, which aim to invalidate a whole tree. Propagating CODE would be a bug: a list needs
-    // to be CODE, but propagating it would prevent the real types to be discovered.
+    // to be CODE, but propagating it would prevent the real types to be discovered. Propagating DATA would also be a
+    // bug: in a backquote expression, the list can be data, but the content might not.
     if (type == Type.ERROR || type == Type.COMMENT) getSexpList().forEach(e -> e.setType(type));
   }
 
