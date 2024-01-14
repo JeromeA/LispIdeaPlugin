@@ -12,6 +12,10 @@ This plugin tries to support Common Lisp through static analysis. It's more work
 
 A much more advanced plugin for Common Lisp is [SLT](https://github.com/Enerccio/SLT). One of the reasons it's more advanced is because it doesn't need to be that smart: it just queries SLIME on demand.
 
-## Status
+## Limitations
 
-It's still at a very early development stage. It's unlikely to work on anything but my own personal projects.
+* It's still at a very early development stage. It's unlikely to work on anything but my own personal projects.
+* It doesn't support any package or system manager.
+* It doesn't work well with macros that are not part of Common Lisp.
+* It doesn't have a debugger.
+
