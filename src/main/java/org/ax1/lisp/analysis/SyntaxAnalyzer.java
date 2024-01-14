@@ -83,11 +83,10 @@ public class SyntaxAnalyzer {
   }
 
   private void clearErrors(LispSexp sexp) {
+    sexp.setErrorMessage(null);
     if (sexp.getList() != null) {
       sexp.getList().setErrorMessage(null);
       sexp.getList().getSexpList().forEach(this::clearErrors);
-    } else {
-      sexp.setErrorMessage(null);
     }
   }
 
