@@ -10,7 +10,7 @@ This plugin tries to support Common Lisp through static analysis. It's more work
 * It knows about completions even in an incomplete SEXP.
 * It can display modern IDE information in real time. Showing error messages in the code, or highlighting unused variables requires knowing what changes in the file can invalidate this information.
 
-A much more advanced plugin for Common Lisp is [SLT](https://github.com/Enerccio/SLT). One of the reasons it's more advanced is because it doesn't need to be that smart: it just queries SLIME on demand.
+A much more advanced plugin for Common Lisp is [SLT](https://github.com/Enerccio/SLT). One of the reasons it's more advanced is because it doesn't need to be that smart: it just queries SWANK on demand.
 
 ## Limitations
 
