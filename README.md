@@ -4,9 +4,13 @@ An IntelliJ plugin to support Common Lisp.
 
 ## Approach
 
-The only other plugin adding support for Common Lisp is [SLT](https://github.com/Enerccio/SLT). Go and try it! It's more advanced than this one.
+This plugin tries to support Common Lisp through static analysis. It's more work, but it allows better real-time features:
+* As soon as a name is changed, all the references and usages are updated in real time.
+* As soon as anything changes, it knows exactly what information just became stale.
+* It knows about completions even in an incomplete SEXP.
+* It can display modern IDE information in real time. Showing error messages in the code, or highlighting unused variables requires knowing what changes in the file can invalidate this information.
 
-This plugin tries to support Common Lisp through static analysis. It's more work, but it allows better real-time features.
+A much more advanced plugin for Common Lisp is [SLT](https://github.com/Enerccio/SLT). One of the reasons it's more advanced is because it doesn't need to be that smart: it just queries SLIME on demand.
 
 ## Status
 
