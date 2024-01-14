@@ -68,6 +68,7 @@ public class LispRunLineMarkerContributor extends RunLineMarkerContributor imple
       if (element instanceof LispSexp) {
         return element.getParent().getParent() instanceof LispFile;
       }
+      if (element instanceof LispFile) return false;
     }
   }
 }
