@@ -33,6 +33,8 @@ import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
 
 public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPsiElementBase<T> implements LispStringDesignator {
 
+  private static final boolean DEBUG_DESCRIPTION = false;
+
   private static final Set<Type> SYMBOL_TYPES =
       Set.of(CONDITION_DEFINITION, FUNCTION_DEFINITION, PACKAGE_DEFINITION, VARIABLE_DEFINITION,
           LEXICAL_VARIABLE_DEFINITION, LEXICAL_FUNCTION_DEFINITION, CONDITION_USAGE, VARIABLE_USAGE, PACKAGE_USAGE,
@@ -147,24 +149,50 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
 
   @Override
   public String getDescriptionString() {
-    return String.format("Class: %s<br>" +
-            "Type: %s<br>" +
-            "Lisp name: %s<br>" +
-            "Description: %s<br>" +
-            "Package definition: %s<br>" +
-            "Function definitions: %s<br>" +
-            "Lexical variable: %s<br>" +
-            "Lexical function: %s<br>" +
-            "Hash: %d",
-        getClass().getName(),
-        getType(),
-        getLispName(),
-        descriptionString,
-        packageDefinition,
-        functionDefinitions,
-        lexicalVariable,
-        lexicalFunction,
-        hashCode());
+    if (DEBUG_DESCRIPTION) {
+      return String.format("Class: %s<br>" +
+              "Type: %s<br>" +
+              "Lisp name: %s<br>" +
+              "Description: %s<br>" +
+              "Package definition: %s<br>" +
+              "Function definitions: %s<br>" +
+              "Lexical variable: %s<br>" +
+              "Lexical function: %s<br>" +
+              "Hash: %d",
+          getClass().getName(),
+          getType(),
+          getLispName(),
+          descriptionString,
+          packageDefinition,
+          functionDefinitions,
+          lexicalVariable,
+          lexicalFunction,
+          hashCode());
+    }
+    switch (type) {
+      case FUNCTION_USAGE:
+      case FUNCTION_DEFINITION:
+      case LEXICAL_FUNCTION_DEFINITION:
+      case LEXICAL_FUNCTION_USAGE:
+        return String.format("Function %s", getLispName());
+      case VARIABLE_DEFINITION:
+      case VARIABLE_USAGE:
+      case LEXICAL_VARIABLE_DEFINITION:
+      case LEXICAL_VARIABLE_USAGE:
+        return String.format("Variable %s", getLispName());
+      case PACKAGE_USAGE:
+      case PACKAGE_DEFINITION:
+        return String.format("Package %s", getLispName());
+      case CONDITION_DEFINITION:
+      case CONDITION_USAGE:
+        return String.format("Condition %s", getLispName());
+      case METHOD_DEFINITION:
+        return String.format("Method %s", getLispName());
+      case SYMBOL_USAGE:
+        return String.format("Symbol %s", getLispName());
+      default:
+        return null;
+    }
   }
 
   @Override
