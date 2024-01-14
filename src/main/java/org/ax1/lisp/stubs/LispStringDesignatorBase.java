@@ -33,7 +33,7 @@ import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
 
 public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPsiElementBase<T> implements LispStringDesignator {
 
-  private static final boolean DEBUG_DESCRIPTION = false;
+  private static final boolean DEBUG_DESCRIPTION = true;
 
   private static final Set<Type> SYMBOL_TYPES =
       Set.of(CONDITION_DEFINITION, FUNCTION_DEFINITION, PACKAGE_DEFINITION, VARIABLE_DEFINITION,
@@ -116,6 +116,8 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
     errorMessage = null;
     lexicalFunction = null;
     lexicalVariable = null;
+    functionDefinitions.clear();
+    packageDefinition = null;
   }
 
   @Override
@@ -149,26 +151,15 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
 
   @Override
   public String getDescriptionString() {
+    String result = "";
     if (DEBUG_DESCRIPTION) {
-      return String.format("Class: %s<br>" +
-              "Type: %s<br>" +
-              "Lisp name: %s<br>" +
-              "Description: %s<br>" +
-              "Package definition: %s<br>" +
-              "Function definitions: %s<br>" +
-              "Lexical variable: %s<br>" +
-              "Lexical function: %s<br>" +
-              "Hash: %d",
-          getClass().getName(),
-          getType(),
-          getLispName(),
-          descriptionString,
-          packageDefinition,
-          functionDefinitions,
-          lexicalVariable,
-          lexicalFunction,
-          hashCode());
+      result = getDebugDescription();
     }
+    return result + getFormattedDescription();
+  }
+
+  @Nullable
+  private String getFormattedDescription() {
     switch (type) {
       case FUNCTION_USAGE:
       case FUNCTION_DEFINITION:
@@ -193,6 +184,27 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
       default:
         return null;
     }
+  }
+
+  private String getDebugDescription() {
+    return String.format("Class: %s<br>" +
+            "Type: %s<br>" +
+            "Lisp name: %s<br>" +
+            "Description: %s<br>" +
+            "Package definition: %s<br>" +
+            "Function definitions: %s<br>" +
+            "Lexical variable: %s<br>" +
+            "Lexical function: %s<br>" +
+            "Hash: %d<BR>",
+        getClass().getName(),
+        getType(),
+        getLispName(),
+        descriptionString,
+        packageDefinition,
+        functionDefinitions,
+        lexicalVariable,
+        lexicalFunction,
+        hashCode());
   }
 
   @Override
