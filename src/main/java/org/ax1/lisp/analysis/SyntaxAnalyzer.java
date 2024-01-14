@@ -72,10 +72,23 @@ public class SyntaxAnalyzer {
 
   public void analyze(LispFile lispFile) {
     CachedValuesManager.getCachedValue(lispFile, () -> {
+      clearErrors(lispFile.getSexpList());
       analyzeForms(lispFile.getSexpList(), 0);
       return CachedValueProvider.Result.create(Boolean.TRUE, lispFile);
     });
+  }
 
+  private void clearErrors(Collection<LispSexp> forms) {
+    forms.forEach(this::clearErrors);
+  }
+
+  private void clearErrors(LispSexp sexp) {
+    if (sexp.getList() != null) {
+      sexp.getList().setErrorMessage(null);
+      sexp.getList().getSexpList().forEach(this::clearErrors);
+    } else {
+      sexp.setErrorMessage(null);
+    }
   }
 
   public void analyzeForms(Collection<LispSexp> forms, int skip) {

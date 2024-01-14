@@ -52,7 +52,7 @@ public abstract class LispSexpMixinImpl extends BaseMixinImpl implements LispSex
   @Override
   public void setErrorMessage(String errorMessage) {
     super.setErrorMessage(errorMessage);
-    if (getList() != null) {
+    if (getList() != null && errorMessage != null) {
       getList().setType(Type.ERROR);
     }
   }

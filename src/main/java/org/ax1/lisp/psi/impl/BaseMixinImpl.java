@@ -21,7 +21,7 @@ public abstract class BaseMixinImpl extends ASTWrapperPsiElement implements Base
   @Override
   public void setErrorMessage(String errorMessage) {
     this.errorMessage = errorMessage;
-    setType(Type.ERROR);
+    if (errorMessage != null) setType(Type.ERROR);
   }
 
   @Override
@@ -31,17 +31,10 @@ public abstract class BaseMixinImpl extends ASTWrapperPsiElement implements Base
 
   @Override
   public Type getType() {
+    LispFile containingFile = (LispFile) getContainingFile();
+    SyntaxAnalyzer.INSTANCE.analyze(containingFile);
     if (type == null) {
-      LispFile containingFile = (LispFile) getContainingFile();
-      synchronized (containingFile) {
-        if (type == null) {
-          SyntaxAnalyzer.INSTANCE.analyze(containingFile);
-        }
-      }
-      if (type == null) {
-        type = Type.UNKNOWN;
-//        SyntaxAnalyzer.INSTANCE.analyze((LispFile)getContainingFile());
-      }
+      type = Type.UNKNOWN;
     }
     return type;
   }

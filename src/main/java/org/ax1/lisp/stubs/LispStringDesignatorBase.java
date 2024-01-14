@@ -84,11 +84,9 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   @Override
   public Type getType() {
     LispFile containingFile = (LispFile) getContainingFile();
+    SyntaxAnalyzer.INSTANCE.analyze(containingFile);
     if (type == null) {
-      SyntaxAnalyzer.INSTANCE.analyze(containingFile);
-      if (type == null) {
-        type = Type.UNKNOWN;
-      }
+      type = Type.UNKNOWN;
     }
     return type;
   }
