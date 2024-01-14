@@ -43,8 +43,8 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
       Set.of("CASE", "CCASE", "COND", "CTYPECASE", "DECLAIM", "DECLARE", "DEFCONSTANT", "DEFINE-CONDITION",
           "DEFPACKAGE", "DEFPARAMETER", "DEFMACRO", "DEFUN", "DEFSTRUCT", "DEFVAR", "DO", "DOLIST", "DOSYMBOLS",
           "ECASE", "ETYPECASE", "EVAL-WHEN", "FLET", "HANDLER-BIND", "HANDLER-CASE", "IF", "IGNORE", "IN-PACKAGE",
-          "INCF", "LABELS", "LAMBDA", "LET", "LET*", "LOOP", "MACROLET", "PROCLAIM", "RETURN", "SETF", "SETQ",
-          "SPECIAL", "THROW", "TYPECASE", "UNLESS", "WHEN");
+          "INCF", "LABELS", "LAMBDA", "LET", "LET*", "LOOP", "MACROLET", "PROCLAIM", "RESTART-BIND", "RETURN", "SETF",
+          "SETQ", "SPECIAL", "THROW", "TYPECASE", "UNLESS", "WHEN");
 
   private Type type;
   private String errorMessage;
