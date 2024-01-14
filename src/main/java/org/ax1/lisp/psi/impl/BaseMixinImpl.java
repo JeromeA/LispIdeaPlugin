@@ -21,7 +21,11 @@ public abstract class BaseMixinImpl extends ASTWrapperPsiElement implements Base
   @Override
   public void setErrorMessage(String errorMessage) {
     this.errorMessage = errorMessage;
-    if (errorMessage != null) setType(Type.ERROR);
+  }
+
+  @Override
+  public void clear() {
+    this.errorMessage = null;
   }
 
   @Override

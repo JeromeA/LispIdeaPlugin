@@ -110,6 +110,13 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   }
 
   @Override
+  public void clear() {
+    errorMessage = null;
+    lexicalFunction = null;
+    lexicalVariable = null;
+  }
+
+  @Override
   public void annotate(@NotNull AnnotationHolder holder) {
     if (errorMessage != null) {
       holder.newAnnotation(HighlightSeverity.ERROR, errorMessage)

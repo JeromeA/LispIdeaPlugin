@@ -138,7 +138,7 @@ At each step, if we found a symbol, we store it in the internal map for later op
 
 # Indexes
 
-The following indexes are used instead of using the ProjectComputedData:
+The following indexes are used, every time a non-lexical symbol is queried:
 * Package definition
 * Function/Generic definitions
 * Method definitions

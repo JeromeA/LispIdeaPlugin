@@ -5,6 +5,7 @@ import org.ax1.lisp.AnnotatedElement;
 public interface BaseLispElement extends AnnotatedElement {
 
   void setErrorMessage(String errorMessage);
+  void clear();
   Type getType();
   void setType(Type type);
 
