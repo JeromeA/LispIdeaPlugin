@@ -4,6 +4,7 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.HighlightSeverity;
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.BaseLispElement;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispFile;
@@ -13,6 +14,7 @@ public abstract class BaseMixinImpl extends ASTWrapperPsiElement implements Base
 
   private String errorMessage;
   private Type type;
+  private AnalyzerContext context;
 
   public BaseMixinImpl(@NotNull ASTNode node) {
     super(node);
@@ -41,6 +43,11 @@ public abstract class BaseMixinImpl extends ASTWrapperPsiElement implements Base
       type = Type.UNKNOWN;
     }
     return type;
+  }
+
+  @Override
+  public void setContext(AnalyzerContext context) {
+    this.context = context;
   }
 
   @Override

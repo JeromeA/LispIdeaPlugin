@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -18,13 +19,13 @@ public class AnalyzeCase implements FormAnalyzer {
   }
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> sexpList = form.getSexpList();
     if (sexpList.size() < 2) {
       form.setErrorMessage(type + " needs at least 1 argument");
       return;
     }
-    SyntaxAnalyzer.INSTANCE.analyzeForm(sexpList.get(1));
+    SyntaxAnalyzer.INSTANCE.analyzeForm(context, sexpList.get(1));
     sexpList.stream().skip(2).forEach(sexp -> {
       LispList list = sexp.getList();
       if (list == null || list.getSexpList().isEmpty()) {
@@ -37,7 +38,7 @@ public class AnalyzeCase implements FormAnalyzer {
       } else {
         keyListDesignator.setType(DATA);
       }
-      SyntaxAnalyzer.INSTANCE.analyzeForms(list.getSexpList(), 1);
+      SyntaxAnalyzer.INSTANCE.analyzeForms(context, list.getSexpList(), 1);
     });
   }
 

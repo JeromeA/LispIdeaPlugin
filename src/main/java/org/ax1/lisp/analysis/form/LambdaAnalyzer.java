@@ -21,7 +21,7 @@ public class LambdaAnalyzer {
   /**
    * Analyze a lambda function, starting from the lambda list at the specified index in the form.
    */
-  public static void analyzeLambda(String formName, LispList form, int index) {
+  public static void analyzeLambda(AnalyzerContext context, String formName, LispList form, int index) {
     List<LispSexp> list = form.getSexpList();
     LispList lambdaList = list.get(index).getList();
     if (lambdaList == null) {
@@ -29,7 +29,7 @@ public class LambdaAnalyzer {
       return;
     }
     lambdaList.setType(CODE);
-    List<LexicalSymbol> variables = getVariables(lambdaList);
+    List<LexicalSymbol> variables = getVariables(context, lambdaList);
 
     index++;
     if (index >= list.size()) return;
@@ -41,7 +41,7 @@ public class LambdaAnalyzer {
     // Skip declaration.
     if (isDeclaration(list.get(index))) index++;
 
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, index, variables);
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, list, index, variables);
   }
 
   private static boolean isDeclaration(LispSexp sexp) {
@@ -59,7 +59,7 @@ public class LambdaAnalyzer {
   }
 
   @NotNull
-  private static List<LexicalSymbol> getVariables(LispList lambdaList) {
+  private static List<LexicalSymbol> getVariables(AnalyzerContext context, LispList lambdaList) {
     List<LexicalSymbol> result = new ArrayList<>();
     for (LispSexp parameterSpecifier : lambdaList.getSexpList()) {
       if (parameterSpecifier.isSymbol()) {
@@ -81,7 +81,7 @@ public class LambdaAnalyzer {
         }
         result.add(newLexicalVariable(varName.getSymbolName()));
         if (varInit.size() > 1) {
-          SyntaxAnalyzer.INSTANCE.analyzeForm(varInit.get(1));
+          SyntaxAnalyzer.INSTANCE.analyzeForm(context, varInit.get(1));
         }
         continue;
       }

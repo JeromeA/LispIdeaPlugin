@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
@@ -24,7 +25,7 @@ public class AnalyzeDefmethod implements FormAnalyzer {
           .collect(Collectors.toSet());
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
       form.setErrorMessage("DEFMETHOD needs at least 2 arguments.");
@@ -52,7 +53,7 @@ public class AnalyzeDefmethod implements FormAnalyzer {
     }
 
     // TODO: add CALL-NEXT-METHOD as a lexical function binding.
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, arg + 1, getVariables(lambdaList));
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, list, arg + 1, getVariables(lambdaList));
   }
 
   @NotNull

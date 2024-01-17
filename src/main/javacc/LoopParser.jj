@@ -8,6 +8,7 @@ options {
 PARSER_BEGIN(LoopParser)
 
 package org.ax1.lisp.loop;
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.psi.LispList;
 
 public class LoopParser extends LoopParserBase {
@@ -95,10 +96,10 @@ TOKEN : { <ERROR : (["A"-"Z"])+> }
 
 <*> TOKEN : { <COMPOUND : "()"> : DEFAULT }
 
-void Start(LispList form):
+void Start(AnalyzerContext context, LispList form):
 {}
 {
-    { init(form); }
+    { init(context, form); }
     <LOOP> {keyword();}
     (Simple() | Extended())
     (<EOF> | {error("Expecting LOOP keyword");})

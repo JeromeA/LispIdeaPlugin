@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
@@ -20,7 +21,7 @@ public class AnalyzeDoSymbols implements FormAnalyzer {
   }
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
       form.setErrorMessage(type.getName() + " needs at least 1 argument");
@@ -38,8 +39,8 @@ public class AnalyzeDoSymbols implements FormAnalyzer {
     }
     LispSymbolName symbolName = varName.getSymbolName();
     Set<LexicalSymbol> variables = Set.of(newLexicalVariable(symbolName));
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(varList.getSexpList(), 1, variables);
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, variables);
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, varList.getSexpList(), 1, variables);
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, list, 2, variables);
   }
 
   public enum Type {

@@ -1,6 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
-import org.ax1.lisp.analysis.BaseLispElement;
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -19,7 +19,7 @@ public class AnalyzeDefvar implements FormAnalyzer {
   }
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> sexpList = form.getSexpList();
     if (sexpList.size() < type.getMinArg() + 1) {
       form.setErrorMessage(type.name() + " takes at least 1 argument");
@@ -32,7 +32,7 @@ public class AnalyzeDefvar implements FormAnalyzer {
     }
     LispSymbolName symbolName = varName.getSymbolName();
     symbolName.setType(VARIABLE_DEFINITION);
-    if (sexpList.size() >= 3) SyntaxAnalyzer.INSTANCE.analyzeForm(sexpList.get(2));
+    if (sexpList.size() >= 3) SyntaxAnalyzer.INSTANCE.analyzeForm(context, sexpList.get(2));
     // Documentation.
     if (sexpList.size() >= 4) sexpList.get(3).setType(CODE);
     sexpList.stream().skip(4).forEach(sexp -> sexp.setErrorMessage("Unexpected argument"));

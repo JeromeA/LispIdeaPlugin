@@ -1,6 +1,7 @@
 package org.ax1.lisp.analysis.form;
 
 import com.google.common.collect.ImmutableSet;
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.loop.LoopParser;
 import org.ax1.lisp.loop.ParseException;
 import org.ax1.lisp.psi.LispList;
@@ -25,14 +26,14 @@ public class AnalyzeLoop implements FormAnalyzer {
       "T", "THE", "THEN", "THEREIS", "TO", "UNLESS", "UNTIL", "USING", "UPFROM", "UPTO", "WHEN", "WHILE", "WITH");
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> sexpList = form.getSexpList();
     String syntaxString = sexpList.stream().map(AnalyzeLoop::toSyntaxString).collect(Collectors.joining(" "));
     ByteArrayInputStream syntaxInput = new ByteArrayInputStream(syntaxString.getBytes());
     LoopParser parser = new LoopParser(syntaxInput);
 
     try {
-      parser.Start(form);
+      parser.Start(context, form);
     } catch (ParseException e) {
       System.err.println("Error: " + e.getMessage());
       System.err.println("In file: " + form.getContainingFile().getName());

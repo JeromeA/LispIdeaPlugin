@@ -19,7 +19,7 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
   private static final Set<String> KEYWORDS = Set.of("&ALLOW-OTHER-KEYS", "&KEY", "&REST");
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
       form.setErrorMessage("DESTRUCTURING-BIND needs at least 2 arguments.");
@@ -31,7 +31,7 @@ public class AnalyzeDestructuringBind implements FormAnalyzer {
       sexp1.setErrorMessage("Destructuring lambda list expected");
       return;
     }
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, getDestructuringBindVariables(list1.getSexpList()));
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, list, 2, getDestructuringBindVariables(list1.getSexpList()));
   }
 
   private List<LexicalSymbol> getDestructuringBindVariables(@NotNull List<LispSexp> lambdaList) {

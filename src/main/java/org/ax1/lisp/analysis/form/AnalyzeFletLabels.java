@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
@@ -22,7 +23,7 @@ public class AnalyzeFletLabels implements FormAnalyzer {
   }
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
       form.setErrorMessage(type.name() + " needs at least 1 argument");
@@ -34,13 +35,13 @@ public class AnalyzeFletLabels implements FormAnalyzer {
       return;
     }
     List<LispSexp> functionList = list1.getSexpList();
-    functionList.forEach(this::analyzeFunction);
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithFunctions(list, 2, getFunctionSymbols(functionList));
+    functionList.forEach(function -> analyzeFunction(context, function));
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithFunctions(context, list, 2, getFunctionSymbols(functionList));
   }
 
-  private void analyzeFunction(LispSexp function) {
+  private void analyzeFunction(AnalyzerContext context, LispSexp function) {
     if (function.getList() != null && function.getList().getSexpList().size() >= 2) {
-      analyzeLambda(type.name(), function.getList(), 1);
+      analyzeLambda(context, type.name(), function.getList(), 1);
     }
   }
 

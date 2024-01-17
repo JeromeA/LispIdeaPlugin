@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
@@ -15,7 +16,7 @@ import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 public class AnalyzeLetStar implements FormAnalyzer {
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
       form.setErrorMessage("LET* needs at least 1 argument");
@@ -30,13 +31,13 @@ public class AnalyzeLetStar implements FormAnalyzer {
     List<LispSexp> varList = list1.getSexpList();
     for (LispSexp var : varList) {
       var.addLexicalVariables(variables);
-      LexicalSymbol newLexicalVariable = analyzeLetStarVar(var);
+      LexicalSymbol newLexicalVariable = analyzeLetStarVar(context, var);
       if (newLexicalVariable != null) variables.add(newLexicalVariable);
     }
-    SyntaxAnalyzer.INSTANCE.analyzeForms(form.getSexpList(), 2);
+    SyntaxAnalyzer.INSTANCE.analyzeForms(context, form.getSexpList(), 2);
   }
 
-  private LexicalSymbol analyzeLetStarVar(@NotNull LispSexp sexp) {
+  private LexicalSymbol analyzeLetStarVar(AnalyzerContext context, @NotNull LispSexp sexp) {
     LispSymbol symbol = sexp.getSymbol();
     LispList varWithInit = sexp.getList();
     if (symbol == null && varWithInit == null) {
@@ -56,7 +57,7 @@ public class AnalyzeLetStar implements FormAnalyzer {
       }
       if (varWithInitList.size() == 2) {
         LispSexp init = varWithInitList.get(1);
-        SyntaxAnalyzer.INSTANCE.analyzeForm(init);
+        SyntaxAnalyzer.INSTANCE.analyzeForm(context, init);
       }
     }
     return newLexicalVariable(sexp.getSymbolName());

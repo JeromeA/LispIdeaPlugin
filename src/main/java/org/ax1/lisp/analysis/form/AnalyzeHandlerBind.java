@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.BaseLispElement;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
@@ -10,7 +11,7 @@ import java.util.List;
 public class AnalyzeHandlerBind implements FormAnalyzer {
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
       form.setErrorMessage("HANDLER-BIND needs at least 1 argument");
@@ -22,11 +23,11 @@ public class AnalyzeHandlerBind implements FormAnalyzer {
       bindingSexp.setErrorMessage("Binding list expected");
       return;
     }
-    bindingList.getSexpList().forEach(this::analyzeBinding);
-    SyntaxAnalyzer.INSTANCE.analyzeForms(list, 2);
+    bindingList.getSexpList().forEach(binding -> analyzeBinding(binding, context));
+    SyntaxAnalyzer.INSTANCE.analyzeForms(context, list, 2);
   }
 
-  private void analyzeBinding(LispSexp binding) {
+  private void analyzeBinding(LispSexp binding, AnalyzerContext context) {
     LispList list = binding.getList();
     if (list == null || list.getSexpList().size() != 2) {
       binding.setErrorMessage("Binding (type handler) expected");
@@ -34,6 +35,6 @@ public class AnalyzeHandlerBind implements FormAnalyzer {
     }
     List<LispSexp> pair = list.getSexpList();
     pair.get(0).setType(BaseLispElement.Type.DATA);
-    SyntaxAnalyzer.INSTANCE.analyzeForm(pair.get(1));
+    SyntaxAnalyzer.INSTANCE.analyzeForm(context, pair.get(1));
   }
 }

@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
@@ -13,7 +14,7 @@ import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 public class AnalyzeLet implements FormAnalyzer {
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
       form.setErrorMessage("LET needs at least 1 argument");
@@ -25,8 +26,8 @@ public class AnalyzeLet implements FormAnalyzer {
       return;
     }
     List<LispSexp> varList = list1.getSexpList();
-    SyntaxAnalyzer.INSTANCE.analyzeForms(getInitForms(varList), 0);
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, getLetVariables(varList));
+    SyntaxAnalyzer.INSTANCE.analyzeForms(context, getInitForms(varList), 0);
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, list, 2, getLetVariables(varList));
   }
 
   private Collection<LispSexp> getInitForms(List<LispSexp> varList) {

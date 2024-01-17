@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 
@@ -10,7 +11,7 @@ import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
 public class AnalyzeDefineCondition implements FormAnalyzer {
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 4) {
       form.setErrorMessage("DEFINE-CONDITION needs at least 3 arguments");

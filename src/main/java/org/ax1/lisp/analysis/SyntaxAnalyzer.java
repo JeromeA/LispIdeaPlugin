@@ -73,7 +73,7 @@ public class SyntaxAnalyzer {
   public void analyze(LispFile lispFile) {
     CachedValuesManager.getCachedValue(lispFile, () -> {
       cleanTree(lispFile.getSexpList());
-      analyzeForms(lispFile.getSexpList(), 0);
+      analyzeForms(new AnalyzerContext(), lispFile.getSexpList(), 0);
       return CachedValueProvider.Result.create(Boolean.TRUE, lispFile);
     });
   }
@@ -90,21 +90,21 @@ public class SyntaxAnalyzer {
     }
   }
 
-  public void analyzeForms(Collection<LispSexp> forms, int skip) {
-    forms.stream().skip(skip).forEach(this::analyzeForm);
+  public void analyzeForms(AnalyzerContext context, Collection<LispSexp> forms, int skip) {
+    forms.stream().skip(skip).forEach(form -> analyzeForm(context, form));
   }
 
-  public void analyzeFormsWithVariables(Collection<LispSexp> forms, int skip, Collection<LexicalSymbol> variables) {
+  public void analyzeFormsWithVariables(AnalyzerContext context, Collection<LispSexp> forms, int skip, Collection<LexicalSymbol> variables) {
     forms.stream().skip(skip).forEach(f -> f.addLexicalVariables(variables));
-    forms.stream().skip(skip).forEach(this::analyzeForm);
+    forms.stream().skip(skip).forEach(form -> analyzeForm(context, form));
   }
 
-  public void analyzeFormsWithFunctions(Collection<LispSexp> forms, int skip, Collection<LexicalSymbol> functions) {
+  public void analyzeFormsWithFunctions(AnalyzerContext context, Collection<LispSexp> forms, int skip, Collection<LexicalSymbol> functions) {
     forms.stream().skip(skip).forEach(f -> f.addLexicalFunctions(functions));
-    forms.stream().skip(skip).forEach(this::analyzeForm);
+    forms.stream().skip(skip).forEach(form -> analyzeForm(context, form));
   }
 
-  public void analyzeForm(LispSexp form) {
+  public void analyzeForm(AnalyzerContext context, LispSexp form) {
     if (form.isSymbol()) {
       LispSymbolName symbolName = form.getSymbolName();
       LexicalSymbol lexicalVariable = findLexicalVariable(symbolName);
@@ -118,12 +118,12 @@ public class SyntaxAnalyzer {
       return;
     }
     if (form.getQuoted() != null) {
-      analyseQuotedForm(form.getQuoted());
+      analyseQuotedForm(context, form.getQuoted());
       return;
     }
     LispList list = form.getList();
     if (list != null) {
-      analyzeCompoundForm(list);
+      analyzeCompoundForm(context, list);
       return;
     }
     LispString string = form.getString();
@@ -132,7 +132,7 @@ public class SyntaxAnalyzer {
     }
   }
 
-  private void analyseQuotedForm(LispQuoted quoted) {
+  private void analyseQuotedForm(AnalyzerContext context, LispQuoted quoted) {
     PsiElement quote = quoted.getFirstChild();
     LispSexp quotedSexp = quoted.getSexp();
     String quoteType = quote.getText();
@@ -151,7 +151,7 @@ public class SyntaxAnalyzer {
             quotedSexp.setErrorMessage("Expected lambda form");
             return;
           }
-          ANALYZE_LAMBDA.analyze(list);
+          ANALYZE_LAMBDA.analyze(context, list);
         }
         break;
       case ",":
@@ -162,12 +162,12 @@ public class SyntaxAnalyzer {
         ANALYZE_QUOTE.analyze(quoted.getSexp());
         break;
       case "`":
-        ANALYZE_BACKQUOTE.analyze(quoted.getSexp());
+        ANALYZE_BACKQUOTE.analyze(context, quoted.getSexp());
         break;
     }
   }
 
-  private void analyzeCompoundForm(LispList form) {
+  private void analyzeCompoundForm(AnalyzerContext context, LispList form) {
     form.setType(CODE);
     List<LispSexp> list = form.getSexpList();
     if (list.isEmpty()) return;
@@ -179,11 +179,11 @@ public class SyntaxAnalyzer {
         symbolName.setType(LEXICAL_FUNCTION_USAGE);
         symbolName.setLexicalFunction(lexicalFunction);
         lexicalFunction.usages.add(symbolName);
-        ANALYZE_FUNCTION_CALL.analyze(form);
+        ANALYZE_FUNCTION_CALL.analyze(context, form);
       } else {
         symbolName.setType(FUNCTION_USAGE);
         Symbol symbol = SymbolResolver.resolve(symbolName);
-        getAnalyzer(symbol).analyze(form);
+        getAnalyzer(symbol).analyze(context, form);
       }
     } else if (isLambda(sexp0)) {
       // TODO: handle lambda expression case.

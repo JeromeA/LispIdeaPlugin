@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
@@ -16,7 +17,7 @@ import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 public class AnalyzeMultipleValueBind implements FormAnalyzer {
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
       form.setErrorMessage("MULTIPLE-VALUE-BIND needs at least 2 arguments.");
@@ -29,7 +30,7 @@ public class AnalyzeMultipleValueBind implements FormAnalyzer {
       list.stream().skip(2).forEach(s -> s.setType(ERROR));
       return;
     }
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, getVariables(list1.getSexpList()));
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, list, 2, getVariables(list1.getSexpList()));
   }
 
   private List<LexicalSymbol> getVariables(@NotNull List<LispSexp> lambdaList) {

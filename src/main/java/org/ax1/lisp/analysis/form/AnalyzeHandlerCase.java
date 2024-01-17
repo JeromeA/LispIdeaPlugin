@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
@@ -14,13 +15,13 @@ import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 public class AnalyzeHandlerCase implements FormAnalyzer {
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
       form.setErrorMessage("HANDLER-CASE needs at least 1 argument");
       return;
     }
-    SyntaxAnalyzer.INSTANCE.analyzeForm(list.get(1));
+    SyntaxAnalyzer.INSTANCE.analyzeForm(context, list.get(1));
     for (int i = 2; i < list.size(); i++) {
       LispList clause = list.get(i).getList();
       if (clause == null || clause.getSexpList().size() < 2) {
@@ -34,10 +35,10 @@ public class AnalyzeHandlerCase implements FormAnalyzer {
         continue;
       }
       if (sexp1.getList().getSexpList().isEmpty()) {
-        SyntaxAnalyzer.INSTANCE.analyzeForms(clause.getSexpList(), 2);
+        SyntaxAnalyzer.INSTANCE.analyzeForms(context, clause.getSexpList(), 2);
       } else {
         LexicalSymbol variable = newLexicalVariable(sexp1.getList().getSexpList().get(0).getSymbolName());
-        SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(clause.getSexpList(), 2, Set.of(variable));
+        SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, clause.getSexpList(), 2, Set.of(variable));
       }
     }
   }

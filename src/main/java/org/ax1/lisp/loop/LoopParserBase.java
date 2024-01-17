@@ -1,5 +1,6 @@
 package org.ax1.lisp.loop;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
@@ -19,14 +20,16 @@ public class LoopParserBase {
   private final List<LispSexp> delayed = new ArrayList<>();
   private int index = 0;
   private LispList form;
+  private AnalyzerContext context;
 
-  public void init(LispList form) {
+  public void init(AnalyzerContext context, LispList form) {
+    this.context = context;
     this.form = form;
     this.sexpList = form.getSexpList();
   }
 
   public void End() {
-    delayed.forEach(this::analyzeForm);
+    delayed.forEach(form1 -> analyzeForm(form1, context));
   }
 
   public void skip() {
@@ -64,7 +67,7 @@ public class LoopParserBase {
   }
 
   public void analyzeForm() {
-    analyzeForm(sexpList.get(index));
+    analyzeForm(sexpList.get(index), context);
     index++;
   }
 
@@ -73,8 +76,8 @@ public class LoopParserBase {
     index++;
   }
 
-  private void analyzeForm(LispSexp form) {
-    SyntaxAnalyzer.INSTANCE.analyzeForm(form);
+  private void analyzeForm(LispSexp form, AnalyzerContext context) {
+    SyntaxAnalyzer.INSTANCE.analyzeForm(context, form);
   }
 
   public void declareVariable() {

@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
@@ -13,7 +14,7 @@ import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 public class AnalyzeDoTimes implements FormAnalyzer {
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
       form.setErrorMessage("DOTIMES needs at least 1 argument");
@@ -30,7 +31,7 @@ public class AnalyzeDoTimes implements FormAnalyzer {
       return;
     }
     LexicalSymbol variable = newLexicalVariable(varName.getSymbolName());
-    SyntaxAnalyzer.INSTANCE.analyzeForms(varList.getSexpList(), 1);
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 2, Set.of(variable));
+    SyntaxAnalyzer.INSTANCE.analyzeForms(context, varList.getSexpList(), 1);
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, list, 2, Set.of(variable));
   }
 }

@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -15,7 +16,7 @@ public class AnalyzeEvalWhen implements FormAnalyzer {
       Set.of("COMPILE-TOPLEVEL", "LOAD-TOPLEVEL", "EXECUTE", "COMPILE", "LOAD", "EVAL");
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 2) {
       form.setErrorMessage("EVAL-WHEN needs at least 1 argument");
@@ -34,6 +35,6 @@ public class AnalyzeEvalWhen implements FormAnalyzer {
       }
     }
 
-    SyntaxAnalyzer.INSTANCE.analyzeForms(list, 2);
+    SyntaxAnalyzer.INSTANCE.analyzeForms(context, list, 2);
   }
 }

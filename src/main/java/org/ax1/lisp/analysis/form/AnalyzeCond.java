@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -12,7 +13,7 @@ import static org.ax1.lisp.analysis.BaseLispElement.Type.CODE;
 public class AnalyzeCond implements FormAnalyzer {
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> sexpList = form.getSexpList();
     for (LispSexp sexp : sexpList.stream().skip(1).collect(Collectors.toList())) {
       LispList condCase = sexp.getList();
@@ -21,7 +22,7 @@ public class AnalyzeCond implements FormAnalyzer {
         continue;
       }
       condCase.setType(CODE);
-      SyntaxAnalyzer.INSTANCE.analyzeForms(condCase.getSexpList(), 0);
+      SyntaxAnalyzer.INSTANCE.analyzeForms(context, condCase.getSexpList(), 0);
     }
   }
 }

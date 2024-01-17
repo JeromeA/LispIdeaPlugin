@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispQuoted;
@@ -16,27 +17,27 @@ public class AnalyzeBackQuote {
   //  - the first element of the list is a standard common lisp function.
   //  - the first element of the list is a known function (this one is tricky, because we are in the middle of
   //    the pass in charge of finding all the known functions).
-  public void analyze(LispSexp form) {
-    analyzeForm(form);
+  public void analyze(AnalyzerContext context, LispSexp form) {
+    analyzeForm(context, form);
   }
 
-  private void analyzeForm(LispSexp form) {
+  private void analyzeForm(AnalyzerContext context, LispSexp form) {
     form.setType(DATA);
     LispList list = form.getList();
     if (list != null) {
-      list.getSexpList().forEach(this::analyzeSexp);
+      list.getSexpList().forEach(sexp -> analyzeSexp(context, sexp));
     }
   }
 
-  private void analyzeSexp(LispSexp sexp) {
+  private void analyzeSexp(AnalyzerContext context, LispSexp sexp) {
     LispQuoted quoted = sexp.getQuoted();
     if (quoted == null) {
-      analyzeForm(sexp);
+      analyzeForm(context, sexp);
       return;
     }
     String quoteType = quoted.getFirstChild().getText();
     if (quoteType.equals(",") || quoteType.equals(",@")) {
-      SyntaxAnalyzer.INSTANCE.analyzeForm(quoted.getSexp());
+      SyntaxAnalyzer.INSTANCE.analyzeForm(context, quoted.getSexp());
     }
   }
 

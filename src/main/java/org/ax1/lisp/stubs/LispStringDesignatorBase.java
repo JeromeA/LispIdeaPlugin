@@ -12,6 +12,7 @@ import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.IncorrectOperationException;
 import org.ax1.lisp.SymbolResolver;
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.ProjectData;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalSymbol;
@@ -31,7 +32,8 @@ import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.*;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.KEYWORD;
 import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
 
-public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPsiElementBase<T> implements LispStringDesignator {
+public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPsiElementBase<T>
+    implements LispStringDesignator {
 
   private static final boolean DEBUG_DESCRIPTION = true;
 
@@ -55,6 +57,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   private final Set<String> functionDefinitions = new HashSet<>();
   private LexicalSymbol lexicalVariable;
   private LexicalSymbol lexicalFunction;
+  private LispStringDesignator inPackage;
 
   public LispStringDesignatorBase(@NotNull T stub, @NotNull IStubElementType<?, ?> nodeType) {
     super(stub, nodeType);
@@ -107,6 +110,11 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   }
 
   @Override
+  public void setContext(AnalyzerContext context) {
+    inPackage = context.inPackage;
+  }
+
+  @Override
   public void setErrorMessage(String errorMessage) {
     this.errorMessage = errorMessage;
   }
@@ -118,6 +126,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
     lexicalVariable = null;
     functionDefinitions.clear();
     packageDefinition = null;
+    inPackage = null;
   }
 
   @Override
@@ -195,6 +204,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
             "Function definitions: %s<br>" +
             "Lexical variable: %s<br>" +
             "Lexical function: %s<br>" +
+            "In Package: %s<br>" +
             "Hash: %d<BR>",
         getClass().getName(),
         getType(),
@@ -204,7 +214,13 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
         functionDefinitions,
         lexicalVariable,
         lexicalFunction,
+        inPackage,
         hashCode());
+  }
+
+  @Override
+  public String toString() {
+    return String.format("[%s %s]", getType(), getLispName());
   }
 
   @Override

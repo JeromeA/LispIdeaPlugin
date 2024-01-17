@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.analysis.symbol.LexicalSymbol;
 import org.ax1.lisp.psi.LispList;
@@ -15,7 +16,7 @@ import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 public class AnalyzeDo implements FormAnalyzer {
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
       form.setErrorMessage("DO needs at least 2 arguments");
@@ -28,16 +29,16 @@ public class AnalyzeDo implements FormAnalyzer {
     }
     List<LispSexp> varList = list1.getSexpList();
     List<LexicalSymbol> variables = getVariables(varList);
-    SyntaxAnalyzer.INSTANCE.analyzeForms(getInitForms(varList), 0);
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(getStepForms(varList), 0, variables);
+    SyntaxAnalyzer.INSTANCE.analyzeForms(context, getInitForms(varList), 0);
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, getStepForms(varList), 0, variables);
     LispList list2 = list.get(2).getList();
     if (list2 == null || list2.getSexpList().isEmpty()) {
       list.get(2).setErrorMessage("Test/result form expected");
       return;
     }
     List<LispSexp> testResultList = list2.getSexpList();
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(testResultList, 0, variables);
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(list, 3, variables);
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, testResultList, 0, variables);
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, list, 3, variables);
   }
 
   private Collection<LispSexp> getInitForms(List<LispSexp> varList) {

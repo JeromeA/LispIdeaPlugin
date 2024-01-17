@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispString;
@@ -17,7 +18,7 @@ public class AnalyzeDefun implements FormAnalyzer {
   }
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 3) {
       form.setErrorMessage(type.name() + " needs at least 2 arguments");
@@ -29,7 +30,7 @@ public class AnalyzeDefun implements FormAnalyzer {
     } else {
       // TODO: check DEFUN SETF case.
     }
-    analyzeLambda("DEFUN", form, 2);
+    analyzeLambda(context, "DEFUN", form, 2);
   }
 
   private String getDocString(List<LispSexp> list) {

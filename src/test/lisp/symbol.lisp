@@ -1,7 +1,6 @@
 
 (defpackage "PACKAGE11" (:use "CL"))
 (defpackage "PACKAGE12" (:use "CL"))
-(defpackage "PACKAGE13" (:use "CL"))
 
 (in-package :package11)
 

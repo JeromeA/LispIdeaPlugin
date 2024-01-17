@@ -1,5 +1,6 @@
 package org.ax1.lisp.analysis.form;
 
+import org.ax1.lisp.analysis.AnalyzerContext;
 import org.ax1.lisp.analysis.symbol.Package;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
@@ -14,7 +15,7 @@ import static org.ax1.lisp.analysis.NameDesignators.getLispStringDesignator;
 public class AnalyzeDefpackage implements FormAnalyzer {
 
   @Override
-  public void analyze(LispList form) {
+  public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> formList = form.getSexpList();
     if (formList.size() < 2) {
       form.setErrorMessage("DEFPACKAGE needs at least 1 argument");
