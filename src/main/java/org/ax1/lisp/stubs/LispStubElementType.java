@@ -3,6 +3,7 @@ package org.ax1.lisp.stubs;
 import com.intellij.lang.Language;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.stubs.*;
+import com.intellij.util.io.StringRef;
 import org.ax1.lisp.analysis.BaseLispElement;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.ax1.lisp.stubs.index.*;
@@ -31,16 +32,23 @@ public abstract class LispStubElementType<A extends StubElement<?> & LispStringD
 
   @Override
   public void serialize(@NotNull A stub, @NotNull StubOutputStream dataStream) throws IOException {
+    dataStream.writeName(stub.getPackageContext());
     dataStream.writeName(stub.getLispName());
     dataStream.writeChar(stub.getType().ordinal());
   }
 
   @Override
   public @NotNull A deserialize(@NotNull StubInputStream dataStream, StubElement parentStub) throws IOException {
-    String packageContext = dataStream.readName().getString();
-    String lispName = dataStream.readName().getString();
+    String packageContext = readString(dataStream);
+    String lispName = readString(dataStream);
     BaseLispElement.Type type = BaseLispElement.Type.values()[dataStream.readChar()];
     return createStub(parentStub, packageContext, lispName, type);
+  }
+
+  private static String readString(@NotNull StubInputStream dataStream) throws IOException {
+    StringRef stringRef = dataStream.readName();
+    if (stringRef == null) return null;
+    return stringRef.getString();
   }
 
   @Override

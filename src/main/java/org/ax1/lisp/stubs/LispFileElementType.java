@@ -9,4 +9,9 @@ public class LispFileElementType extends IStubFileElementType<LispFileStub> {
   public LispFileElementType() {
     super("LISP_FILE", LispLanguage.INSTANCE);
   }
+
+  @Override
+  public int getStubVersion() {
+    return 1;
+  }
 }

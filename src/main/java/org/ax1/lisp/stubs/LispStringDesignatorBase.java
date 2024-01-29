@@ -287,6 +287,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
     if (prefix != null) return prefix;
 
     // Otherwise, it is a package from the current context.
+    if (packageContext == null) return "null_package_context";
     ProjectData projectData = ProjectData.getInstance(getProject());
     Package packageContextDefinition = projectData.getPackage(packageContext);
     if (packageContextDefinition != null) {
