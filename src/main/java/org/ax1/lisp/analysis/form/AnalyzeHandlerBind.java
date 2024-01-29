@@ -8,6 +8,8 @@ import org.ax1.lisp.psi.LispSexp;
 
 import java.util.List;
 
+import static org.ax1.lisp.analysis.BaseLispElement.Type.DATA;
+
 public class AnalyzeHandlerBind implements FormAnalyzer {
 
   @Override
@@ -34,7 +36,7 @@ public class AnalyzeHandlerBind implements FormAnalyzer {
       return;
     }
     List<LispSexp> pair = list.getSexpList();
-    pair.get(0).setType(BaseLispElement.Type.DATA);
+    pair.get(0).setType(DATA);
     SyntaxAnalyzer.INSTANCE.analyzeForm(context, pair.get(1));
   }
 }

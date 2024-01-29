@@ -4,6 +4,9 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.stubs.StubIndex;
 import com.intellij.psi.stubs.StubIndexKey;
+import org.ax1.lisp.analysis.symbol.CommonLispPackage;
+import org.ax1.lisp.analysis.symbol.CommonLispUserPackage;
+import org.ax1.lisp.analysis.symbol.Package;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,8 +64,20 @@ public final class ProjectData {
     return getSingleIndexValue(VARIABLE_DEFINITIONS, name);
   }
 
-  public LispStringDesignator getPackageDefinition(String name) {
+  public @Nullable LispStringDesignator getPackageDefinition(String name) {
     return getSingleIndexValue(PACKAGE_DEFINITIONS, name);
+  }
+
+  public Package getPackage(String name) {
+    if (CommonLispUserPackage.INSTANCE.is(name)) {
+      return CommonLispUserPackage.INSTANCE;
+    }
+    if (CommonLispPackage.INSTANCE.is(name)) {
+      return CommonLispPackage.INSTANCE;
+    }
+    LispStringDesignator packageDesignator = getPackageDefinition(name);
+    if (packageDesignator == null) return null;
+    return packageDesignator.getPackageDefinition();
   }
 
   @Nullable

@@ -26,7 +26,7 @@ public class AnalyzeDefun implements FormAnalyzer {
     }
     LispSexp functionName = list.get(1);
     if (functionName.isSymbol()) {
-      functionName.getSymbolName().addFunctionDefinition(functionName.getSymbolName().getText());
+      functionName.getSymbolName().addFunctionDefinition(functionName.getSymbolName().getText(), context.packageContext);
     } else {
       // TODO: check DEFUN SETF case.
     }

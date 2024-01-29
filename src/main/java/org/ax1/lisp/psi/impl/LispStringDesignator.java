@@ -22,11 +22,13 @@ public interface LispStringDesignator extends PsiNameIdentifierOwner, BaseLispEl
 
   void setPackageDefinition(Package definition);
 
-  void addFunctionDefinition(String functionName);
+  void addFunctionDefinition(String functionName, String packageContext);
 
   void setLexicalVariable(LexicalSymbol lexicalVariable);
   void setLexicalFunction(LexicalSymbol lexicalVariable);
 
   LexicalSymbol getLexicalVariable();
   LexicalSymbol getLexicalFunction();
+
+  void setType(Type type, String packageContext);
 }

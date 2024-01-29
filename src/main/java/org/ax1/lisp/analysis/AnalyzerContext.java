@@ -1,7 +1,7 @@
 package org.ax1.lisp.analysis;
 
-import org.ax1.lisp.psi.impl.LispStringDesignator;
+import static org.ax1.lisp.analysis.symbol.CommonLispUserPackage.COMMON_LISP_USER;
 
 public class AnalyzerContext {
-  public LispStringDesignator inPackage;
+  public String packageContext = COMMON_LISP_USER;
 }

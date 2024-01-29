@@ -31,6 +31,7 @@ import static com.intellij.lang.annotation.HighlightSeverity.INFORMATION;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.*;
 import static com.intellij.openapi.editor.DefaultLanguageHighlighterColors.KEYWORD;
 import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
+import static org.ax1.lisp.analysis.symbol.CommonLispUserPackage.COMMON_LISP_USER;
 
 public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPsiElementBase<T>
     implements LispStringDesignator {
@@ -57,7 +58,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   private final Set<String> functionDefinitions = new HashSet<>();
   private LexicalSymbol lexicalVariable;
   private LexicalSymbol lexicalFunction;
-  private LispStringDesignator inPackage;
+  private String packageContext;
 
   public LispStringDesignatorBase(@NotNull T stub, @NotNull IStubElementType<?, ?> nodeType) {
     super(stub, nodeType);
@@ -98,6 +99,15 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
 
   @Override
   public void setType(Type type) {
+    if (type == FUNCTION_DEFINITION || type == FUNCTION_USAGE || type == VARIABLE_DEFINITION
+        || type == VARIABLE_USAGE || type == CONDITION_DEFINITION || type == CONDITION_USAGE)
+      throw new IllegalArgumentException("Use setType(type, packageContext) instead");
+    setType(type, null);
+  }
+
+  @Override
+  public void setType(Type type, String packageContext) {
+    this.packageContext = packageContext;
     this.type = type;
     // TODO: replace this with overloading.
     if (this instanceof LispSymbolName && getParent() instanceof LispSymbol && type != Type.UNKNOWN && type != Type.COMMENT) {
@@ -111,7 +121,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
 
   @Override
   public void setContext(AnalyzerContext context) {
-    inPackage = context.inPackage;
+    packageContext = context.packageContext;
   }
 
   @Override
@@ -126,7 +136,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
     lexicalVariable = null;
     functionDefinitions.clear();
     packageDefinition = null;
-    inPackage = null;
+    packageContext = null;
   }
 
   @Override
@@ -196,26 +206,25 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   }
 
   private String getDebugDescription() {
-    return String.format("Class: %s<br>" +
+    return String.format("Name: %s:%s<br>" +
+            "Class: %s<br>" +
             "Type: %s<br>" +
-            "Lisp name: %s<br>" +
             "Description: %s<br>" +
             "Package definition: %s<br>" +
             "Function definitions: %s<br>" +
             "Lexical variable: %s<br>" +
             "Lexical function: %s<br>" +
-            "In Package: %s<br>" +
-            "Hash: %d<BR>",
+            "Package context: %s<br>",
+        getPackageName(),
+        getLispName(),
         getClass().getName(),
         getType(),
-        getLispName(),
         descriptionString,
         packageDefinition,
         functionDefinitions,
         lexicalVariable,
         lexicalFunction,
-        inPackage,
-        hashCode());
+        packageContext);
   }
 
   @Override
@@ -234,8 +243,8 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   }
 
   @Override
-  public void addFunctionDefinition(String functionName) {
-    if (type == null) setType(FUNCTION_DEFINITION);
+  public void addFunctionDefinition(String functionName, String packageContext) {
+    if (type == null) setType(FUNCTION_DEFINITION, packageContext);
     functionDefinitions.add(functionName);
   }
 
@@ -257,6 +266,36 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   @Override
   public LexicalSymbol getLexicalFunction() {
     return lexicalFunction;
+  }
+
+  public String getPackageName() {
+    // Packages specified with a string are not symbols at all.
+    if (this instanceof LispStringContent) {
+      if (getType() == PACKAGE_DEFINITION || getType() == PACKAGE_USAGE) {
+        return "";
+      }
+    }
+
+    // If there is a prefix, return it.
+    String prefix = getPackagePrefix();
+    if (prefix != null) return prefix;
+
+    // Otherwise, it is a package from the current context.
+    ProjectData projectData = ProjectData.getInstance(getProject());
+    Package packageContextDefinition = projectData.getPackage(packageContext);
+    if (packageContextDefinition != null) {
+      String packageName = packageContextDefinition.resolvePackage(getLispName(), getProject());
+      if (packageName != null) return packageName;
+    }
+    return COMMON_LISP_USER;
+  }
+
+  private String getPackagePrefix() {
+    LispSymbol parentSymbol = (LispSymbol) getParent();
+    LispPackagePrefix packagePrefix = parentSymbol.getPackagePrefix();
+    if (packagePrefix != null) return packagePrefix.getLispName();
+    if (parentSymbol.getColon() != null) return "";
+    return null;
   }
 
   @Override

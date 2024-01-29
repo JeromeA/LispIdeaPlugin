@@ -22,6 +22,7 @@ public class AnalyzeInPackage implements FormAnalyzer {
       return;
     }
 
+    context.packageContext = stringDesignator.getLispName();
     stringDesignator.setType(PACKAGE_USAGE);
   }
 }

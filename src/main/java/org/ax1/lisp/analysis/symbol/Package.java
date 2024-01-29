@@ -1,8 +1,14 @@
 package org.ax1.lisp.analysis.symbol;
 
+
+import com.intellij.openapi.project.Project;
+import org.ax1.lisp.analysis.ProjectData;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class Package {
 
@@ -38,5 +44,18 @@ public class Package {
   public boolean is(String packageName) {
     if (name.equals(packageName)) return true;
     return nicknames.stream().anyMatch(nickName -> nickName.equals(packageName));
+  }
+
+  public String resolvePackage(String designator, Project project) {
+    // Find if a used package exports the symbol.
+    ProjectData projectData = ProjectData.getInstance(project);
+    for (String use : uses) {
+      Package packageDefinition = projectData.getPackage(use);
+      if (packageDefinition == null) continue;
+      if (packageDefinition.exports.contains(designator)) {
+        return packageDefinition.name;
+      }
+    }
+    return name;
   }
 }

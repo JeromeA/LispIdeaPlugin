@@ -109,11 +109,11 @@ public class SyntaxAnalyzer {
       LispSymbolName symbolName = form.getSymbolName();
       LexicalSymbol lexicalVariable = findLexicalVariable(symbolName);
       if (lexicalVariable != null) {
-        symbolName.setType(LEXICAL_VARIABLE_USAGE);
+        symbolName.setType(LEXICAL_VARIABLE_USAGE, context.packageContext);
         symbolName.setLexicalVariable(lexicalVariable);
         lexicalVariable.usages.add(symbolName);
       } else {
-        symbolName.setType(VARIABLE_USAGE);
+        symbolName.setType(VARIABLE_USAGE, context.packageContext);
       }
       return;
     }
@@ -139,7 +139,7 @@ public class SyntaxAnalyzer {
     switch (quoteType) {
       case "#'":
         if (quotedSexp.isSymbol()) {
-          quotedSexp.getSymbolName().setType(FUNCTION_DEFINITION);
+          quotedSexp.getSymbolName().setType(FUNCTION_DEFINITION, context.packageContext);
           return;
         }
         LispList list = quotedSexp.getList();
@@ -176,12 +176,12 @@ public class SyntaxAnalyzer {
       LispSymbolName symbolName = sexp0.getSymbolName();
       LexicalSymbol lexicalFunction = findLexicalFunction(symbolName);
       if (lexicalFunction != null) {
-        symbolName.setType(LEXICAL_FUNCTION_USAGE);
+        symbolName.setType(LEXICAL_FUNCTION_USAGE, context.packageContext);
         symbolName.setLexicalFunction(lexicalFunction);
         lexicalFunction.usages.add(symbolName);
         ANALYZE_FUNCTION_CALL.analyze(context, form);
       } else {
-        symbolName.setType(FUNCTION_USAGE);
+        symbolName.setType(FUNCTION_USAGE, context.packageContext);
         Symbol symbol = SymbolResolver.resolve(symbolName);
         getAnalyzer(symbol).analyze(context, form);
       }

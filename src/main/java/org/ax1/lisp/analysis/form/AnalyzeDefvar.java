@@ -31,7 +31,7 @@ public class AnalyzeDefvar implements FormAnalyzer {
       return;
     }
     LispSymbolName symbolName = varName.getSymbolName();
-    symbolName.setType(VARIABLE_DEFINITION);
+    symbolName.setType(VARIABLE_DEFINITION, context.packageContext);
     if (sexpList.size() >= 3) SyntaxAnalyzer.INSTANCE.analyzeForm(context, sexpList.get(2));
     // Documentation.
     if (sexpList.size() >= 4) sexpList.get(3).setType(CODE);

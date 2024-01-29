@@ -22,6 +22,6 @@ public class AnalyzeDefgeneric implements FormAnalyzer {
       sexp1.setErrorMessage("Function name expected");
       return;
     }
-    sexp1.getSymbolName().setType(FUNCTION_DEFINITION);
+    sexp1.getSymbolName().setType(FUNCTION_DEFINITION, context.packageContext);
   }
 }
