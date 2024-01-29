@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface LispStringDesignator extends PsiNameIdentifierOwner, BaseLispElement {
   String getLispName();
+  String getPackageName();
+  String getPackageContext();
   ASTNode createNewNode(@NotNull String newName);
 
   void annotate(@NotNull AnnotationHolder holder);

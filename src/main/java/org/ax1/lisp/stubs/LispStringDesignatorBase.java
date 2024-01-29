@@ -79,6 +79,11 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
     return this;
   }
 
+  @Override
+  public String getPackageContext() {
+    return packageContext;
+  }
+
   public ASTNode createNewNode(@NotNull String newName) {
     // TODO: replace this with overloading.
     if (this instanceof LispStringContent) {
@@ -268,6 +273,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
     return lexicalFunction;
   }
 
+  @Override
   public String getPackageName() {
     // Packages specified with a string are not symbols at all.
     if (this instanceof LispStringContent) {
@@ -316,10 +322,10 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   public PsiReference getReference() {
     ProjectData projectData = ProjectData.getInstance(getProject());
     if (getType() == FUNCTION_USAGE) {
-      return getReference(projectData.getFunctionDefinition(getLispName()));
+      return getReference(projectData.getFunctionDefinition(this));
     }
     if (getType() == VARIABLE_USAGE) {
-      return getReference(projectData.getVariableDefinition(getLispName()));
+      return getReference(projectData.getVariableDefinition(this));
     }
     if (getType() == PACKAGE_USAGE) {
       return getReference(projectData.getPackageDefinition(getLispName()));
@@ -331,8 +337,8 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
       return getReference(lexicalFunction.definition);
     }
     if (getType() == Type.SYMBOL_USAGE) {
-      LispStringDesignator designator = projectData.getFunctionDefinition(getLispName());
-      if (designator == null) designator = projectData.getVariableDefinition(getLispName());
+      LispStringDesignator designator = projectData.getFunctionDefinition(this);
+      if (designator == null) designator = projectData.getVariableDefinition(this);
       return getReference(designator);
     }
     return null;

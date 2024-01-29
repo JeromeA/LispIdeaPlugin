@@ -37,17 +37,18 @@ public abstract class LispStubElementType<A extends StubElement<?> & LispStringD
 
   @Override
   public @NotNull A deserialize(@NotNull StubInputStream dataStream, StubElement parentStub) throws IOException {
-    String stringValue = dataStream.readName().getString();
+    String packageContext = dataStream.readName().getString();
+    String lispName = dataStream.readName().getString();
     BaseLispElement.Type type = BaseLispElement.Type.values()[dataStream.readChar()];
-    return createStub(parentStub, stringValue, type);
+    return createStub(parentStub, packageContext, lispName, type);
   }
 
   @Override
   public @NotNull A createStub(@NotNull B psi, StubElement<? extends PsiElement> parentStub) {
-    return createStub(parentStub, psi.getLispName(), psi.getType());
+    return createStub(parentStub, psi.getPackageContext(), psi.getLispName(), psi.getType());
   }
 
-  protected abstract A createStub(StubElement parentStub, String lispName, BaseLispElement.Type type);
+  protected abstract A createStub(StubElement parentStub, String packagePrefix, String lispName, BaseLispElement.Type type);
 
   @Override
   public @NotNull String getExternalId() {

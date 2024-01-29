@@ -32,10 +32,10 @@ public class LispFindUsagesHandler extends FindUsagesHandler {
         return getUsageReferences(searchScope, stringDesignator.getLexicalFunction().usages);
       }
       if (stringDesignator.getType() == LispStringDesignator.Type.VARIABLE_DEFINITION) {
-        return getUsageReferences(searchScope, projectData.getVariableUsages(stringDesignator.getLispName()));
+        return getUsageReferences(searchScope, projectData.getVariableUsages(stringDesignator));
       }
       if (stringDesignator.getType() == LispStringDesignator.Type.FUNCTION_DEFINITION) {
-        return getUsageReferences(searchScope, projectData.getFunctionUsages(stringDesignator.getLispName()));
+        return getUsageReferences(searchScope, projectData.getFunctionUsages(stringDesignator));
       }
       if (stringDesignator.getType() == LispStringDesignator.Type.PACKAGE_DEFINITION) {
         return getUsageReferences(searchScope, projectData.getPackageUsages(stringDesignator.getLispName()));

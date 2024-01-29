@@ -8,8 +8,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class LispStringContentStub extends LispStringDesignatorStub<LispStringContent> {
 
-  protected LispStringContentStub(@Nullable StubElement parent, IStubElementType elementType, String lispName, BaseLispElement.Type type) {
-    super(parent, elementType, lispName, type);
+  protected LispStringContentStub(@Nullable StubElement parent, IStubElementType elementType, String packageContext,
+                                  String symbolName, BaseLispElement.Type type) {
+    super(parent, elementType, packageContext, symbolName, type);
   }
 
 }

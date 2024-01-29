@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import static org.ax1.lisp.stubs.index.LispFunctionDefinitionIndex.FUNCTION_DEFINITIONS;
 import static org.ax1.lisp.stubs.index.LispFunctionUsageIndex.FUNCTION_USAGES;
@@ -56,12 +57,12 @@ public final class ProjectData {
     return res;
   }
 
-  public LispStringDesignator getFunctionDefinition(String name) {
-    return getSingleIndexValue(FUNCTION_DEFINITIONS, name);
+  public LispStringDesignator getFunctionDefinition(LispStringDesignator name) {
+    return getSymbol(FUNCTION_DEFINITIONS, name);
   }
 
-  public LispStringDesignator getVariableDefinition(String name) {
-    return getSingleIndexValue(VARIABLE_DEFINITIONS, name);
+  public LispStringDesignator getVariableDefinition(LispStringDesignator name) {
+    return getSymbol(VARIABLE_DEFINITIONS, name);
   }
 
   public @Nullable LispStringDesignator getPackageDefinition(String name) {
@@ -87,19 +88,30 @@ public final class ProjectData {
     return results.iterator().next();
   }
 
-  public Collection<LispStringDesignator> getMethodDefinitions(String name) {
-    return StubIndex.getInstance().get(METHOD_DEFINITIONS, name, project, null);
+  public Collection<LispStringDesignator> getMethodDefinitions(LispStringDesignator name) {
+    return getSymbols(METHOD_DEFINITIONS, name);
   }
 
-  public Collection<LispStringDesignator> getFunctionUsages(String name) {
-    return StubIndex.getInstance().get(FUNCTION_USAGES, name, project, null);
+  public Collection<LispStringDesignator> getFunctionUsages(LispStringDesignator name) {
+    return getSymbols(FUNCTION_USAGES, name);
   }
 
-  public Collection<LispStringDesignator> getVariableUsages(String name) {
-    return StubIndex.getInstance().get(VARIABLE_USAGES, name, project, null);
+  public Collection<LispStringDesignator> getVariableUsages(LispStringDesignator name) {
+    return getSymbols(VARIABLE_USAGES, name);
   }
 
   public Collection<LispStringDesignator> getPackageUsages(String name) {
     return StubIndex.getInstance().get(PACKAGE_USAGES, name, project, null);
+  }
+
+  private LispStringDesignator getSymbol(StubIndexKey<String, LispStringDesignator> indexKey, LispStringDesignator name) {
+    Collection<LispStringDesignator> symbols = getSymbols(indexKey, name);
+    if (symbols.isEmpty()) return null;
+    return symbols.iterator().next();
+  }
+
+  private Collection<LispStringDesignator> getSymbols(StubIndexKey<String, LispStringDesignator> indexKey, LispStringDesignator name) {
+    return StubIndex.getInstance().get(indexKey, name.getLispName(), project, null).stream()
+        .filter(it -> it.getPackageName().equals(name.getPackageName())).collect(Collectors.toUnmodifiableList());
   }
 }
