@@ -31,6 +31,7 @@ public final class LispServer {
   private final AtomicBoolean serverReady = new AtomicBoolean();
   private final InteractionManager interactionManager;
   private final Project project;
+  private StreamListener streamListener;
 
   public static LispServer getInstance(Project project) {
     return project.getService(LispServer.class);
@@ -51,6 +52,7 @@ public final class LispServer {
       process = Runtime.getRuntime().exec(executable);
       Pattern portPattern = Pattern.compile(".* listening on port (\\d+)\n");
       StreamConsumer stdout = new StreamConsumer("Lisp process stdout stream", process.getInputStream(), line -> {
+        log(line);
         Matcher portMatcher = portPattern.matcher(line);
         if (portMatcher.matches()) {
           synchronized (serverReady) {
@@ -61,16 +63,16 @@ public final class LispServer {
         }
       });
       stdout.start();
-      new StreamConsumer("Lisp process stderr stream", process.getErrorStream(), System.err::println).start();
-      OutputStream outputStream = process.getOutputStream();
+      new StreamConsumer("Lisp process stderr stream", process.getErrorStream(), line -> {
+        log(line);
+        System.err.println(line);
+      }).start();
 
       PluginClassLoader classLoader = (PluginClassLoader) LispServer.class.getClassLoader();
       for (String source : LISP_SERVER_SOURCES) {
-        String code = Resources.toString(classLoader.getResource(source), StandardCharsets.UTF_8);
-        outputStream.write(code.getBytes());
+        send(Resources.toString(classLoader.getResource(source), StandardCharsets.UTF_8));
       }
-      outputStream.write("(lisp-idea-plugin:run-server)\n".getBytes());
-      outputStream.flush();
+      send("(lisp-idea-plugin:run-server)\n");
       if (socket != null) socket.close();
       socket = null;
     } catch (IOException e) {
@@ -89,7 +91,15 @@ public final class LispServer {
     System.err.println("Server is ready.");
   }
 
+  private void send(String line) throws IOException {
+    log("Sending: " + line);
+    OutputStream outputStream = process.getOutputStream();
+    outputStream.write(line.getBytes());
+    outputStream.flush();
+  }
+
   public Interaction evaluate(String expression, boolean visible) {
+    log("Evaluating expression: " + expression + "\n");
     Interaction interaction = new Interaction(expression, visible);
     interactionManager.add(interaction);
     if (visible) {
@@ -112,5 +122,18 @@ public final class LispServer {
     } catch (IOException e) {
       throw new RuntimeException("Fatal: could not get Lisp Server socket.");
     }
+  }
+
+  private void log(String line) {
+    if (streamListener == null) return;
+    streamListener.log(line);
+  }
+
+  public void setStreamListener(StreamListener streamListener) {
+    this.streamListener = streamListener;
+  }
+
+  public interface StreamListener {
+    void log(String line);
   }
 }
