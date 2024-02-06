@@ -6,6 +6,7 @@ import com.intellij.patterns.StandardPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
 import org.ax1.lisp.analysis.ProjectData;
+import org.ax1.lisp.analysis.symbol.CommonLispPackage;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +49,11 @@ public class LispCompletionContributor extends CompletionContributor {
           return;
       }
       names.stream()
+          .map(n -> isPrefixUpper ? n : n.toLowerCase())
+          .map(LookupElementBuilder::create)
+          .forEach(result::addElement);
+      // TODO: lookup relevant packages, instead of just COMMON-LISP.
+      CommonLispPackage.INSTANCE.exports.stream()
           .map(n -> isPrefixUpper ? n : n.toLowerCase())
           .map(LookupElementBuilder::create)
           .forEach(result::addElement);
