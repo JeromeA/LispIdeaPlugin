@@ -10,16 +10,12 @@ public class LispElementFactory {
 
   public static LispSymbolName createSymbolName(Project project, String name) {
     final LispFile file = createFile(project, name);
-    // The first child is a sexp, whose first child is a symbol
-    LispSexp sexp = (LispSexp) file.getFirstChild();
-    return sexp.getSymbol().getSymbolName();
+    return ((LispPrefixedSexp) file.getFirstChild()).getSexp().getSymbolName();
   }
 
   public static LispStringContent createStringContent(Project project, String content) {
     final LispFile file = createFile(project, String.format("\"%s\"", content));
-    // The first child is a sexp, whose first child is a string, whose second child is a StringContent.
-    LispSexp sexp = (LispSexp) file.getFirstChild();
-    return sexp.getString().getStringContent();
+    return ((LispPrefixedSexp) file.getFirstChild()).getSexp().getString().getStringContent();
   }
 
   public static LispFile createFile(Project project, String text) {
