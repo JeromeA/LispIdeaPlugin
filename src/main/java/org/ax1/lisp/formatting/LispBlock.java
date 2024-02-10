@@ -7,6 +7,8 @@ import com.intellij.psi.TokenType;
 import com.intellij.psi.formatter.common.AbstractBlock;
 import com.intellij.psi.tree.IElementType;
 import org.ax1.lisp.psi.LispFile;
+import org.ax1.lisp.psi.LispList;
+import org.ax1.lisp.psi.LispPrefixedSexp;
 import org.ax1.lisp.psi.LispSexp;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +26,7 @@ public class LispBlock extends AbstractBlock {
    * The default alignment of arguments is the one of function calls, based on argument-1:
    *   (my-function my-argument1
    *                my-argument2)
-   * Some macros, specials, and even sometimes functions have a special first argument, and alignment should only
+   * Some macros, specials, and even sometimes functions, have a special first argument, and alignment should only
    * start at argument 2 or 3. For example, WHEN and IF alignment should be based on argument-2:
    *   (if (some-condition)
    *     (do-some-code)
@@ -42,12 +44,12 @@ public class LispBlock extends AbstractBlock {
    *     (do-some-code))
    */
   private static final Set<String> ALIGNMENT2 =
-      Set.of("case", "defpackage", "do-all-symbols", "do-external-symbols", "do-symbols", "dolist",
-          "dotimes", "eval-when", "error", "handler-case", "if", "lambda", "let", "let*", "unless", "when",
-          "with-open-file", "with-input-from-string", "with-output-to-string");
+      Set.of("CASE", "DEFPACKAGE", "DO-ALL-SYMBOLS", "DO-EXTERNAL-SYMBOLS", "DO-SYMBOLS", "DOLIST",
+          "DOTIMES", "EVAL-WHEN", "ERROR", "HANDLER-CASE", "IF", "LAMBDA", "LET", "LET*", "UNLESS", "WHEN",
+          "WITH-OPEN-FILE", "WITH-INPUT-FROM-STRING", "WITH-OUTPUT-TO-STRING");
   private static final Set<String> ALIGNMENT3 =
-      Set.of("define-condition", "defun", "destructuring-bind", "multiple-value-bind");
-  private static final Set<String> FIRST_ARG_IS_ALIGNMENT0 = Set.of("let", "let*");
+      Set.of("DEFINE-CONDITION", "DEFUN", "DESTRUCTURING-BIND", "MULTIPLE-VALUE-BIND");
+  private static final Set<String> FIRST_ARG_IS_ALIGNMENT0 = Set.of("LET", "LET*", "LABELS", "FLET");
 
   private int alignmentMode = 1;
   private final Alignment childAlignment = Alignment.createAlignment(false);
@@ -58,13 +60,28 @@ public class LispBlock extends AbstractBlock {
 
   @Override
   protected List<Block> buildChildren() {
+    // We want to cover the following cases:
+    // - myNode is a LISP_FILE, its children are PREFIXED_SEXP -> scan it
+    // - myNode is a PREFIXED_SEXP, it can have multiple children -> scan it
+    // - myNode is a SEXP, and its child is a LIST -> scan that list
+    // - myNode is a SEXP, and its child is not a LIST -> empty list
     boolean firstArgAlignment0 = false;
     List<Block> children = new ArrayList<>();
-    for (ASTNode child = myNode.getFirstChildNode() ; child != null ; child = child.getTreeNext()) {
+    ASTNode node = myNode;
+    if (myNode.getElementType() == SEXP) {
+      node = myNode.getFirstChildNode();
+      if (node.getElementType() != LIST) {
+        return EMPTY;
+      }
+    }
+    if (myNode.getElementType() == LPAREN) {
+      return EMPTY;
+    }
+    for (ASTNode child = node.getFirstChildNode(); child != null ; child = child.getTreeNext()) {
       if (child.getElementType() == TokenType.WHITE_SPACE) continue;
       if (children.size() == 1) {
         // The name is the second child (the first child is an open paren).
-        String name = child.getText();
+        String name = child.getText().toUpperCase();
         if (ALIGNMENT2.contains(name)) alignmentMode = 2;
         if (ALIGNMENT3.contains(name)) alignmentMode = 3;
         if (FIRST_ARG_IS_ALIGNMENT0.contains(name)) firstArgAlignment0 = true;
@@ -72,7 +89,7 @@ public class LispBlock extends AbstractBlock {
       LispBlock block = new LispBlock(child, children.size() >= alignmentMode + 1 ? childAlignment : null);
       // In case of firstArgAlignment0, we set isAlignment0 on the child, but that child is just the intermediate SEXP
       // node, we have to propagate it one more time to reach the list.
-      if ((children.size() == 2 && firstArgAlignment0) || (alignmentMode == 0 && getNode().getElementType() == SEXP)) {
+      if ((children.size() == 2 && firstArgAlignment0) || (alignmentMode == 0 && node.getElementType() == SEXP)) {
         block.alignmentMode = 0;
       }
       children.add(block);
@@ -111,19 +128,25 @@ public class LispBlock extends AbstractBlock {
 
   @Override
   public Indent getIndent() {
+    // - If we are not a PrefixedSexp, we have no indent, otherwise we would end up with multiple indent levels instead
+    // of one between a list and its elements.
+    // - If we are the first element of our parents, all the way to root, we are a toplevel, and we have an absolute
+    // none indent.
+    // - Otherwise, we have a normal indent.
     PsiElement element = getNode().getPsi();
-    // Only a sexp can be indented.
-    if (!(element instanceof LispSexp)) {
+    if (!(element instanceof LispPrefixedSexp)) {
       return Indent.getNoneIndent();
     }
-    // We don't care about intermediate psi element, we just want to know if this sexp has a parent (which would be
-    // another sexp), or if it's a top-level (LispFile is the closest relevant parent).
     PsiElement parent = element.getParent();
     while (true) {
-      // Top level blocks are absolutely not indented.
-      if (parent instanceof LispFile) return Indent.getAbsoluteNoneIndent();
-      // All sexps are indented relative to their parent.
-      if (parent instanceof LispSexp) return Indent.getNormalIndent();
+      if (parent instanceof LispFile) {
+        return Indent.getAbsoluteNoneIndent();
+      }
+      PsiElement firstChild = parent.getFirstChild();
+      if (element != firstChild) {
+        return Indent.getNormalIndent();
+      }
+      element = parent;
       parent = parent.getParent();
     }
   }
@@ -135,8 +158,12 @@ public class LispBlock extends AbstractBlock {
     if (getNode().getPsi() instanceof LispFile) {
       return Indent.getAbsoluteNoneIndent();
     }
-    // All sexps are indented relative to their parent.
-    return Indent.getNormalIndent();
+    // All sexps are indented relative to their parent list.
+    if (getNode().getPsi() instanceof LispList) {
+      return Indent.getNormalIndent();
+    }
+    // Everything else is not indented.
+    return Indent.getNoneIndent();
   }
 
   @Override
@@ -147,5 +174,10 @@ public class LispBlock extends AbstractBlock {
   @Override
   public @NotNull ChildAttributes getChildAttributes(int newChildIndex) {
     return new ChildAttributes(getChildIndent(), newChildIndex > alignmentMode ? childAlignment : null);
+  }
+
+  @Override
+  public @Nullable String getDebugName() {
+    return "Lisp(" + myNode.getElementType() + ")";
   }
 }
