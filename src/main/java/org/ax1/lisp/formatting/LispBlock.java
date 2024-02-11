@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.ax1.lisp.psi.LispTypes.*;
@@ -51,8 +50,9 @@ public class LispBlock extends AbstractBlock {
       Set.of("DEFINE-CONDITION", "DEFUN", "DESTRUCTURING-BIND", "MULTIPLE-VALUE-BIND");
   private static final Set<String> FIRST_ARG_IS_ALIGNMENT0 = Set.of("LET", "LET*", "LABELS", "FLET");
 
-  private int alignmentMode = 1;
+  private int childrenAlignmentMode = 1;
   private final Alignment childAlignment = Alignment.createAlignment(false);
+  private ASTNode nodeChildrenAlignmentModeZero = null;
 
   public LispBlock(@NotNull ASTNode node, Alignment alignment) {
     super(node, Wrap.createWrap(WrapType.NONE, false), alignment);
@@ -65,7 +65,6 @@ public class LispBlock extends AbstractBlock {
     // - myNode is a PREFIXED_SEXP, it can have multiple children -> scan it
     // - myNode is a SEXP, and its child is a LIST -> scan that list
     // - myNode is a SEXP, and its child is not a LIST -> empty list
-    boolean firstArgAlignment0 = false;
     List<Block> children = new ArrayList<>();
     ASTNode node = myNode;
     if (myNode.getElementType() == SEXP) {
@@ -74,23 +73,28 @@ public class LispBlock extends AbstractBlock {
         return EMPTY;
       }
     }
-    if (myNode.getElementType() == LPAREN) {
-      return EMPTY;
-    }
+    boolean firstArgIsAlignment0 = false;
     for (ASTNode child = node.getFirstChildNode(); child != null ; child = child.getTreeNext()) {
       if (child.getElementType() == TokenType.WHITE_SPACE) continue;
       if (children.size() == 1) {
         // The name is the second child (the first child is an open paren).
         String name = child.getText().toUpperCase();
-        if (ALIGNMENT2.contains(name)) alignmentMode = 2;
-        if (ALIGNMENT3.contains(name)) alignmentMode = 3;
-        if (FIRST_ARG_IS_ALIGNMENT0.contains(name)) firstArgAlignment0 = true;
+        if (ALIGNMENT2.contains(name)) childrenAlignmentMode = 2;
+        if (ALIGNMENT3.contains(name)) childrenAlignmentMode = 3;
+        if (FIRST_ARG_IS_ALIGNMENT0.contains(name)) {
+          firstArgIsAlignment0 = true;
+        }
       }
-      LispBlock block = new LispBlock(child, children.size() >= alignmentMode + 1 ? childAlignment : null);
-      // In case of firstArgAlignment0, we set isAlignment0 on the child, but that child is just the intermediate SEXP
-      // node, we have to propagate it one more time to reach the list.
-      if ((children.size() == 2 && firstArgAlignment0) || (alignmentMode == 0 && node.getElementType() == SEXP)) {
-        block.alignmentMode = 0;
+      boolean isSexp = child.getElementType() != RPAREN;
+      boolean isBeyondAlignment = children.size() >= childrenAlignmentMode + 1;
+      boolean childAligned = isSexp && isBeyondAlignment;
+      LispBlock block = new LispBlock(child, childAligned ? childAlignment : null);
+      if (children.size() == 2 && firstArgIsAlignment0) {
+        // This child is the prefixed sexp, its child is the sexp.
+        block.nodeChildrenAlignmentModeZero = child.getFirstChildNode();
+      }
+      if (child == nodeChildrenAlignmentModeZero) {
+        block.childrenAlignmentMode = 0;
       }
       children.add(block);
     }
@@ -173,11 +177,11 @@ public class LispBlock extends AbstractBlock {
 
   @Override
   public @NotNull ChildAttributes getChildAttributes(int newChildIndex) {
-    return new ChildAttributes(getChildIndent(), newChildIndex > alignmentMode ? childAlignment : null);
+    return new ChildAttributes(getChildIndent(), newChildIndex > childrenAlignmentMode ? childAlignment : null);
   }
 
   @Override
   public @Nullable String getDebugName() {
-    return "Lisp(" + myNode.getElementType() + ")";
+    return "Lisp(" + myNode.getElementType() + ", childrenAlignmentMode: " + childrenAlignmentMode + ")";
   }
 }
