@@ -5,13 +5,15 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.patterns.StandardPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
+import org.ax1.lisp.analysis.BaseLispElement.Type;
 import org.ax1.lisp.analysis.ProjectData;
 import org.ax1.lisp.analysis.symbol.CommonLispPackage;
+import org.ax1.lisp.analysis.symbol.Symbol;
 import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
+import java.util.*;
 
 import static com.intellij.codeInsight.completion.CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
@@ -37,26 +39,35 @@ public class LispCompletionContributor extends CompletionContributor {
       LispStringDesignator stringDesignator = getStringDesignator(symbolToken);
       if (stringDesignator == null) return;
       ProjectData projectData = ProjectData.getInstance(symbolToken.getProject());
-      Collection<String> names;
-      switch(stringDesignator.getType()) {
-        case FUNCTION_USAGE:
-          names = projectData.getAllFunctionDefinitionNames();
-          break;
-        case VARIABLE_USAGE:
-          names = projectData.getAllVariableDefinitionNames();
-          break;
-        default:
-          return;
+      Type type = stringDesignator.getType();
+      Set<String> names = new HashSet<>();
+      if (type == Type.FUNCTION_USAGE) {
+        names.addAll(projectData.getAllFunctionDefinitionNames());
       }
+      if (type == Type.VARIABLE_USAGE) {
+        names.addAll(projectData.getAllVariableDefinitionNames());
+        names.addAll(getAllLexicalVariables(symbolToken));
+      }
+      // TODO: lookup relevant packages, instead of just COMMON-LISP.
+      // TODO: filter the exported names to keep only the variable or function depending on the case.
+      names.addAll(CommonLispPackage.INSTANCE.exports);
       names.stream()
           .map(n -> isPrefixUpper ? n : n.toLowerCase())
           .map(LookupElementBuilder::create)
           .forEach(result::addElement);
-      // TODO: lookup relevant packages, instead of just COMMON-LISP.
-      CommonLispPackage.INSTANCE.exports.stream()
-          .map(n -> isPrefixUpper ? n : n.toLowerCase())
-          .map(LookupElementBuilder::create)
-          .forEach(result::addElement);
+    }
+
+    private Collection<String> getAllLexicalVariables(PsiElement element) {
+      List<String> result = new ArrayList<>();
+      while (element != null) {
+        if (element instanceof LispSexp) {
+          ((LispSexp) element).getLexicalVariables().keySet().stream()
+              .map(Symbol::getName)
+              .forEach(result::add);
+        }
+        element = element.getParent();
+      }
+      return result;
     }
 
     private LispStringDesignator getStringDesignator(PsiElement element) {
