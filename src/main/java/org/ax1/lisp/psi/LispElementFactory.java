@@ -18,6 +18,11 @@ public class LispElementFactory {
     return ((LispPrefixedSexp) file.getFirstChild()).getSexp().getString().getStringContent();
   }
 
+  public static LispPrefixedSexp createSexp(Project project, String text) {
+    final LispFile file = createFile(project, text);
+    return ((LispPrefixedSexp) file.getFirstChild());
+  }
+
   public static LispFile createFile(Project project, String text) {
     String name = "dummy.lisp";
     return (LispFile) PsiFileFactory.getInstance(project)

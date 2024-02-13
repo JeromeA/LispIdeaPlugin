@@ -1,0 +1,19 @@
+<html>
+<body>
+Reports the use of "=" to compare a value to zero.
+<p>
+    This inspection reports the use of the equality operator to compare a value to zero. This is inefficient and can be
+    confusing. It's better to use the function ZEROP.
+</p>
+<p>Examples:</p>
+<pre><code>  // Inefficient:
+  (when (= myvalue 0)
+        (println "myvalue is zero"))
+
+  // Better:
+  (when (zerop myvalue)
+        (println "myvalue is zero"))
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

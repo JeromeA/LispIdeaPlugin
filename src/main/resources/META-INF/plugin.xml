@@ -78,6 +78,10 @@
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispPackageUsageIndex"/>
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispVariableDefinitionIndex"/>
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispVariableUsageIndex"/>
+    <localInspection implementationClass="org.ax1.lisp.codeinspection.EqualZeroInspection" language="Lisp"
+                     displayName="Equal to zero" level="WARNING"
+                     enabledByDefault="true" groupName="Lisp inspections"/>
+
   </extensions>
   <actions>
     <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction"/>
