@@ -36,13 +36,13 @@ public final class ProjectData {
   }
 
   public Collection<String> getAllFunctionDefinitionNames() {
-    // TODO: add functions from common lisp standard libraries, and other libraries.
     ArrayList<String> res = new ArrayList<>();
     StubIndex index = StubIndex.getInstance();
     index.processAllKeys(FUNCTION_DEFINITIONS, project, key -> {
       res.add(key);
       return true;
     });
+    res.addAll(CommonLispPackage.FUNCTIONS);
     return res;
   }
 
@@ -54,7 +54,16 @@ public final class ProjectData {
       res.add(key);
       return true;
     });
+    res.addAll(CommonLispPackage.VARIABLES);
     return res;
+  }
+
+  public boolean functionExists(LispStringDesignator name) {
+    return getFunctionDefinition(name) != null || CommonLispPackage.FUNCTIONS.contains(name.getLispName());
+  }
+
+  public boolean variableExists(LispStringDesignator name) {
+    return getVariableDefinition(name) != null || CommonLispPackage.VARIABLES.contains(name.getLispName());
   }
 
   public LispStringDesignator getFunctionDefinition(LispStringDesignator name) {

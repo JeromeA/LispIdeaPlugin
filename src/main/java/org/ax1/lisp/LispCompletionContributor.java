@@ -41,16 +41,15 @@ public class LispCompletionContributor extends CompletionContributor {
       ProjectData projectData = ProjectData.getInstance(symbolToken.getProject());
       Type type = stringDesignator.getType();
       Set<String> names = new HashSet<>();
+      // TODO: lookup relevant packages, instead of just COMMON-LISP.
       if (type == Type.FUNCTION_USAGE) {
         names.addAll(projectData.getAllFunctionDefinitionNames());
+        names.addAll(getAllLexicalFunctions(symbolToken));
       }
       if (type == Type.VARIABLE_USAGE) {
         names.addAll(projectData.getAllVariableDefinitionNames());
         names.addAll(getAllLexicalVariables(symbolToken));
       }
-      // TODO: lookup relevant packages, instead of just COMMON-LISP.
-      // TODO: filter the exported names to keep only the variable or function depending on the case.
-      names.addAll(CommonLispPackage.INSTANCE.exports);
       names.stream()
           .map(n -> isPrefixUpper ? n : n.toLowerCase())
           .map(LookupElementBuilder::create)
@@ -62,6 +61,19 @@ public class LispCompletionContributor extends CompletionContributor {
       while (element != null) {
         if (element instanceof LispSexp) {
           ((LispSexp) element).getLexicalVariables().keySet().stream()
+              .map(Symbol::getName)
+              .forEach(result::add);
+        }
+        element = element.getParent();
+      }
+      return result;
+    }
+
+    private Collection<String> getAllLexicalFunctions(PsiElement element) {
+      List<String> result = new ArrayList<>();
+      while (element != null) {
+        if (element instanceof LispSexp) {
+          ((LispSexp) element).getLexicalFunctions().keySet().stream()
               .map(Symbol::getName)
               .forEach(result::add);
         }

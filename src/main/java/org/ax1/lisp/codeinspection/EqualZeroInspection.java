@@ -9,7 +9,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import org.ax1.lisp.psi.LispElementFactory;
 import org.ax1.lisp.psi.LispList;
-import org.ax1.lisp.psi.LispSexp;
 import org.ax1.lisp.psi.LispVisitor;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,13 +23,13 @@ public class EqualZeroInspection extends LocalInspectionTool {
         PsiElement[] children = list.getChildren();
         if (children.length == 3 && children[0].getText().equals("=")
             && (children[1].getText().equals("0") || children[2].getText().equals("0"))) {
-          holder.registerProblem(list, "Use 'zerop' for zero comparison", new EqualZeroQuickFix());
+          holder.registerProblem(list, "Use 'zerop' for zero comparison", new ZeroPQuickFix());
         }
       }
     };
   }
 
-  private static class EqualZeroQuickFix implements LocalQuickFix {
+  private static class ZeroPQuickFix implements LocalQuickFix {
 
     @NotNull
     @Override
@@ -54,7 +53,6 @@ public class EqualZeroInspection extends LocalInspectionTool {
       } else {
         zeropArg = children[1].getText();
       }
-      boolean a = "xx" == "xxx";
       list.getParent().replace(LispElementFactory.createSexp(project, "(zerop " + zeropArg + ")").getSexp());
     }
   }

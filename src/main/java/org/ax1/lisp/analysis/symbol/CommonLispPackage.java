@@ -12,7 +12,7 @@ public class CommonLispPackage extends Package {
 
   public final Symbol T = new Symbol(COMMON_LISP, "T").intern();
 
-  private static final Set<String> COMMON_LISP_FUNCTIONS = ImmutableSet.of(
+  public static final Set<String> FUNCTIONS = ImmutableSet.of(
       "*",
       "**",
       "***",
@@ -938,7 +938,7 @@ public class CommonLispPackage extends Package {
       "YES-OR-NO-P",
       "ZEROP");
 
-  private static final Set<String> COMMON_LISP_VARIABLES = ImmutableSet.of(
+  public static final Set<String> VARIABLES = ImmutableSet.of(
       "*BREAK-ON-SIGNALS*",
       "*COMPILE-FILE-PATHNAME*",
       "*COMPILE-FILE-TRUENAME*",
@@ -1001,8 +1001,8 @@ public class CommonLispPackage extends Package {
   private CommonLispPackage() {
     super(COMMON_LISP);
     addNickname("CL");
-    COMMON_LISP_FUNCTIONS.forEach(this::addExport);
-    COMMON_LISP_VARIABLES.forEach(this::addExport);
+    FUNCTIONS.forEach(this::addExport);
+    VARIABLES.forEach(this::addExport);
     COMMON_LISP_LAMBDA_KEYWORDS.forEach(this::addExport);
   }
 }

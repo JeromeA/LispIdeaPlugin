@@ -2,9 +2,8 @@ package org.ax1.lisp.psi;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.PsiWhiteSpace;
 import org.ax1.lisp.LispFileType;
-
-import javax.swing.text.StringContent;
 
 public class LispElementFactory {
 
@@ -21,6 +20,11 @@ public class LispElementFactory {
   public static LispPrefixedSexp createSexp(Project project, String text) {
     final LispFile file = createFile(project, text);
     return ((LispPrefixedSexp) file.getFirstChild());
+  }
+
+  public static PsiWhiteSpace createNewline(Project project) {
+    final LispFile file = createFile(project, "\n");
+    return ((PsiWhiteSpace) file.getFirstChild());
   }
 
   public static LispFile createFile(Project project, String text) {
