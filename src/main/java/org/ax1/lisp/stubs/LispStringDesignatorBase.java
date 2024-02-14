@@ -142,6 +142,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
     functionDefinitions.clear();
     packageDefinition = null;
     packageContext = null;
+    type = null;
   }
 
   @Override
@@ -249,7 +250,6 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
 
   @Override
   public void addFunctionDefinition(String functionName, String packageContext) {
-    if (type == null) setType(FUNCTION_DEFINITION, packageContext);
     functionDefinitions.add(functionName);
   }
 

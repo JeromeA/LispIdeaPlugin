@@ -7,6 +7,7 @@ import org.ax1.lisp.psi.LispString;
 
 import java.util.List;
 
+import static org.ax1.lisp.analysis.BaseLispElement.Type.FUNCTION_DEFINITION;
 import static org.ax1.lisp.analysis.form.LambdaAnalyzer.analyzeLambda;
 
 public class AnalyzeDefun implements FormAnalyzer {
@@ -26,6 +27,7 @@ public class AnalyzeDefun implements FormAnalyzer {
     }
     LispSexp functionName = list.get(1);
     if (functionName.isSymbol()) {
+      functionName.getSymbolName().setType(FUNCTION_DEFINITION, context.packageContext);
       functionName.getSymbolName().addFunctionDefinition(functionName.getSymbolName().getText(), context.packageContext);
     } else {
       // TODO: check DEFUN SETF case.
