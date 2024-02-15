@@ -298,6 +298,9 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   }
 
   private String getPackagePrefix() {
+    // TODO: this should be using inheritance.
+    if (this instanceof LispStringContent) return null;
+
     LispSymbol parentSymbol = (LispSymbol) getParent();
     LispPackagePrefix packagePrefix = parentSymbol.getPackagePrefix();
     if (packagePrefix != null) return packagePrefix.getLispName();
