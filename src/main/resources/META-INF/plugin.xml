@@ -84,6 +84,9 @@
     <localInspection implementationClass="org.ax1.lisp.codeinspection.UndefinedFunctionInspection" language="Lisp"
                      displayName="Unknown function" level="WARNING"
                      enabledByDefault="true" groupName="Lisp inspections"/>
+    <localInspection implementationClass="org.ax1.lisp.codeinspection.MinusOneInspection" language="Lisp"
+                     displayName="Minus one" level="WARNING"
+                     enabledByDefault="true" groupName="Lisp inspections"/>
   </extensions>
   <actions>
     <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction"/>

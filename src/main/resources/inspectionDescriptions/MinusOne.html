@@ -1,0 +1,17 @@
+<html>
+<body>
+Reports the use of "-" to subtract 1.
+<p>
+    This inspection reports the use of the subtraction operator to subtract the constant 1. This is inefficient, it's
+    more optimal to use the dedicated function "1-".
+</p>
+<p>Examples:</p>
+<pre><code>  // Inefficient:
+  (- myvalue 1)
+
+  // Better:
+  (1- myvalue)
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>
