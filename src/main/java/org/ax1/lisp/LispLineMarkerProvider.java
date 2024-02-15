@@ -36,6 +36,7 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
     LispSymbolName symbolName = (LispSymbolName) element.getParent();
     if (symbolName.getType() == LispStringDesignator.Type.METHOD_DEFINITION) {
       LispStringDesignator functionDefinition = ProjectData.getInstance(element.getProject()).getFunctionDefinition(symbolName);
+      if (functionDefinition == null) return null;
       return new LineMarkerInfo<>(element, element.getTextRange(), TO_GENERIC,
           null, new DefaultGutterIconNavigationHandler<>(List.of((NavigatablePsiElement) functionDefinition), "Generic Definition"),
           GutterIconRenderer.Alignment.RIGHT, () -> "Go to generic");
@@ -45,6 +46,7 @@ public class LispLineMarkerProvider extends LineMarkerProviderDescriptor {
           ProjectData.getInstance(element.getProject()).getMethodDefinitions(symbolName).stream()
               .map(NavigatablePsiElement.class::cast)
               .collect(Collectors.toUnmodifiableList());
+      if (targets.isEmpty()) return null;
       return new LineMarkerInfo<>(element, element.getTextRange(), TO_METHOD,
           null, new DefaultGutterIconNavigationHandler<>(targets, "Implementations"),
           GutterIconRenderer.Alignment.RIGHT, () -> "Go to implementations");
