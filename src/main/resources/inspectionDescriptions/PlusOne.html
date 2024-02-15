@@ -1,0 +1,17 @@
+<html>
+<body>
+Reports the use of "+" to add 1.
+<p>
+    This inspection reports the use of the addition operator to add the specific value 1. This is inefficient and
+    should be replaced with function '1+'.
+</p>
+<p>Examples:</p>
+<pre><code>  // Inefficient:
+  (+ myvalue 1)
+
+  // Better:
+  (1+ myvalue)
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>
