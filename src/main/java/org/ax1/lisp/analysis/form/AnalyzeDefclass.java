@@ -7,8 +7,7 @@ import org.ax1.lisp.psi.LispSexp;
 import java.util.List;
 import java.util.Set;
 
-import static org.ax1.lisp.analysis.BaseLispElement.Type.FUNCTION_DEFINITION;
-import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
 
 public class AnalyzeDefclass implements FormAnalyzer {
 
@@ -19,7 +18,7 @@ public class AnalyzeDefclass implements FormAnalyzer {
   public void analyze(AnalyzerContext context, LispList form) {
     List<LispSexp> list = form.getSexpList();
     if (list.size() < 4) {
-      form.setErrorMessage("DEFCLASS needs at least 3 arguments");
+      form.setErrorMessage("DEFCLASS needs at least 3 arguments: name, superclasses, slots");
       return;
     }
 
@@ -29,6 +28,7 @@ public class AnalyzeDefclass implements FormAnalyzer {
       nameSexp.setErrorMessage("Class name expected");
       return;
     }
+    nameSexp.getSymbolName().setType(CLASS_DEFINITION, context.packageContext);
 
     // Superclasses
     LispSexp superclassSexp = list.get(2);
@@ -37,6 +37,13 @@ public class AnalyzeDefclass implements FormAnalyzer {
       superclassSexp.setErrorMessage("Superclass list expected");
       return;
     }
+    superclassList.getSexpList().forEach(superclass -> {
+      if (superclass.isSymbol()) {
+        superclass.getSymbolName().setType(CLASS_USAGE, context.packageContext);
+      } else {
+        superclass.setErrorMessage("Superclass expected");
+      }
+    });
 
     // Slots
     LispSexp slotSexp = list.get(3);
@@ -45,10 +52,10 @@ public class AnalyzeDefclass implements FormAnalyzer {
       slotSexp.setErrorMessage("Slot list expected");
       return;
     }
-    slotList.getSexpList().forEach(this::analyzeSlot);
+    slotList.getSexpList().forEach(slot -> analyzeSlot(context, slot));
   }
 
-  private void analyzeSlot(LispSexp slot) {
+  private void analyzeSlot(AnalyzerContext context, LispSexp slot) {
     if (slot.isSymbol()) {
       return;
     }
@@ -72,7 +79,7 @@ public class AnalyzeDefclass implements FormAnalyzer {
           slotOptions.get(i + 1).setErrorMessage("Method name expected");
           continue;
         }
-        name.getSymbolName().setType(FUNCTION_DEFINITION);
+        name.getSymbolName().setType(FUNCTION_DEFINITION, context.packageContext);
       } else if (!OTHER_OPTIONS.contains(slotOptionName)) {
         slotOption.setErrorMessage("Slot option expected");
       }

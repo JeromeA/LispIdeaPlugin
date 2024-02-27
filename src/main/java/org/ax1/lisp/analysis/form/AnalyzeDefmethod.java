@@ -36,7 +36,7 @@ public class AnalyzeDefmethod implements FormAnalyzer {
       functionName.setErrorMessage("Function name expected");
       return;
     }
-    functionName.getSymbolName().setType(FUNCTION_DEFINITION);
+    functionName.getSymbolName().setType(FUNCTION_DEFINITION, context.packageContext);
 
     int arg = 2;
     // Skip method qualifiers.

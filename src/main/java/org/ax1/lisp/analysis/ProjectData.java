@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import static org.ax1.lisp.stubs.index.LispClassDefinitionIndex.CLASS_DEFINITIONS;
+import static org.ax1.lisp.stubs.index.LispClassUsageIndex.CLASS_USAGES;
 import static org.ax1.lisp.stubs.index.LispFunctionDefinitionIndex.FUNCTION_DEFINITIONS;
 import static org.ax1.lisp.stubs.index.LispFunctionUsageIndex.FUNCTION_USAGES;
 import static org.ax1.lisp.stubs.index.LispMethodDefinitionIndex.METHOD_DEFINITIONS;
@@ -74,6 +76,10 @@ public final class ProjectData {
     return getSymbol(VARIABLE_DEFINITIONS, name);
   }
 
+  public @Nullable LispStringDesignator getClassDefinition(LispStringDesignator name) {
+    return getSymbol(CLASS_DEFINITIONS, name);
+  }
+
   public @Nullable LispStringDesignator getPackageDefinition(String name) {
     return getSingleIndexValue(PACKAGE_DEFINITIONS, name);
   }
@@ -107,6 +113,10 @@ public final class ProjectData {
 
   public Collection<LispStringDesignator> getVariableUsages(LispStringDesignator name) {
     return getSymbols(VARIABLE_USAGES, name);
+  }
+
+  public Collection<LispStringDesignator> getClassUsages(LispStringDesignator name) {
+    return getSymbols(CLASS_USAGES, name);
   }
 
   public Collection<LispStringDesignator> getPackageUsages(String name) {

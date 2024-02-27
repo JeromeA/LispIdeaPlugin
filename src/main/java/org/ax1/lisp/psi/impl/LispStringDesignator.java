@@ -21,8 +21,9 @@ public interface LispStringDesignator extends PsiNameIdentifierOwner, BaseLispEl
 
   // Only for Package definitions.
   Package getPackageDefinition();
-
   void setPackageDefinition(Package definition);
+  String getClassDefinition();
+  void setClassDefinition(String definition);
 
   void addFunctionDefinition(String functionName, String packageContext);
 

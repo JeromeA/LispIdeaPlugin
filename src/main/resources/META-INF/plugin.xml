@@ -74,6 +74,8 @@
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispFunctionDefinitionIndex"/>
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispFunctionUsageIndex"/>
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispMethodDefinitionIndex"/>
+    <stubIndex implementation="org.ax1.lisp.stubs.index.LispClassDefinitionIndex"/>
+    <stubIndex implementation="org.ax1.lisp.stubs.index.LispClassUsageIndex"/>
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispPackageDefinitionIndex"/>
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispPackageUsageIndex"/>
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispVariableDefinitionIndex"/>

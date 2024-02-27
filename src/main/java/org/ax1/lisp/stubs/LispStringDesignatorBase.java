@@ -39,7 +39,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   private static final boolean DEBUG_DESCRIPTION = true;
 
   private static final Set<Type> SYMBOL_TYPES =
-      Set.of(CONDITION_DEFINITION, FUNCTION_DEFINITION, PACKAGE_DEFINITION, VARIABLE_DEFINITION,
+      Set.of(CONDITION_DEFINITION, FUNCTION_DEFINITION, PACKAGE_DEFINITION, VARIABLE_DEFINITION, CLASS_DEFINITION,
           LEXICAL_VARIABLE_DEFINITION, LEXICAL_FUNCTION_DEFINITION, CONDITION_USAGE, VARIABLE_USAGE, PACKAGE_USAGE,
           FUNCTION_USAGE, LEXICAL_VARIABLE_USAGE, LEXICAL_FUNCTION_USAGE);
 
@@ -55,6 +55,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   private String errorMessage;
   private String descriptionString;
   private Package packageDefinition;
+  private String classDefinition;
   private final Set<String> functionDefinitions = new HashSet<>();
   private LexicalSymbol lexicalVariable;
   private LexicalSymbol lexicalFunction;
@@ -140,6 +141,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
     lexicalFunction = null;
     lexicalVariable = null;
     functionDefinitions.clear();
+    classDefinition = null;
     packageDefinition = null;
     packageContext = null;
     type = null;
@@ -216,6 +218,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
             "Class: %s<br>" +
             "Type: %s<br>" +
             "Description: %s<br>" +
+            "Class definition: %s<br>" +
             "Package definition: %s<br>" +
             "Function definitions: %s<br>" +
             "Lexical variable: %s<br>" +
@@ -226,6 +229,7 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
         getClass().getName(),
         getType(),
         descriptionString,
+        classDefinition,
         packageDefinition,
         functionDefinitions,
         lexicalVariable,
@@ -246,6 +250,16 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   @Override
   public void setPackageDefinition(Package packageDefinition) {
     this.packageDefinition = packageDefinition;
+  }
+
+  @Override
+  public String getClassDefinition() {
+    return classDefinition;
+  }
+
+  @Override
+  public void setClassDefinition(String definition) {
+    this.classDefinition = definition;
   }
 
   @Override
@@ -334,6 +348,9 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
     if (getType() == PACKAGE_USAGE) {
       return getReference(projectData.getPackageDefinition(getLispName()));
     }
+    if (getType() == CLASS_USAGE) {
+      return getReference(projectData.getClassDefinition(this));
+    }
     if (getType() == LEXICAL_VARIABLE_USAGE) {
       return getReference(lexicalVariable.definition);
     }
@@ -349,9 +366,9 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   }
 
   @Nullable
-  private LispStringDesignatorReference getReference(LispStringDesignator functionDefinition) {
-    if (functionDefinition != null) {
-      return new LispStringDesignatorReference(this, functionDefinition);
+  private LispStringDesignatorReference getReference(LispStringDesignator definition) {
+    if (definition != null) {
+      return new LispStringDesignatorReference(this, definition);
     } else {
       return null;
     }

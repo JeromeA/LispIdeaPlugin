@@ -19,6 +19,8 @@ public interface BaseLispElement extends AnnotatedElement {
     KEYWORD,
     PACKAGE_DEFINITION,
     PACKAGE_USAGE,
+    CLASS_DEFINITION,
+    CLASS_USAGE,
     CONDITION_DEFINITION,
     CONDITION_USAGE,
     FUNCTION_DEFINITION,
