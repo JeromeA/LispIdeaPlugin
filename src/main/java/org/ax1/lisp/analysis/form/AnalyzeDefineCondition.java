@@ -23,7 +23,7 @@ public class AnalyzeDefineCondition implements FormAnalyzer {
       list.stream().skip(2).forEach(s -> s.setType(ERROR));
       return;
     }
-    list.get(1).getSymbolName().setType(CONDITION_DEFINITION);
+    list.get(1).getSymbolName().setType(CONDITION_DEFINITION, context.packageContext);
 
     LispList parentList = list.get(2).getList();
     if (parentList == null) {
@@ -32,7 +32,7 @@ public class AnalyzeDefineCondition implements FormAnalyzer {
       return;
     }
     parentList.setType(CODE);
-    parentList.getSexpList().forEach(this::analyzeParent);
+    parentList.getSexpList().forEach(parentCondition -> analyzeParent(context, parentCondition));
 
     LispList slotList = list.get(3).getList();
     if (slotList == null) {
@@ -54,11 +54,11 @@ public class AnalyzeDefineCondition implements FormAnalyzer {
     }
   }
 
-  private void analyzeParent(LispSexp parentCondition) {
+  private void analyzeParent(AnalyzerContext context, LispSexp parentCondition) {
     if (!parentCondition.isSymbol()) {
       parentCondition.setErrorMessage("Expecting parent condition");
       return;
     }
-    parentCondition.getSymbolName().setType(CONDITION_USAGE);
+    parentCondition.getSymbolName().setType(CONDITION_USAGE, context.packageContext);
   }
 }
