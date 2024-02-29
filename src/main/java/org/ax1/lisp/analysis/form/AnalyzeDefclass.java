@@ -1,8 +1,10 @@
 package org.ax1.lisp.analysis.form;
 
 import org.ax1.lisp.analysis.AnalyzerContext;
+import org.ax1.lisp.analysis.SyntaxAnalyzer;
 import org.ax1.lisp.psi.LispList;
 import org.ax1.lisp.psi.LispSexp;
+import org.ax1.lisp.psi.LispSymbolName;
 
 import java.util.List;
 import java.util.Set;
@@ -68,25 +70,42 @@ public class AnalyzeDefclass implements FormAnalyzer {
     }
     slotList.getSexpList().get(0).getSymbolName().setType(SLOT_DEFINITION, context.packageContext);
     List<LispSexp> slotOptions = slotList.getSexpList();
-    for (int i = 1; i < slotOptions.size()-1; i += 2) {
+    for (int i = 1; i < slotOptions.size(); i += 2) {
       LispSexp slotOption = slotOptions.get(i);
       if (slotOption.getSymbol() == null) {
-        slotOptions.get(i).setErrorMessage("Slot option expected");
+        slotOption.setErrorMessage("Slot option expected");
         continue;
       }
       String slotOptionName = slotOption.getSymbolName().getLispName();
+      if (!METHOD_GENERATORS.contains(slotOptionName) && !OTHER_OPTIONS.contains(slotOptionName)) {
+        slotOption.setErrorMessage("Unknown slot option");
+        continue;
+      }
+      if (i + 1 >= slotOptions.size()) {
+        slotOption.setErrorMessage("Missing slot option value");
+        continue;
+      }
+      LispSexp slotOptionArg = slotOptions.get(i + 1);
       if (METHOD_GENERATORS.contains(slotOptionName)) {
         slotOption.setType(KEYWORD);
-        LispSexp name = slotOptions.get(i + 1);
-        if (name.getSymbol() == null) {
-          slotOptions.get(i + 1).setErrorMessage("Method name expected");
+        if (slotOptionArg.getSymbol() == null) {
+          slotOptionArg.setErrorMessage("Method name expected");
           continue;
         }
-        name.getSymbolName().setType(FUNCTION_DEFINITION, context.packageContext);
+        slotOptionArg.getSymbolName().setType(FUNCTION_DEFINITION, context.packageContext);
       } else if (OTHER_OPTIONS.contains(slotOptionName)) {
         slotOption.setType(KEYWORD);
-      } else {
-        slotOption.setErrorMessage("Slot option expected");
+        if (slotOptionName.equals("INITFORM")) {
+          SyntaxAnalyzer.INSTANCE.analyzeForm(context, slotOptionArg);
+        }
+        if (slotOptionName.equals("INITARG")) {
+          LispSymbolName symbolName = slotOptionArg.getSymbolName();
+          if (symbolName == null) {
+            slotOptionArg.setErrorMessage("Symbol name expected");
+            continue;
+          }
+          symbolName.setType(DATA);
+        }
       }
     }
   }
