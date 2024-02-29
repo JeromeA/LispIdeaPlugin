@@ -36,8 +36,8 @@ public class LispBlock extends AbstractBlock {
    *   (defun my-function (some params)
    *     (do-some-code)
    *     (do-some-more-code))
-   * The variables of a LET should all be aligned from the first one, so that would an argument-0 (the LET itself
-   * is an argument-2):
+   * The variables of a LET and the slots of a DEFCLASS should all be aligned from the first one, so that is
+   * argument-0 (the LET itself is an argument-2), but we have to handle it at the LET stage.
    *   (let ((var1 (init1))
    *         (var2 (init2)))
    *     (do-some-code))
@@ -48,7 +48,8 @@ public class LispBlock extends AbstractBlock {
           "WITH-OPEN-FILE", "WITH-INPUT-FROM-STRING", "WITH-OUTPUT-TO-STRING");
   private static final Set<String> ALIGNMENT3 =
       Set.of("DEFINE-CONDITION", "DEFMETHOD", "DEFUN", "DESTRUCTURING-BIND", "MULTIPLE-VALUE-BIND");
-  private static final Set<String> FIRST_ARG_IS_ALIGNMENT0 = Set.of("LET", "LET*", "LABELS", "FLET");
+  private static final Set<String> ARG1_IS_ALIGNMENT0 = Set.of("LET", "LET*", "LABELS", "FLET");
+  private static final Set<String> ARG3_IS_ALIGNMENT0 = Set.of("DEFCLASS");
 
   private int childrenAlignmentMode = 1;
   private final Alignment childAlignment = Alignment.createAlignment(false);
@@ -73,7 +74,7 @@ public class LispBlock extends AbstractBlock {
         return EMPTY;
       }
     }
-    boolean firstArgIsAlignment0 = false;
+    int argIsAlignment0 = 0;
     for (ASTNode child = node.getFirstChildNode(); child != null ; child = child.getTreeNext()) {
       if (child.getElementType() == TokenType.WHITE_SPACE) continue;
       if (children.size() == 1) {
@@ -81,15 +82,18 @@ public class LispBlock extends AbstractBlock {
         String name = child.getText().toUpperCase();
         if (ALIGNMENT2.contains(name)) childrenAlignmentMode = 2;
         if (ALIGNMENT3.contains(name)) childrenAlignmentMode = 3;
-        if (FIRST_ARG_IS_ALIGNMENT0.contains(name)) {
-          firstArgIsAlignment0 = true;
+        if (ARG1_IS_ALIGNMENT0.contains(name)) {
+          argIsAlignment0 = 1;
+        }
+        if (ARG3_IS_ALIGNMENT0.contains(name)) {
+          argIsAlignment0 = 3;
         }
       }
       boolean isSexp = child.getElementType() != RPAREN;
       boolean isBeyondAlignment = children.size() >= childrenAlignmentMode + 1;
       boolean childAligned = isSexp && isBeyondAlignment;
       LispBlock block = new LispBlock(child, childAligned ? childAlignment : null);
-      if (children.size() == 2 && firstArgIsAlignment0) {
+      if (argIsAlignment0 > 0 && children.size() == argIsAlignment0 + 1) {
         // This child is the prefixed sexp, its child is the sexp.
         block.nodeChildrenAlignmentModeZero = child.getFirstChildNode();
       }
