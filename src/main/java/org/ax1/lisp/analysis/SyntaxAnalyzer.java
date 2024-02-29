@@ -62,6 +62,7 @@ public class SyntaxAnalyzer {
       clSymbol("MACROLET"), new AnalyzeFletLabels(AnalyzeFletLabels.Type.MACROLET),
       clSymbol("MULTIPLE-VALUE-BIND"), new AnalyzeMultipleValueBind(),
       clSymbol("RESTART-BIND"), new AnalyzeRestartBind(),
+      clSymbol("SLOT-VALUE"), new AnalyzeSlotValue(),
       clSymbol("TYPECASE"), new AnalyzeCase(AnalyzeCase.Type.TYPECASE),
       clSymbol("WITH-INPUT-FROM-STRING"), new AnalyzeWithInputFromString(),
       clSymbol("WITH-OPEN-FILE"), new AnalyzeWithOpenFile(),

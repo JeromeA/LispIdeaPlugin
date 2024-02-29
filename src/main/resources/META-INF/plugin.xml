@@ -80,6 +80,8 @@
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispPackageUsageIndex"/>
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispVariableDefinitionIndex"/>
     <stubIndex implementation="org.ax1.lisp.stubs.index.LispVariableUsageIndex"/>
+    <stubIndex implementation="org.ax1.lisp.stubs.index.LispSlotDefinitionIndex"/>
+    <stubIndex implementation="org.ax1.lisp.stubs.index.LispSlotUsageIndex"/>
     <localInspection implementationClass="org.ax1.lisp.codeinspection.EqualZeroInspection" language="Lisp"
                      displayName="Equal to zero" level="WARNING"
                      enabledByDefault="true" groupName="Lisp inspections"/>

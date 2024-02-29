@@ -40,8 +40,8 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
 
   private static final Set<Type> SYMBOL_TYPES =
       Set.of(CONDITION_DEFINITION, FUNCTION_DEFINITION, PACKAGE_DEFINITION, VARIABLE_DEFINITION, CLASS_DEFINITION,
-          LEXICAL_VARIABLE_DEFINITION, LEXICAL_FUNCTION_DEFINITION, CONDITION_USAGE, VARIABLE_USAGE, PACKAGE_USAGE,
-          FUNCTION_USAGE, LEXICAL_VARIABLE_USAGE, LEXICAL_FUNCTION_USAGE);
+          LEXICAL_VARIABLE_DEFINITION, LEXICAL_FUNCTION_DEFINITION, SLOT_DEFINITION, CONDITION_USAGE, VARIABLE_USAGE,
+          PACKAGE_USAGE, FUNCTION_USAGE, LEXICAL_VARIABLE_USAGE, LEXICAL_FUNCTION_USAGE, SLOT_USAGE);
 
   // Macros or special forms, whose behavior is closer to keywords, like IF, than to a function call.
   private static final Set<String> KEYWORDS =
@@ -353,6 +353,9 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
     }
     if (getType() == CLASS_USAGE) {
       return getReference(projectData.getClassDefinition(this));
+    }
+    if (getType() == SLOT_USAGE) {
+      return getReference(projectData.getSlotDefinition(this));
     }
     if (getType() == LEXICAL_VARIABLE_USAGE) {
       return getReference(lexicalVariable.definition);

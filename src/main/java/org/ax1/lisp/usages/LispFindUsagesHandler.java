@@ -43,6 +43,9 @@ public class LispFindUsagesHandler extends FindUsagesHandler {
       if (stringDesignator.getType() == LispStringDesignator.Type.CLASS_DEFINITION) {
         return getUsageReferences(searchScope, projectData.getClassUsages(stringDesignator));
       }
+      if (stringDesignator.getType() == LispStringDesignator.Type.SLOT_DEFINITION) {
+        return getUsageReferences(searchScope, projectData.getSlotUsages(stringDesignator));
+      }
     }
     return List.of();
   }

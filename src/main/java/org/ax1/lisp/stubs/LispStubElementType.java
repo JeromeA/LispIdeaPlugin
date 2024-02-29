@@ -22,6 +22,8 @@ public abstract class LispStubElementType<A extends StubElement<?> & LispStringD
       BaseLispElement.Type.FUNCTION_USAGE, LispFunctionUsageIndex.FUNCTION_USAGES,
       BaseLispElement.Type.CLASS_DEFINITION, LispClassDefinitionIndex.CLASS_DEFINITIONS,
       BaseLispElement.Type.CLASS_USAGE, LispClassUsageIndex.CLASS_USAGES,
+      BaseLispElement.Type.SLOT_DEFINITION, LispSlotDefinitionIndex.SLOT_DEFINITIONS,
+      BaseLispElement.Type.SLOT_USAGE, LispSlotUsageIndex.SLOT_USAGES,
       BaseLispElement.Type.PACKAGE_DEFINITION, LispPackageDefinitionIndex.PACKAGE_DEFINITIONS,
       BaseLispElement.Type.PACKAGE_USAGE, LispPackageUsageIndex.PACKAGE_USAGES,
       BaseLispElement.Type.VARIABLE_DEFINITION, LispVariableDefinitionIndex.VARIABLE_DEFINITIONS,

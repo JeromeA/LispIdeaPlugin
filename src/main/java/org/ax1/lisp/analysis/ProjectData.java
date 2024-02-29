@@ -21,6 +21,8 @@ import static org.ax1.lisp.stubs.index.LispFunctionUsageIndex.FUNCTION_USAGES;
 import static org.ax1.lisp.stubs.index.LispMethodDefinitionIndex.METHOD_DEFINITIONS;
 import static org.ax1.lisp.stubs.index.LispPackageDefinitionIndex.PACKAGE_DEFINITIONS;
 import static org.ax1.lisp.stubs.index.LispPackageUsageIndex.PACKAGE_USAGES;
+import static org.ax1.lisp.stubs.index.LispSlotDefinitionIndex.SLOT_DEFINITIONS;
+import static org.ax1.lisp.stubs.index.LispSlotUsageIndex.SLOT_USAGES;
 import static org.ax1.lisp.stubs.index.LispVariableDefinitionIndex.VARIABLE_DEFINITIONS;
 import static org.ax1.lisp.stubs.index.LispVariableUsageIndex.VARIABLE_USAGES;
 
@@ -80,6 +82,10 @@ public final class ProjectData {
     return getSymbol(CLASS_DEFINITIONS, name);
   }
 
+  public @Nullable LispStringDesignator getSlotDefinition(LispStringDesignator name) {
+    return getSymbol(SLOT_DEFINITIONS, name);
+  }
+
   public @Nullable LispStringDesignator getPackageDefinition(String name) {
     return getSingleIndexValue(PACKAGE_DEFINITIONS, name);
   }
@@ -117,6 +123,10 @@ public final class ProjectData {
 
   public Collection<LispStringDesignator> getClassUsages(LispStringDesignator name) {
     return getSymbols(CLASS_USAGES, name);
+  }
+
+  public Collection<LispStringDesignator> getSlotUsages(LispStringDesignator name) {
+    return getSymbols(SLOT_USAGES, name);
   }
 
   public Collection<LispStringDesignator> getPackageUsages(String name) {
