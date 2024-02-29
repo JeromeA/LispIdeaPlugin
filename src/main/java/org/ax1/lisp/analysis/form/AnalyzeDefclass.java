@@ -57,13 +57,16 @@ public class AnalyzeDefclass implements FormAnalyzer {
 
   private void analyzeSlot(AnalyzerContext context, LispSexp slot) {
     if (slot.isSymbol()) {
+      slot.getSymbolName().setType(SLOT_DEFINITION, context.packageContext);
       return;
     }
+
     LispList slotList = slot.getList();
     if (slotList == null || slotList.getSexpList().size() < 1 || !slotList.getSexpList().get(0).isSymbol()) {
       slot.setErrorMessage("Slot definition expected");
       return;
     }
+    slotList.getSexpList().get(0).getSymbolName().setType(SLOT_DEFINITION, context.packageContext);
     List<LispSexp> slotOptions = slotList.getSexpList();
     for (int i = 1; i < slotOptions.size()-1; i += 2) {
       LispSexp slotOption = slotOptions.get(i);
@@ -80,7 +83,9 @@ public class AnalyzeDefclass implements FormAnalyzer {
           continue;
         }
         name.getSymbolName().setType(FUNCTION_DEFINITION, context.packageContext);
-      } else if (!OTHER_OPTIONS.contains(slotOptionName)) {
+      } else if (OTHER_OPTIONS.contains(slotOptionName)) {
+        slotOption.setType(KEYWORD);
+      } else {
         slotOption.setErrorMessage("Slot option expected");
       }
     }
