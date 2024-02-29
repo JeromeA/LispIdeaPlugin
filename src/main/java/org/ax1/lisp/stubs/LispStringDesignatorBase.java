@@ -45,11 +45,12 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
 
   // Macros or special forms, whose behavior is closer to keywords, like IF, than to a function call.
   private static final Set<String> KEYWORDS =
-      Set.of("CASE", "CCASE", "COND", "CTYPECASE", "DECLAIM", "DECLARE", "DEFCONSTANT", "DEFINE-CONDITION",
-          "DEFPACKAGE", "DEFPARAMETER", "DEFMACRO", "DEFUN", "DEFSTRUCT", "DEFVAR", "DO", "DOLIST", "DOSYMBOLS",
-          "ECASE", "ETYPECASE", "EVAL-WHEN", "FLET", "HANDLER-BIND", "HANDLER-CASE", "IF", "IGNORE", "IN-PACKAGE",
-          "INCF", "LABELS", "LAMBDA", "LET", "LET*", "LOOP", "MACROLET", "PROCLAIM", "RESTART-BIND", "RETURN", "SETF",
-          "SETQ", "SPECIAL", "THROW", "TYPECASE", "UNLESS", "WHEN");
+      Set.of("CASE", "CCASE", "COND", "CTYPECASE", "DECF", "DECLAIM", "DECLARE", "DEFCLASS", "DEFCONSTANT",
+          "DEFINE-CONDITION", "DEFPACKAGE", "DEFPARAMETER", "DEFMACRO", "DEFMETHOD", "DEFUN", "DEFSTRUCT",
+          "DEFVAR", "DO", "DOLIST", "DOSYMBOLS", "ECASE", "ETYPECASE", "EVAL-WHEN", "FLET",
+          "HANDLER-BIND", "HANDLER-CASE", "IF", "IGNORE", "IN-PACKAGE", "INCF", "LABELS", "LAMBDA", "LET",
+          "LET*", "LOOP", "MACROLET", "PROCLAIM", "RESTART-BIND", "RETURN", "SETF", "SETQ", "SPECIAL",
+          "THROW", "TYPECASE", "UNLESS", "WHEN");
 
   private Type type;
   private String errorMessage;
@@ -106,8 +107,10 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   @Override
   public void setType(Type type) {
     if (type == FUNCTION_DEFINITION || type == FUNCTION_USAGE || type == VARIABLE_DEFINITION
-        || type == VARIABLE_USAGE || type == CONDITION_DEFINITION || type == CONDITION_USAGE)
+        || type == VARIABLE_USAGE || type == CONDITION_DEFINITION || type == CONDITION_USAGE
+        || type == CLASS_DEFINITION || type == CLASS_USAGE) {
       throw new IllegalArgumentException("Use setType(type, packageContext) instead");
+    }
     setType(type, null);
   }
 

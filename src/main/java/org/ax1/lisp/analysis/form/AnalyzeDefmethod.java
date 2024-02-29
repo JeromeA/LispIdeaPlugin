@@ -14,8 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.ax1.lisp.analysis.BaseLispElement.Type.FUNCTION_DEFINITION;
-import static org.ax1.lisp.analysis.BaseLispElement.Type.KEYWORD;
+import static org.ax1.lisp.analysis.BaseLispElement.Type.*;
 import static org.ax1.lisp.analysis.symbol.LexicalSymbol.newLexicalVariable;
 
 public class AnalyzeDefmethod implements FormAnalyzer {
@@ -53,27 +52,37 @@ public class AnalyzeDefmethod implements FormAnalyzer {
     }
 
     // TODO: add CALL-NEXT-METHOD as a lexical function binding.
-    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, list, arg + 1, getVariables(lambdaList));
+    SyntaxAnalyzer.INSTANCE.analyzeFormsWithVariables(context, list, arg + 1, getVariables(context, lambdaList));
   }
 
   @NotNull
-  private static List<LexicalSymbol> getVariables(LispList lambdaList) {
+  private static List<LexicalSymbol> getVariables(AnalyzerContext context, LispList lambdaList) {
     List<LexicalSymbol> result = new ArrayList<>();
     for (LispSexp lispSexp : lambdaList.getSexpList()) {
-      LispSymbolName variable = getVariable(lispSexp);
+      LispSymbolName variable = getVariable(context, lispSexp);
       if (variable != null) result.add(newLexicalVariable(variable));
     }
     return result;
   }
 
-  private static LispSymbolName getVariable(LispSexp sexp) {
+  private static LispSymbolName getVariable(AnalyzerContext context, LispSexp sexp) {
     LispList list = sexp.getList();
     if (list != null) {
       List<LispSexp> specialized = list.getSexpList();
-      if (specialized.size() != 2 || specialized.get(0).getSymbol() == null) {
-        list.setErrorMessage("var-specializer expected");
+      if (specialized.size() != 2) {
+        list.setErrorMessage("(var specializer) pair expected");
         return null;
       }
+      if (specialized.get(0).getSymbol() == null) {
+        specialized.get(0).setErrorMessage("var name expected");
+        return null;
+      }
+      if (specialized.get(1).getSymbol() == null) {
+        specialized.get(1).setErrorMessage("specializer expected");
+        return null;
+      }
+      // TODO: check for EQL specializer.
+      specialized.get(1).getSymbolName().setType(CLASS_USAGE, context.packageContext);
       sexp = specialized.get(0);
     }
     LispSymbolName symbolName = sexp.getSymbolName();
