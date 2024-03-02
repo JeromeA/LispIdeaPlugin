@@ -146,3 +146,12 @@ The following indexes are used, every time a non-lexical symbol is queried:
 * Package usages
 * Function usages
 * variable usages
+
+# Multiple types
+
+There may be cases where a symbol has multiple types. For example, in WITH-ACCESSORS, each accessor is both
+a FUNCTION_USAGE (it uses the accessor defined in the slot entry of the class) and a LEXICAL_VARIABLE_DEFINITION
+(variables that can be used in the forms of WITH-ACCESSORS).
+
+This is not supported yet. If there are other cases like this one, we will need to support multiple types.
+For now, we just use LEXICAL_VARIABLE_DEFINITION, which is locally more useful.

@@ -64,6 +64,7 @@ public class SyntaxAnalyzer {
       clSymbol("RESTART-BIND"), new AnalyzeRestartBind(),
       clSymbol("SLOT-VALUE"), new AnalyzeSlotValue(),
       clSymbol("TYPECASE"), new AnalyzeCase(AnalyzeCase.Type.TYPECASE),
+      clSymbol("WITH-ACCESSORS"), new AnalyzeWithAccessors(),
       clSymbol("WITH-INPUT-FROM-STRING"), new AnalyzeWithInputFromString(),
       clSymbol("WITH-OPEN-FILE"), new AnalyzeWithOpenFile(),
       clSymbol("WITH-OUTPUT-TO-STRING"), new AnalyzeWithOutputToString());

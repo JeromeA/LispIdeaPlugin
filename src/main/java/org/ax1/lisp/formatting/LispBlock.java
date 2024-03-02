@@ -47,7 +47,7 @@ public class LispBlock extends AbstractBlock {
           "DOTIMES", "EVAL-WHEN", "ERROR", "HANDLER-CASE", "IF", "LAMBDA", "LET", "LET*", "UNLESS", "WHEN",
           "WITH-OPEN-FILE", "WITH-INPUT-FROM-STRING", "WITH-OUTPUT-TO-STRING");
   private static final Set<String> ALIGNMENT3 =
-      Set.of("DEFINE-CONDITION", "DEFMETHOD", "DEFUN", "DESTRUCTURING-BIND", "MULTIPLE-VALUE-BIND");
+      Set.of("DEFINE-CONDITION", "DEFMETHOD", "DEFUN", "DESTRUCTURING-BIND", "MULTIPLE-VALUE-BIND", "WITH-ACCESSORS");
   private static final Set<String> ARG1_IS_ALIGNMENT0 = Set.of("LET", "LET*", "LABELS", "FLET");
   private static final Set<String> ARG3_IS_ALIGNMENT0 = Set.of("DEFCLASS");
 
