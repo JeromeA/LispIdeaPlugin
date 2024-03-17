@@ -14,6 +14,7 @@ public abstract class LispSexpMixinImpl extends BaseMixinImpl implements LispSex
 
   private final Map<Symbol, LexicalSymbol> lexicalVariables = new HashMap<>();
   private final Map<Symbol, LexicalSymbol> lexicalFunctions = new HashMap<>();
+  private String packageContext;
 
   public LispSexpMixinImpl(@NotNull ASTNode node) {
     super(node);
@@ -90,5 +91,13 @@ public abstract class LispSexpMixinImpl extends BaseMixinImpl implements LispSex
   @Override
   public Map<Symbol, LexicalSymbol> getLexicalFunctions() {
     return lexicalFunctions;
+  }
+
+  public String getPackageContext() {
+    return packageContext;
+  }
+
+  public void setPackageContext(String packageContext) {
+    this.packageContext = packageContext;
   }
 }

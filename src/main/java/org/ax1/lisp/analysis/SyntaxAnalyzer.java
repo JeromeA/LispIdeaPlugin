@@ -107,6 +107,7 @@ public class SyntaxAnalyzer {
   }
 
   public void analyzeForm(AnalyzerContext context, LispSexp form) {
+    form.setPackageContext(context.packageContext);
     if (form.isSymbol()) {
       LispSymbolName symbolName = form.getSymbolName();
       LexicalSymbol lexicalVariable = findLexicalVariable(symbolName);

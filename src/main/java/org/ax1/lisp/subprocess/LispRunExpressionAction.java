@@ -4,13 +4,11 @@ import com.intellij.execution.Location;
 import com.intellij.execution.PsiLocation;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
-import org.ax1.lisp.psi.LispFile;
-import org.ax1.lisp.psi.LispList;
-import org.ax1.lisp.psi.LispSexp;
-import org.ax1.lisp.psi.LispSymbol;
+import org.ax1.lisp.psi.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -23,14 +21,30 @@ public class LispRunExpressionAction extends DumbAwareAction {
 
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
-    LispServer.getInstance(e.getProject()).evaluate(getTopLevelExpression(getPsiElement(e)), true);
+    PsiElement topLevelExpression = getTopLevelExpression(getPsiElement(e));
+    if (!(topLevelExpression instanceof LispPrefixedSexp)) {
+      Messages.showErrorDialog(e.getProject(), "The top level expression is not a Sexp", "Error");
+      return;
+    }
+    LispSexp topLevelSexp = ((LispPrefixedSexp) topLevelExpression).getSexp();
+    LispServer lispServer = LispServer.getInstance(e.getProject());
+    lispServer.evaluate(getInPackageExpression(topLevelSexp.getPackageContext()), false);
+    lispServer.evaluate(topLevelExpression.getText(), true);
   }
 
-  private String getTopLevelExpression(PsiElement element) {
+  private String getInPackageExpression(String packageName) {
+    if (packageName == null) {
+      return null;
+    }
+    return "(IN-PACKAGE \"" + packageName + "\")";
+  }
+
+  @NotNull
+  private static PsiElement getTopLevelExpression(PsiElement element) {
     while (! (element.getParent() instanceof LispFile)) {
       element = element.getParent();
     }
-    return element.getText();
+    return element;
   }
 
   private static PsiElement getPsiElement(@NotNull AnActionEvent e) {

@@ -8,7 +8,6 @@ public interface BaseLispElement extends AnnotatedElement {
   void clear();
   Type getType();
   void setType(Type type);
-  void setContext(AnalyzerContext context);
 
   enum Type {
     UNKNOWN,

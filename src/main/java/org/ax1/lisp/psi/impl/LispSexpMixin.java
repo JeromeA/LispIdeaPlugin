@@ -19,4 +19,9 @@ public interface LispSexpMixin extends PsiElement, BaseLispElement {
 
   Map<Symbol, LexicalSymbol> getLexicalVariables();
   Map<Symbol, LexicalSymbol> getLexicalFunctions();
+
+  String getPackageContext();
+  // Each sexp can have a package context (and not only symbols), so that we know what package to use when
+  // running an eval on this sexp.
+  void setPackageContext(String packageContext);
 }

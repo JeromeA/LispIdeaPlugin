@@ -129,11 +129,6 @@ public class LispStringDesignatorBase<T extends StubElement> extends StubBasedPs
   }
 
   @Override
-  public void setContext(AnalyzerContext context) {
-    packageContext = context.packageContext;
-  }
-
-  @Override
   public void setErrorMessage(String errorMessage) {
     this.errorMessage = errorMessage;
   }
