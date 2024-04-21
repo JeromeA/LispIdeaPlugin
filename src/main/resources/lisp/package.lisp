@@ -1,4 +1,4 @@
 
-(defpackage #:lisp-idea-plugin
-    (:use #:cl)
-    (:export #:run-server #:evaluate-expression #:get-documentation))
+(defpackage :idea-server
+    (:use :cl :sb-gray)
+    (:export :run-server :evaluate-expression :get-documentation))

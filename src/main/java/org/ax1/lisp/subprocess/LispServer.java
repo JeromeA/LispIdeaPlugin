@@ -1,8 +1,11 @@
 package org.ax1.lisp.subprocess;
 
 import com.google.common.io.Resources;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.ide.plugins.cl.PluginClassLoader;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindowManager;
 import org.ax1.lisp.settings.LispSettingsState;
@@ -13,6 +16,11 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,7 +57,8 @@ public final class LispServer {
     try {
       System.err.println("Starting Lisp process");
       String executable = LispSettingsState.getInstance().selectedBinaryPath;
-      process = Runtime.getRuntime().exec(executable);
+      String bootstrapPath = getBootstrapPath();
+      process = Runtime.getRuntime().exec(executable + " --load " + bootstrapPath);
       Pattern portPattern = Pattern.compile(".* listening on port (\\d+)\n");
       StreamConsumer stdout = new StreamConsumer("Lisp process stdout stream", process.getInputStream(), line -> {
         log(line);
@@ -68,11 +77,8 @@ public final class LispServer {
         System.err.println(line);
       }).start();
 
-      PluginClassLoader classLoader = (PluginClassLoader) LispServer.class.getClassLoader();
-      for (String source : LISP_SERVER_SOURCES) {
-        send(Resources.toString(classLoader.getResource(source), StandardCharsets.UTF_8));
-      }
-      send("(lisp-idea-plugin:run-server)\n");
+      send("(idea-server:run-server)\n");
+
       if (socket != null) socket.close();
       socket = null;
     } catch (IOException e) {
@@ -89,6 +95,38 @@ public final class LispServer {
       }
     }
     System.err.println("Server is ready.");
+  }
+
+  private String getBootstrapPath() {
+    PluginId pluginId = PluginId.getId("org.ax1.LispIdeaPlugin");
+    IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(pluginId);
+    Path pluginPath = plugin.getPath().toPath();
+    Path lispPath = pluginPath.resolve("lisp-idea-server");
+    if (!Files.exists(lispPath)) {
+      try {
+        Files.createDirectories(lispPath);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      List<String> files = Arrays.asList("bootstrap.lisp", "package.lisp", "evaluate.lisp", "server.lisp");
+      for (String filename : files) {
+        copyResourceToFile("lisp/" + filename, lispPath.resolve(filename));
+      }
+    }
+    return lispPath.resolve("bootstrap.lisp").toString();
+  }
+
+  private static void copyResourceToFile(String resourcePath, Path outputPath) {
+    try (InputStream is = LispServer.class.getClassLoader().getResourceAsStream(resourcePath)) {
+      if (is == null) {
+        System.out.println("Resource not found: " + resourcePath);
+        return;
+      }
+      Files.copy(is, outputPath, StandardCopyOption.REPLACE_EXISTING);
+      System.out.println("Copied " + resourcePath + " to " + outputPath);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   private void send(String line) throws IOException {

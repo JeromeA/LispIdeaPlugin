@@ -1,5 +1,5 @@
 
-(in-package #:lisp-idea-plugin)
+(in-package #:idea-server)
 
 (defun get-documentation ()
     "Scan and display the documentation of all the symbols exported by COMMON-LISP package."

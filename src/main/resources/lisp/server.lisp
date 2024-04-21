@@ -1,5 +1,5 @@
 
-(in-package #:lisp-idea-plugin)
+(in-package #:idea-server)
 
 (defparameter *server-address* '(127 0 0 1))
 (defparameter *server-port* 0)
@@ -27,8 +27,9 @@
                   collect line)))
 
 (defun repl (stream)
-    (loop (write-string (evaluate-expression (read-until-separator stream "--"))
-                        stream)))
+    (loop (evaluate-expression (read-until-separator stream "--")
+                               stream
+                               "42")))
 
 (defun run-server ()
     (let ((socket (make-server-socket)))
