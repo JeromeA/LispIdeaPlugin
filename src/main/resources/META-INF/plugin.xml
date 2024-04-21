@@ -97,6 +97,7 @@
   </extensions>
   <actions>
     <action id="LispRunExpressionAction" class="org.ax1.lisp.subprocess.LispRunExpressionAction"/>
+    <action id="LispLoadFileAction" class="org.ax1.lisp.subprocess.LispLoadFileAction"/>
     <group text="Lisp" icon="/icons/lambda.svg" popup="true">
       <action id="UpdateDocumentation" class="org.ax1.lisp.action.UpdateDocumentation" />
       <action id="InternalTest" class="org.ax1.lisp.action.Debug" />

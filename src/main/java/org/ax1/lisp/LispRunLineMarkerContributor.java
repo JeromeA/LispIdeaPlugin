@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import org.ax1.lisp.psi.*;
+import org.ax1.lisp.subprocess.LispLoadFileAction;
 import org.ax1.lisp.subprocess.LispRunExpressionAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,6 +21,11 @@ public class LispRunLineMarkerContributor extends RunLineMarkerContributor imple
 
   @Override
   public @Nullable Info getInfo(@NotNull PsiElement element) {
+    if (element.getParent() instanceof LispFile && element.getStartOffsetInParent() == 0) {
+      return new Info(AllIcons.RunConfigurations.TestState.Run,
+          psiElement -> "Evaluate file",
+          ActionManager.getInstance().getAction(LispLoadFileAction.ID));
+    }
     if (!isTopLevel(element)) return null;
     return new Info(AllIcons.RunConfigurations.TestState.Run,
         this::getToolTip,

@@ -48,7 +48,7 @@ public class LispRunExpressionAction extends DumbAwareAction {
   }
 
   private static PsiElement getPsiElement(@NotNull AnActionEvent e) {
-    PsiLocation<PsiElement> location = (PsiLocation<PsiElement>) e.getDataContext().getData(Location.DATA_KEY);
+    PsiLocation<PsiElement> location = (PsiLocation<PsiElement>) e.getData(Location.DATA_KEY);
     if (location == null) return null;
     return location.getPsiElement();
   }
