@@ -23,6 +23,8 @@ public class LispLoadFileAction extends DumbAwareAction {
 
   @Override
   public void update(@NotNull AnActionEvent actionEvent) {
-    actionEvent.getPresentation().setText("Load File2");
+    VirtualFile file = actionEvent.getData(CommonDataKeys.VIRTUAL_FILE);
+    if (file == null) return;
+    actionEvent.getPresentation().setText("Load File " + file.getName());
   }
 }

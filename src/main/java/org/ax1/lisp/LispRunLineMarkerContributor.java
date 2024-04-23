@@ -21,6 +21,9 @@ public class LispRunLineMarkerContributor extends RunLineMarkerContributor imple
 
   @Override
   public @Nullable Info getInfo(@NotNull PsiElement element) {
+    // Required by the API.
+    if (!(element instanceof LeafPsiElement)) return null;
+
     if (element.getParent() instanceof LispFile && element.getStartOffsetInParent() == 0) {
       return new Info(AllIcons.RunConfigurations.TestState.Run,
           psiElement -> "Evaluate file",
@@ -66,7 +69,6 @@ public class LispRunLineMarkerContributor extends RunLineMarkerContributor imple
    * Whether this element is the first token of a top-level sexp.
    */
   private boolean isTopLevel(PsiElement element) {
-    if (!(element instanceof LeafPsiElement)) return false;
     while(true) {
       PsiElement parent = element.getParent();
       if (parent.getFirstChild() != element) return false;
