@@ -100,7 +100,7 @@ public final class LispServer {
   private String getBootstrapPath() {
     PluginId pluginId = PluginId.getId("org.ax1.LispIdeaPlugin");
     IdeaPluginDescriptor plugin = PluginManagerCore.getPlugin(pluginId);
-    Path pluginPath = plugin.getPath().toPath();
+    Path pluginPath = plugin.getPluginPath();
     Path lispPath = pluginPath.resolve("lisp-idea-server");
     if (!Files.exists(lispPath)) {
       try {
