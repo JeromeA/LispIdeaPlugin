@@ -47,3 +47,14 @@ javacc {
         }
     }
 }
+
+signPlugin {
+  certificateChain = providers.environmentVariable("LISP_PLUGIN_CERTIFICATE_CHAIN")
+  privateKey = providers.environmentVariable("LISP_PLUGIN_PRIVATE_KEY")
+  password = providers.environmentVariable("LISP_PLUGIN_PRIVATE_KEY_PASSWORD")
+}
+
+publishPlugin {
+  token = providers.environmentVariable("LISP_PLUGIN_PUBLISH_TOKEN")
+}
+
