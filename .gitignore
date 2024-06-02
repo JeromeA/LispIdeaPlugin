@@ -11,3 +11,6 @@ jflex-*.jar
 .gradle
 build/
 
+# Developer-local tests
+src/test/lisp/local-*
+
