@@ -104,7 +104,7 @@ public final class ProjectData {
 
   @Nullable
   private LispStringDesignator getSingleIndexValue(StubIndexKey<String, LispStringDesignator> functionDefinitions, String name) {
-    Collection<LispStringDesignator> results = StubIndex.getInstance().get(functionDefinitions, name, project, null);
+    Collection<LispStringDesignator> results = StubIndex.getElements(functionDefinitions, name, project, null, LispStringDesignator.class);
     if (results.isEmpty()) return null;
     return results.iterator().next();
   }
@@ -130,7 +130,7 @@ public final class ProjectData {
   }
 
   public Collection<LispStringDesignator> getPackageUsages(String name) {
-    return StubIndex.getInstance().get(PACKAGE_USAGES, name, project, null);
+    return StubIndex.getElements(PACKAGE_USAGES, name, project, null, LispStringDesignator.class);
   }
 
   private LispStringDesignator getSymbol(StubIndexKey<String, LispStringDesignator> indexKey, LispStringDesignator name) {
@@ -140,7 +140,7 @@ public final class ProjectData {
   }
 
   private Collection<LispStringDesignator> getSymbols(StubIndexKey<String, LispStringDesignator> indexKey, LispStringDesignator name) {
-    return StubIndex.getInstance().get(indexKey, name.getLispName(), project, null).stream()
+    return StubIndex.getElements(indexKey, name.getLispName(), project, null, LispStringDesignator.class).stream()
         .filter(it -> it.getPackageName().equals(name.getPackageName())).collect(Collectors.toUnmodifiableList());
   }
 }
