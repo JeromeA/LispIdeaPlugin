@@ -5,7 +5,6 @@ import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.Strings;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import org.ax1.lisp.analysis.BaseLispElement;
@@ -58,7 +57,7 @@ public class UndefinedFunctionInspection extends LocalInspectionTool {
           .forEach(sexp -> parameters.add(argToParameterName(parameters, sexp)));
       LispPrefixedSexp function = createSexp(project,
           "(defun " + symbolName.getText()
-              + " (" + Strings.join(parameters, " ") + ")\n"
+              + " (" + String.join(" ", parameters) + ")\n"
               + "    (error \"Not implemented\"))");
       // Add the function.
       LispPrefixedSexp topLevelContainer = getTopLevel(symbolName);
