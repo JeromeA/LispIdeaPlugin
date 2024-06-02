@@ -1,12 +1,9 @@
 package org.ax1.lisp.subprocess;
 
-import com.intellij.execution.Location;
-import com.intellij.execution.PsiLocation;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
 
