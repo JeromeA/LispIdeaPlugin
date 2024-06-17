@@ -22,7 +22,7 @@ sourceSets.main.java.srcDirs 'src/main/gen'
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version = '2021.3'
+    version = '2021.1'
 }
 
 patchPluginXml {
@@ -30,7 +30,7 @@ patchPluginXml {
       This is a very early release.<br>
       Don't use it."""
     sinceBuild = "211"
-    untilBuild = "223.*"
+    untilBuild = "242"
 }
 
 test {
