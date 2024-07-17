@@ -6,7 +6,7 @@ import org.ax1.lisp.psi.impl.LispStringDesignator;
 import org.jetbrains.annotations.NotNull;
 
 public class LispPackageDefinitionIndex extends StringStubIndexExtension<LispStringDesignator> {
-  public static final StubIndexKey<String, LispStringDesignator> PACKAGE_DEFINITIONS = StubIndexKey.createIndexKey("lisp.variable.definitions");
+  public static final StubIndexKey<String, LispStringDesignator> PACKAGE_DEFINITIONS = StubIndexKey.createIndexKey("lisp.package.definitions");
 
   @Override
   public @NotNull StubIndexKey<String, LispStringDesignator> getKey() {
