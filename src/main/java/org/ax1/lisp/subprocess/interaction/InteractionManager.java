@@ -4,21 +4,39 @@ import com.intellij.openapi.project.Project;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
-public class InteractionManager {
+public class InteractionManager extends Thread {
+
+  private static final int QUEUE_CAPACITY = 10;
 
   private final List<Interaction> interactions = new ArrayList<>();
   private final List<ChangeListener> listeners = new ArrayList<>();
+  private final BlockingQueue<Interaction> interactionsToRun = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
   private final InteractionRunner runner;
 
   public InteractionManager(Project project) {
+    super("Interaction manager");
     runner = new InteractionRunner(project);
+    start();
   }
 
   public void add(Interaction interaction) {
     interactions.add(interaction);
-    runner.queue(interaction);
+    interactionsToRun.add(interaction);
     fireChanged();
+  }
+
+  @SuppressWarnings("InfiniteLoopStatement")
+  @Override
+  public synchronized void run() {
+    while(true) {
+      try {
+        runner.runInteraction(interactionsToRun.take());
+      } catch (InterruptedException ignored) {
+      }
+    }
   }
 
   public void addListener(ChangeListener listener) {

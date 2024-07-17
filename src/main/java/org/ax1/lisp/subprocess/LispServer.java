@@ -1,9 +1,7 @@
 package org.ax1.lisp.subprocess;
 
-import com.google.common.io.Resources;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManagerCore;
-import com.intellij.ide.plugins.cl.PluginClassLoader;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
@@ -15,12 +13,9 @@ import org.ax1.lisp.subprocess.interaction.InteractionManager;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,7 +26,7 @@ import static com.intellij.openapi.components.Service.Level.PROJECT;
 public final class LispServer {
 
   private static final String[] LISP_SERVER_SOURCES = {
-      "lisp/package.lisp", "lisp/evaluate.lisp", "lisp/server.lisp", "lisp/get-documentation.lisp"
+      "bootstrap.lisp", "package.lisp", "evaluate.lisp", "server.lisp"
   };
   private Process process;
   private Socket socket;
@@ -52,38 +47,43 @@ public final class LispServer {
 
   /** Start the subprocess server if necessary, and block until it's ready. */
   @SuppressWarnings("UnstableApiUsage")
-  private void ensureProcessRunning() {
+  private void ensureProcessRunning() throws IOException {
     if (process != null && process.isAlive()) return;
-    try {
-      System.err.println("Starting Lisp process");
-      String executable = LispSettingsState.getInstance().selectedBinaryPath;
-      String bootstrapPath = getBootstrapPath();
-      process = Runtime.getRuntime().exec(executable + " --load " + bootstrapPath);
-      Pattern portPattern = Pattern.compile(".* listening on port (\\d+)\n");
-      StreamConsumer stdout = new StreamConsumer("Lisp process stdout stream", process.getInputStream(), line -> {
-        log(line);
-        Matcher portMatcher = portPattern.matcher(line);
-        if (portMatcher.matches()) {
-          synchronized (serverReady) {
-            serverPort = Integer.parseInt(portMatcher.group(1));
-            serverReady.set(true);
-            serverReady.notify();
-          }
-        }
-      });
-      stdout.start();
-      new StreamConsumer("Lisp process stderr stream", process.getErrorStream(), line -> {
-        log(line);
-        System.err.println(line);
-      }).start();
 
-      send("(idea-server:run-server)\n");
-
-      if (socket != null) socket.close();
-      socket = null;
-    } catch (IOException e) {
-      e.printStackTrace();
+    System.err.println("Starting Lisp process");
+    String binaryPathName = LispSettingsState.getInstance().selectedBinaryPathName;
+    if (binaryPathName.isEmpty()) {
+      throw new IOException("No Lisp binary selected.");
     }
+    Path binaryPath = Path.of(binaryPathName);
+    if (!Files.exists(binaryPath)) {
+      throw new IOException("Could not find Lisp binary at " + binaryPath);
+    }
+    String bootstrapPath = getBootstrapPath();
+    process = Runtime.getRuntime().exec(binaryPath + " --load " + bootstrapPath);
+    Pattern portPattern = Pattern.compile(".* listening on port (\\d+)\n");
+    StreamConsumer stdout = new StreamConsumer("Lisp process stdout stream", process.getInputStream(), line -> {
+      log(line);
+      Matcher portMatcher = portPattern.matcher(line);
+      if (portMatcher.matches()) {
+        synchronized (serverReady) {
+          serverPort = Integer.parseInt(portMatcher.group(1));
+          serverReady.set(true);
+          serverReady.notify();
+        }
+      }
+    });
+    stdout.start();
+    new StreamConsumer("Lisp process stderr stream", process.getErrorStream(), line -> {
+      log(line);
+      System.err.println(line);
+    }).start();
+
+    send("(idea-server:run-server)\n");
+
+    if (socket != null) socket.close();
+    socket = null;
+
     System.err.println("Waiting for the server to be ready.");
     synchronized (serverReady) {
       while (!serverReady.get()) {
@@ -108,8 +108,7 @@ public final class LispServer {
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
-      List<String> files = Arrays.asList("bootstrap.lisp", "package.lisp", "evaluate.lisp", "server.lisp");
-      for (String filename : files) {
+      for (String filename : LISP_SERVER_SOURCES) {
         copyResourceToFile("lisp/" + filename, lispPath.resolve(filename));
       }
     }
@@ -150,7 +149,7 @@ public final class LispServer {
     return interactionManager;
   }
 
-  public Socket getSocket() {
+  public Socket getSocket() throws IOException {
     ensureProcessRunning();
     try {
       if (socket == null || !socket.isConnected()) {

@@ -17,6 +17,7 @@ public class Interaction {
   private boolean completed;
 
   public Interaction(String expression, boolean visible) {
+    System.err.println("Creating interaction: " + this.hashCode() + " for " + expression);
     this.expression = expression;
     this.visible = visible;
   }
@@ -80,11 +81,13 @@ public class Interaction {
   }
 
   public synchronized void markAsComplete() {
+    System.err.println("Marking as complete: " + this.hashCode());
     completed = true;
     notify();
   }
 
   public synchronized void waitUntilComplete() {
+    System.err.println("Waiting for completion of " + this.hashCode());
     while (!completed) {
       try {
         wait();

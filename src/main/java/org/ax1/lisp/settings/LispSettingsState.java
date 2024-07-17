@@ -19,7 +19,7 @@ import java.util.List;
 public class LispSettingsState implements PersistentStateComponent<LispSettingsState> {
 
   public List<String> binaryPaths = new ArrayList<>();
-  public String selectedBinaryPath = null;
+  public String selectedBinaryPathName = null;
 
   public LispSettingsState() {
     setDefaultValues();
@@ -43,6 +43,6 @@ public class LispSettingsState implements PersistentStateComponent<LispSettingsS
     binaryPaths = ExecutableFinder.create()
         .withExtraPaths(List.of("/usr/bin", "/usr/local/bin"))
         .find(List.of("sbcl", "clisp", "ecl"));
-    selectedBinaryPath = binaryPaths.isEmpty() ? "" : binaryPaths.get(0);
+    selectedBinaryPathName = binaryPaths.isEmpty() ? "" : binaryPaths.get(0);
   }
 }

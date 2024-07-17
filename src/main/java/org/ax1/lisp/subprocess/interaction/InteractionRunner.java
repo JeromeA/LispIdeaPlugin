@@ -7,37 +7,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 /** Run an Interaction against the LispServer, and feed it with results. */
-public class InteractionRunner extends Thread {
-
-  private static final int QUEUE_CAPACITY = 10;
+public class InteractionRunner {
 
   private static Project project;
-  private final BlockingQueue<Interaction> interactionsToRun = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
-  private String currentSection;
 
   public InteractionRunner(Project project) {
-    super("Interaction runner");
     InteractionRunner.project = project;
-    start();
-  }
-
-  @SuppressWarnings("InfiniteLoopStatement")
-  @Override
-  public synchronized void run() {
-    while(true) {
-      try {
-        runInteraction(interactionsToRun.take());
-      } catch (InterruptedException ignored) {
-      }
-    }
-  }
-
-  public void queue(Interaction interaction) {
-    interactionsToRun.add(interaction);
   }
 
   /**
@@ -91,6 +68,7 @@ public class InteractionRunner extends Thread {
       }
     } catch (IOException e) {
       e.printStackTrace();
+      interaction.addError("Could not evaluate expression: " + e.getMessage());
     } finally {
       interaction.markAsComplete();
     }
