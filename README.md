@@ -19,3 +19,10 @@ A much more advanced plugin for Common Lisp is [SLT](https://github.com/Enerccio
 * It doesn't work well with macros that are not part of Common Lisp.
 * It doesn't have a debugger.
 
+## Installing
+
+* Go to `Settings -> Plugins -> Manage Plugin Repositories`.
+* Add `https://plugins.jetbrains.com/plugins/alpha/list` to the list of plugin repositories.
+* Go to `Settings -> Plugins -> Marketplace`.
+* Search for `Common Lisp`.
+* Click on `Install`.
