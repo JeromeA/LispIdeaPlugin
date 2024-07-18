@@ -59,8 +59,8 @@ public final class LispServer {
     if (!Files.exists(binaryPath)) {
       throw new IOException("Could not find Lisp binary at " + binaryPath);
     }
-    String bootstrapPath = getBootstrapPath();
-    process = Runtime.getRuntime().exec(binaryPath + " --load " + bootstrapPath);
+    String[] command = {binaryPathName, "--load", getBootstrapPath()};
+    process = Runtime.getRuntime().exec(command);
     Pattern portPattern = Pattern.compile(".* listening on port (\\d+)\n");
     StreamConsumer stdout = new StreamConsumer("Lisp process stdout stream", process.getInputStream(), line -> {
       log(line);
