@@ -30,7 +30,7 @@ patchPluginXml {
       This is a very early release.<br>
       Don't use it."""
     sinceBuild = "232"
-    untilBuild = "242"
+    untilBuild = "242.*"
 }
 
 test {
