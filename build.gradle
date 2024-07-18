@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.intellij' version '1.15.0'
+    id 'org.jetbrains.intellij' version '1.16.1'
     id 'java'
     id 'com.intershop.gradle.javacc' version '4.1.3'
 }
@@ -22,14 +22,14 @@ sourceSets.main.java.srcDirs 'src/main/gen'
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version = '2023.1'
+    version = '2023.2'
 }
 
 patchPluginXml {
     changeNotes = """
       This is a very early release.<br>
       Don't use it."""
-    sinceBuild = "231"
+    sinceBuild = "232"
     untilBuild = "242"
 }
 
