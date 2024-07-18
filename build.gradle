@@ -22,14 +22,14 @@ sourceSets.main.java.srcDirs 'src/main/gen'
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version = '2024.1'
+    version = '2023.1'
 }
 
 patchPluginXml {
     changeNotes = """
       This is a very early release.<br>
       Don't use it."""
-    sinceBuild = "241"
+    sinceBuild = "231"
     untilBuild = "242"
 }
 
