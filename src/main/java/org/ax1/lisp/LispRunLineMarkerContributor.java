@@ -3,6 +3,7 @@ package org.ax1.lisp;
 import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
@@ -26,13 +27,17 @@ public class LispRunLineMarkerContributor extends RunLineMarkerContributor imple
 
     if (element.getParent() instanceof LispFile && element.getStartOffsetInParent() == 0) {
       return new Info(AllIcons.RunConfigurations.TestState.Run,
-          psiElement -> "Evaluate file",
-          ActionManager.getInstance().getAction(LispLoadFileAction.ID));
+          getActions(LispLoadFileAction.ID),
+          psiElement -> "Evaluate file");
     }
     if (!isTopLevel(element)) return null;
     return new Info(AllIcons.RunConfigurations.TestState.Run,
-        this::getToolTip,
-        ActionManager.getInstance().getAction(LispRunExpressionAction.ID));
+        getActions(LispRunExpressionAction.ID),
+        this::getToolTip);
+  }
+
+  private static AnAction @NotNull [] getActions(String id) {
+    return new AnAction[]{ActionManager.getInstance().getAction(id)};
   }
 
   private String getToolTip(PsiElement element) {
