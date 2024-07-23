@@ -4,13 +4,17 @@ An IntelliJ plugin to support Common Lisp.
 
 ## Approach
 
-This plugin tries to support Common Lisp through static analysis. It's more work, but it allows better real-time features:
+This plugin tries to support Common Lisp through static analysis. It's more work, but it allows better real-time
+features:
+
 * As soon as a name is changed, all the references and usages are updated in real time.
 * As soon as anything changes, it knows exactly what information just became stale.
 * It knows about completions even in an incomplete SEXP.
-* It can display modern IDE information in real time. Showing error messages in the code, or highlighting unused variables requires knowing what changes in the file can invalidate this information.
+* It can display modern IDE information in real time. Showing error messages in the code, or highlighting unused
+variables requires knowing what changes in the file can invalidate this information.
 
-A much more advanced plugin for Common Lisp is [SLT](https://github.com/Enerccio/SLT). One of the reasons it's more advanced is because it doesn't need to be that smart: it just queries SWANK on demand.
+A much more advanced plugin for Common Lisp is [SLT](https://github.com/Enerccio/SLT). One of the reasons it's more
+advanced is because it doesn't need to be that smart: it just queries SWANK on demand.
 
 ## Limitations
 
@@ -20,6 +24,9 @@ A much more advanced plugin for Common Lisp is [SLT](https://github.com/Enerccio
 * It doesn't have a debugger.
 
 ## Installing
+
+The plugin is [[live in Jetbrain Marketplace|https://plugins.jetbrains.com/plugin/24556-common-lisp/edit/versions/alpha]]
+however the marketplace Alpha channel is not very visible from Intellij. Here are detailed instructions:
 
 * Go to `Settings -> Plugins -> Manage Plugin Repositories`.
 * Add `https://plugins.jetbrains.com/plugins/alpha/list` to the list of plugin repositories.
@@ -59,8 +66,7 @@ For everything that the plugin can check, it will highlight errors in the code. 
 
 #### Completion
 
-Control+space to complete a symbol. The completion list is based on the symbol's package, and the context in which it's
-used (variable, function, etc).
+Control+space to complete a symbol. The completion list is based the context in which it's used (variable, function, etc).
 
 #### Renaming
 
@@ -76,4 +82,5 @@ macro call, etc).
 
 ### Running code
 
-ctrl+shift+F10 to run the current sexp.
+The current top level sexp can be run by pressing ctrl+shift+F10, or by clicking the run button from the gutter.
+
