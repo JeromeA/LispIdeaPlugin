@@ -63,10 +63,11 @@ public class LispBlock extends AbstractBlock {
   @Override
   protected List<Block> buildChildren() {
     // We want to cover the following cases:
-    // - myNode is a LISP_FILE, its children are PREFIXED_SEXP -> scan it
-    // - myNode is a PREFIXED_SEXP, it can have multiple children -> scan it
+    // - myNode is a LISP_FILE, its children are PREFIXED_SEXP -> scan this list
+    // - myNode is a PREFIXED_SEXP, it can have multiple children -> scan this list
     // - myNode is a SEXP, and its child is a LIST -> scan that list
     // - myNode is a SEXP, and its child is not a LIST -> empty list
+    // - anything else -> empty list
     List<Block> children = new ArrayList<>();
     ASTNode node = myNode;
     if (myNode.getElementType() == SEXP) {
@@ -91,10 +92,8 @@ public class LispBlock extends AbstractBlock {
           argIsAlignment0 = 3;
         }
       }
-      boolean isSexp = child.getElementType() != RPAREN;
       boolean isBeyondAlignment = children.size() >= childrenAlignmentMode + 1;
-      boolean childAligned = isSexp && isBeyondAlignment;
-      LispBlock block = new LispBlock(child, childAligned ? childAlignment : null);
+      LispBlock block = new LispBlock(child, isBeyondAlignment ? childAlignment : null);
       if (argIsAlignment0 > 0 && children.size() == argIsAlignment0 + 1) {
         // This child is the prefixed sexp, its child is the sexp.
         block.nodeChildrenAlignmentModeZero = child.getFirstChildNode();
@@ -138,12 +137,15 @@ public class LispBlock extends AbstractBlock {
 
   @Override
   public Indent getIndent() {
-    // - If we are not a PrefixedSexp, we have no indent, otherwise we would end up with multiple indent levels instead
-    // of one between a list and its elements.
+    // - If we are not a PrefixedSexp, we have no indent, otherwise we would end up with multiple
+    // indent levels instead of one between a list and its elements. The only exception is a closing paren.
     // - If we are the first element of our parents, all the way to root, we are a toplevel, and we have an absolute
     // none indent.
     // - Otherwise, we have a normal indent.
     PsiElement element = getNode().getPsi();
+    if (getNode().getElementType() == RPAREN) {
+      return Indent.getNormalIndent();
+    }
     if (!(element instanceof LispPrefixedSexp)) {
       return Indent.getNoneIndent();
     }
